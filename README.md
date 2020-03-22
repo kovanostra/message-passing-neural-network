@@ -1,3 +1,5 @@
+[![Build Status](https://dev.azure.com/kovamos/protein-folding/_apis/build/status/kovanostra.protein-folding?branchName=master)](https://dev.azure.com/kovamos/protein-folding/_build/latest?definitionId=2&branchName=master)
+
 ### Requirements
 Python 3.7.6
 
