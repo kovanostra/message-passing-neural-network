@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-import numpy as np
+import torch as to
 
 from src.domain.graph_encoder import GraphEncoder
 from src.domain.graph import Graph
@@ -28,7 +28,7 @@ class TestGraphEncoder(TestCase):
         # Given
         self.graph_encoder.time_steps = 1
         node = 0
-        node_encoding_expected = np.array([0.3909883, 0.3909883])
+        node_encoding_expected = to.tensor([0.3909883, 0.3909883])
         graph = Graph(BASE_GRAPH,
                       BASE_GRAPH_NODE_FEATURES,
                       BASE_GRAPH_EDGE_FEATURES)
@@ -37,7 +37,7 @@ class TestGraphEncoder(TestCase):
         node_encoding = self.graph_encoder.encode(graph)[node]
 
         # Then
-        self.assertTrue(np.allclose(node_encoding_expected, node_encoding))
+        self.assertTrue(to.allclose(node_encoding_expected, node_encoding))
 
     def test_encode_graph_returns_the_expected_shape(self):
         # Given
@@ -51,4 +51,4 @@ class TestGraphEncoder(TestCase):
         encoded_graph_shape = self.graph_encoder.encode(graph).shape
 
         # Then
-        self.assertTrue(np.allclose(encoded_graph_shape_expected, encoded_graph_shape))
+        self.assertTrue(to.allclose(encoded_graph_shape_expected, encoded_graph_shape))
