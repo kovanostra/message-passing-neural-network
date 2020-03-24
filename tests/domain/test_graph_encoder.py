@@ -51,4 +51,4 @@ class TestGraphEncoder(TestCase):
         encoded_graph_shape = self.graph_encoder.encode(graph).shape
 
         # Then
-        self.assertTrue(to.allclose(encoded_graph_shape_expected, encoded_graph_shape))
+        self.assertEqual(encoded_graph_shape_expected, encoded_graph_shape)

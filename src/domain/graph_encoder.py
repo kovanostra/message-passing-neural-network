@@ -5,7 +5,7 @@ import torch.nn as nn
 
 from src.domain.edge import Edge
 from src.domain.interface.message import Message
-from src.domain.message_gru import MessageGRU
+from src.domain.message_gru import Message
 from src.domain.node import Node
 from src.domain.graph import Graph
 
@@ -71,8 +71,8 @@ class GraphEncoder(nn.Module):
         return encoded_node
 
     def _apply_recurrent_layer_for_node(self, graph: Graph, messages: Any, node_id: int) -> Any:
-        node_encoding_features = self.u_graph_node_features[node_id].mm(graph.node_features[node_id])
-        node_encoding_messages = self.u_graph_neighbor_messages[node_id].mm(to.sum(messages[node_id], dim=0))
+        node_encoding_features = self.u_graph_node_features[node_id].matmul(graph.node_features[node_id].double())
+        node_encoding_messages = self.u_graph_neighbor_messages[node_id].matmul(to.sum(messages[node_id], dim=0).double())
         return to.relu(node_encoding_features + node_encoding_messages)
 
     def _compose_messages_from_nodes_to_targets(self, graph: Graph, messages: Any) -> Any:
@@ -113,17 +113,17 @@ class GraphEncoder(nn.Module):
             edge)
         edge_slice = edge.get_edge_slice()
         update_gate_output = to.sigmoid(
-            self.w_gru_update_gate_features[edge_slice].mm(graph.node_features[node.node_id]) +
-            self.u_gru_update_gate[edge_slice].mm(message_from_a_neighbor_other_than_target.value) +
+            self.w_gru_update_gate_features[edge_slice].matmul(graph.node_features[node.node_id].double()) +
+            self.u_gru_update_gate[edge_slice].matmul(message_from_a_neighbor_other_than_target.value.double()) +
             self.b_gru_update_gate)
         return update_gate_output
 
     def _get_current_memory_message(self, messages: Any, node: Node, edge: Edge, graph: Graph) -> Any:
         messages_passed_through_reset_gate = self._keep_or_reset_messages(messages, node, edge, graph)
         edge_slice = edge.get_edge_slice()
-        current_memory_message = self.w_gru_current_memory_message_features[edge_slice].mm(
-            graph.node_features[node.node_id]) + self.u_gru_current_memory_message[edge_slice].mm(
-            messages_passed_through_reset_gate) + self.b_gru_current_memory_message
+        current_memory_message = self.w_gru_current_memory_message_features[edge_slice].matmul(
+            graph.node_features[node.node_id].double()) + self.u_gru_current_memory_message[edge_slice].matmul(
+            messages_passed_through_reset_gate.double()) + self.b_gru_current_memory_message
         return to.tanh(current_memory_message)
 
     def _keep_or_reset_messages(self, messages: Any, node: Node, edge: Edge, graph: Graph) -> Any:
@@ -137,14 +137,14 @@ class GraphEncoder(nn.Module):
             reset_edge_slice = reset_edge.get_edge_slice()
             reset_gate_output = self._pass_through_reset_gate(messages, node, reset_edge, graph)
             messages_from_the_other_neighbors_summed.value += reset_gate_output * messages[reset_edge_slice]
-        return self.u_gru_current_memory_message[edge_slice].mm(messages_from_the_other_neighbors_summed.value)
+        return self.u_gru_current_memory_message[edge_slice].matmul(messages_from_the_other_neighbors_summed.value.double())
 
     def _pass_through_reset_gate(self, messages: Any, node: Node, edge: Edge, graph: Graph) -> Any:
         edge_slice = edge.get_edge_slice()
         message_from_a_neighbor_other_than_target = messages[edge_slice]
         reset_gate_output = to.sigmoid(
-            self.w_gru_update_gate_features[edge_slice].mm(graph.node_features[node.node_id]) +
-            self.u_gru_update_gate[edge_slice].mm(message_from_a_neighbor_other_than_target) +
+            self.w_gru_update_gate_features[edge_slice].matmul(graph.node_features[node.node_id].double()) +
+            self.u_gru_update_gate[edge_slice].matmul(message_from_a_neighbor_other_than_target.double()) +
             self.b_gru_update_gate)
         return reset_gate_output
 
@@ -158,5 +158,5 @@ class GraphEncoder(nn.Module):
 
     @staticmethod
     def _create_message() -> Message:
-        return MessageGRU()
+        return Message()
 
