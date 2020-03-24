@@ -13,11 +13,12 @@ def main(debug):
     setup_logging(log_level)
 
 
-@click.command('train', help='Starts the training')
+@click.command('start_training', help='Starts the training')
 @click.argument('epochs', default=10, envvar='epochs', type=int)
 @click.argument('loss_function', default='MSE', envvar='loss_function', type=str)
 @click.argument('optimizer', default='adam', envvar='optimizer', type=str)
-def start(epochs: int, loss_function: str, optimizer: str) -> None:
+def start_training(epochs: int, loss_function: str, optimizer: str) -> None:
+    get_logger().info("Starting training")
     message_passing_nn = create(epochs, loss_function, optimizer)
     message_passing_nn.start()
 
@@ -45,7 +46,7 @@ def get_logger() -> logging.Logger:
     return logging.getLogger('message_passing_nn')
 
 
-main.add_command(start)
+main.add_command(start_training)
 
 if __name__ == '__main__':
     main()
