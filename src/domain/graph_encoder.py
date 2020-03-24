@@ -1,14 +1,14 @@
 import numpy as np
+import torch as to
 
 from src.domain.edge import Edge
 from src.domain.interface.message import Message
 from src.domain.message_gru import MessageGRU
 from src.domain.node import Node
 from src.domain.graph import Graph
-from src.domain.interface.encoder import Encoder
 
 
-class GraphEncoder(Encoder):
+class GraphEncoder():
     def __init__(self):
 
         self.time_steps = None
