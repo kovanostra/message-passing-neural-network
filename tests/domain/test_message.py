@@ -2,12 +2,12 @@ from unittest import TestCase
 
 import numpy as np
 
-from src.domain.message_gru import MessageGRU
+from src.domain.message_gru import Message
 
 
 class TestMessage(TestCase):
     def setUp(self) -> None:
-        self.message = MessageGRU()
+        self.message = Message()
         self.message.update_gate = np.array([1, 2])
         self.message.previous_messages = np.array([-2, 2])
         self.message.current_memory = np.array([-1, 1])

@@ -1,6 +1,7 @@
 from unittest import TestCase
 
 import numpy as np
+import torch as to
 
 from src.domain.edge import Edge
 from src.domain.graph import Graph

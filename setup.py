@@ -9,6 +9,7 @@ setup(
     author='Michail Kovanis',
     description='',
     install_requires=[
-        'numpy==1.17.4'
-    ],
+        'numpy==1.17.4',
+        'torch==1.4.0'
+    ]
 )
