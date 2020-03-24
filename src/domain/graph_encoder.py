@@ -4,10 +4,9 @@ import torch as to
 import torch.nn as nn
 
 from src.domain.edge import Edge
-from src.domain.interface.message import Message
+from src.domain.graph import Graph
 from src.domain.message_gru import Message
 from src.domain.node import Node
-from src.domain.graph import Graph
 
 
 class GraphEncoder(nn.Module):

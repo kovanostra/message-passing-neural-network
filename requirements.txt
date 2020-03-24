@@ -1,3 +1,4 @@
+click
 numpy==1.17.4
 tox==3.14.3
 torch==1.4.0
