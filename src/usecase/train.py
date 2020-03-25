@@ -1,3 +1,5 @@
+import logging
+
 from torch import nn, optim
 
 from src.domain.graph_encoder import GraphEncoder
@@ -26,7 +28,11 @@ class Train:
             self.optimizer.step()
 
             running_loss += loss.item()
-            print('[%d] loss: %.3f' % (epoch + 1, running_loss))
+            self.get_logger().info('[%d] loss: %.3f' % (epoch + 1, running_loss))
 
-        print('Finished Training')
+        self.get_logger().info('Finished Training')
         return running_loss
+
+    @staticmethod
+    def get_logger() -> logging.Logger:
+        return logging.getLogger('message_passing_nn')
