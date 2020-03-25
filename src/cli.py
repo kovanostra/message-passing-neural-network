@@ -6,17 +6,17 @@ import click
 from src.message_passing_nn import create
 
 
-@click.group('message_passing_nn')
-@click.option('--debug', default=False, help='Set the logs to debug level', is_flag=True)
+@click.group("message-passing-nn")
+@click.option('--debug', default=False, help='Set the logs to debug level', show_default=True, is_flag=True)
 def main(debug):
     log_level = logging.DEBUG if debug else logging.INFO
     setup_logging(log_level)
 
 
-@click.command('start_training', help='Starts the training')
-@click.argument('epochs', default=10, envvar='epochs', type=int)
-@click.argument('loss_function', default='MSE', envvar='loss_function', type=str)
-@click.argument('optimizer', default='adam', envvar='optimizer', type=str)
+@click.command("start-training", help='Starts the training')
+@click.option('--epochs', default=10, help='Set the number of epochs', show_default=True, type=int)
+@click.option('--loss_function', default='MSE', help='Set the loss function', show_default=True, type=str)
+@click.option('--optimizer', default='adam', help='Set the optimizer', show_default=True, type=str)
 def start_training(epochs: int, loss_function: str, optimizer: str) -> None:
     get_logger().info("Starting training")
     message_passing_nn = create(epochs, loss_function, optimizer)
