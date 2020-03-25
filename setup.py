@@ -2,12 +2,12 @@ from setuptools import setup, find_packages
 
 setup(
     name='message-passing-nn',
-    version='0.1',
-    packages=find_packages(),
+    version='0.2',
+    packages=find_packages(exclude=["tests"]),
     url='',
     license='MIT',
     author='Michail Kovanis',
-    description='',
+    description='A message passing neural network with GRU units',
     install_requires=[
         'click',
         'numpy==1.17.4',
