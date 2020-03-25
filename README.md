@@ -1,4 +1,4 @@
-[![Build Status](https://dev.azure.com/kovamos/protein-folding/_apis/build/status/kovanostra.protein-folding?branchName=master)](https://dev.azure.com/kovamos/protein-folding/_build/latest?definitionId=2&branchName=master)
+[![Build Status](https://dev.azure.com/kovamos/message-passing-nn/_apis/build/status/kovanostra.protein-folding?branchName=master)](https://dev.azure.com/kovamos/message-passing-nn/_build/latest?definitionId=2&branchName=master)
 
 ### Requirements
 Python 3.7.6
@@ -27,4 +27,4 @@ Currently, there is no entrypoint. However, the code can be explored through the
 
 ### Azure pipelines project
 
-https://dev.azure.com/kovamos/protein-folding
+https://dev.azure.com/kovamos/message-passing-nn
