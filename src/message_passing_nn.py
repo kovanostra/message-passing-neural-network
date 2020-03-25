@@ -10,5 +10,11 @@ class MessagePassingNN:
 
 
 def create(epochs: int, loss_function: str, optimizer: str) -> MessagePassingNN:
+    create_success_file()
     train = Train(epochs, loss_function, optimizer)
     return MessagePassingNN(train)
+
+
+def create_success_file():
+    f = open("SUCCESS", "w")
+    f.close()
