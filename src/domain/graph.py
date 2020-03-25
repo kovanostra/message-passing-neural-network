@@ -12,9 +12,9 @@ class Graph:
         self.number_of_node_features = self._get_number_of_node_features()
 
     def __eq__(self, o):
-        return to.eq(self.adjacency_matrix, o.adjacency_matrix) and \
-               to.eq(self.node_features, o.node_features) and \
-               to.eq(self.edge_features, o.edge_features)
+        return to.all(to.eq(self.adjacency_matrix, o.adjacency_matrix)) and \
+               to.all(to.eq(self.node_features, o.node_features)) and \
+               to.all(to.eq(self.edge_features, o.edge_features))
 
     def _get_number_of_nodes(self):
         return self.adjacency_matrix.shape[0]

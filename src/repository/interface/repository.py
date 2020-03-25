@@ -6,8 +6,12 @@ from src.domain.graph import Graph
 
 class Repository(metaclass=ABCMeta):
     def __init__(self):
+        self.path = None
+
+    @abstractmethod
+    def save(self, dataset: List[Graph]) -> None:
         pass
 
     @abstractmethod
-    def get_all(self) -> List[Graph]:
+    def get_all(self) -> object:
         pass
