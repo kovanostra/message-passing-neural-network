@@ -37,16 +37,23 @@ To start training the model please run the following from inside ~/message-passi
 python src/ci.py start-training
 ```
 
-The model runs with default values for the number of epochs (10), loss function ('MSE') and optimizer ('adam'). However, these can be changed as seen below:
+The model runs with default values for the number of epochs (10), loss function ('MSE') and optimizer ('SGD'). However, these can be changed as seen below:
  ```
- python src/ci.py start-training --epochs 10 -- loss_function 'MSE' --optimizer 'adam'
+ python src/ci.py start-training --epochs 10 -- loss_function 'SGD' --optimizer 'adam'
  ```
 
 ### Docker
-The model can be run from inside a docker container. TO do so please execute the following shell script from inside ~/message-passing-nn/:
+The model can be run from inside a docker container. To do so please execute the following shell script from inside ~/message-passing-nn/:
 ```
 . train-model.sh
 ```
+The train-model.sh will:
+
+    - Build the project
+    - Create a docker image
+    - Create a docker container
+    - Start the container
+    - Print the containner's logs with the --follow option activated
 
 Afterwards, you can clear the docker container and images created by running again from inside ~/message-passing-nn/:
 ```

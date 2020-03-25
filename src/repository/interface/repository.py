@@ -13,5 +13,5 @@ class Repository(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def get_all(self) -> object:
+    def get_all(self) -> List[Graph]:
         pass

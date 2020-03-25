@@ -13,22 +13,24 @@ class Train:
         self.optimizer = optimizer
 
     def start(self, repository: Repository):
-        training_dataset = repository.get_all()[0]
-        graph_encoder = GraphEncoder(training_dataset)
+        training_dataset = repository.get_all()
+        graph_encoder = GraphEncoder(training_dataset[0])
         self.loss_function = nn.MSELoss()
         self.optimizer = optim.SGD(graph_encoder.parameters(), lr=0.001, momentum=0.9)
         for epoch in range(self.epochs):
             running_loss = 0.0
+            for data_batch in training_dataset:
+                running_loss = 0.0
 
-            self.optimizer.zero_grad()
+                self.optimizer.zero_grad()
 
-            outputs = graph_encoder.forward(training_dataset)
-            loss = self.loss_function(outputs, training_dataset.node_features)
-            loss.backward()
-            self.optimizer.step()
+                outputs = graph_encoder.forward(data_batch)
+                loss = self.loss_function(outputs, data_batch.node_features)
+                loss.backward()
+                self.optimizer.step()
 
-            running_loss += loss.item()
-            self.get_logger().info('[%d] loss: %.3f' % (epoch + 1, running_loss))
+                running_loss += loss.item()
+                self.get_logger().info('[%d] loss: %.3f' % (epoch + 1, running_loss))
 
         self.get_logger().info('Finished Training')
         return running_loss
