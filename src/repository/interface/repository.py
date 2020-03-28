@@ -1,7 +1,5 @@
 from abc import ABCMeta, abstractmethod
-from typing import List
-
-from src.domain.graph import Graph
+from typing import List, Tuple, Any
 
 
 class Repository(metaclass=ABCMeta):
@@ -9,9 +7,9 @@ class Repository(metaclass=ABCMeta):
         self.path = None
 
     @abstractmethod
-    def save(self, dataset: List[Graph]) -> None:
+    def save(self, filename: str, dataset: Any) -> None:
         pass
 
     @abstractmethod
-    def get_all(self) -> List[Graph]:
+    def get_all_features_and_labels_from_separate_files(self) -> List[Tuple[Any, Any]]:
         pass

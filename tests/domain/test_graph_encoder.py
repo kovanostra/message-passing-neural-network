@@ -29,7 +29,7 @@ class TestGraphEncoder(TestCase):
         self.graph_encoder.u_graph_neighbor_messages = nn.Parameter(0.1 * BASE_U_MATRIX, requires_grad=True).float()
 
     def test_encode_graph_returns_the_expected_encoding_for_a_node_after_one_time_step(self):
-        # Given
+        # Give
         self.graph_encoder.time_steps = 1
         node = 0
         node_encoding_expected = to.tensor([0.3909883, 0.3909883])
