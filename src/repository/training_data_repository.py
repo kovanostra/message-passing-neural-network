@@ -11,11 +11,11 @@ class TrainingDataRepository(Repository):
         self.path = path
 
     def save(self, dataset: List[Graph]) -> None:
-        with open(self.path + 'dataset.pickle', 'wb') as file:
+        with open(self.path + 'test-dataset.pickle', 'wb') as file:
             pickle.dump(dataset, file)
 
     def get_all(self) -> List[Graph]:
-        with open(self.path + 'dataset.pickle', 'rb') as file:
+        with open(self.path + 'test-dataset.pickle', 'rb') as file:
             dataset = pickle.load(file)
 
         return dataset

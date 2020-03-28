@@ -18,7 +18,7 @@ class TestTrainingDataRepository(TestCase):
                        BASE_GRAPH_NODE_FEATURES,
                        BASE_GRAPH_EDGE_FEATURES)]
 
-        filename_expected = 'tests/data/dataset.pickle'
+        filename_expected = 'tests/data/test-dataset.pickle'
 
         # When
         self.training_data_repository.save(graph)

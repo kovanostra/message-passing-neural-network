@@ -15,7 +15,7 @@ class TestTrain(TestCase):
         # Given
         self.train = Train(epochs=10, loss_function='MSE', optimizer='adam')
         tests_path = 'tests/data/'
-        filename = 'dataset.pickle'
+        filename = 'test-dataset.pickle'
         repository = TrainingDataRepository(tests_path)
         graph_expected = [Graph(BASE_GRAPH,
                                 BASE_GRAPH_NODE_FEATURES,
