@@ -13,7 +13,7 @@ class Train:
         self.optimizer = optimizer
 
     def start(self, repository: Repository):
-        training_dataset = repository.get_all()
+        training_dataset = repository.get_all_features_and_labels_from_separate_files()
         graph_encoder = GraphEncoder(training_dataset[0])
         self.loss_function = nn.MSELoss()
         self.optimizer = optim.SGD(graph_encoder.parameters(), lr=0.001, momentum=0.9)
