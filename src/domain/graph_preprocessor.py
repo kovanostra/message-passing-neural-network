@@ -1,8 +1,6 @@
 from math import ceil
 from typing import Any
 
-import torch as to
-
 from src.domain.graph import Graph
 from src.domain.interface.preprocessor import Preprocessor
 
@@ -19,7 +17,7 @@ class GraphPreprocessor(Preprocessor):
             batch = []
             data_index = batch_index
             while not batch_is_complete:
-                batch.append(Graph(dataset[data_index][1], dataset[data_index][0], to.tensor([])))
+                batch.append(Graph(dataset[data_index][1], dataset[data_index][0]))
                 data_index += 1
                 if len(batch) == batch_length or data_index == len(dataset):
                     batch_is_complete = True

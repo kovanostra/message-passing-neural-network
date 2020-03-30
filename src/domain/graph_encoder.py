@@ -10,7 +10,7 @@ from src.domain.node import Node
 
 
 class GraphEncoder(nn.Module):
-    def __init__(self, graph: Graph, initialize_tensors=True):
+    def __init__(self):
         super(GraphEncoder, self).__init__()
         self.time_steps = 5
         self.w_gru_update_gate_features = None
@@ -24,8 +24,6 @@ class GraphEncoder(nn.Module):
         self.b_gru_current_memory_message = None
         self.u_graph_node_features = None
         self.u_graph_neighbor_messages = None
-        if initialize_tensors:
-            self._initialize_tensors(graph)
 
     def forward(self, graph: Graph) -> Any:
         return self.encode(graph)
@@ -35,7 +33,7 @@ class GraphEncoder(nn.Module):
         encodings = self._encode_nodes(graph, messages)
         return encodings
 
-    def _initialize_tensors(self, graph: Graph) -> None:
+    def initialize_tensors(self, graph: Graph) -> None:
         base_4d_tensor_shape = [graph.number_of_nodes,
                                 graph.number_of_nodes,
                                 graph.number_of_node_features,
@@ -81,7 +79,7 @@ class GraphEncoder(nn.Module):
             node = self._create_node(graph, node_id)
             for end_node_id in node.neighbors:
                 end_node = self._create_node(graph, end_node_id)
-                edge = self._create_edge(graph, node, end_node)
+                edge = self._create_edge(node, end_node)
                 edge_slice = edge.get_edge_slice()
                 message = self._get_message_inputs(messages, node, edge, graph)
                 message.compose()
@@ -133,7 +131,7 @@ class GraphEncoder(nn.Module):
         edge_slice = edge.get_edge_slice()
         for reset_node_index in neighbors_slice:
             reset_node = self._create_node(graph, reset_node_index)
-            reset_edge = self._create_edge(graph, node, reset_node)
+            reset_edge = self._create_edge(node, reset_node)
             reset_edge_slice = reset_edge.get_edge_slice()
             reset_gate_output = self._pass_through_reset_gate(messages, node, reset_edge, graph)
             messages_from_the_other_neighbors_summed.value += reset_gate_output * messages[reset_edge_slice]
@@ -153,8 +151,8 @@ class GraphEncoder(nn.Module):
         return Node(graph, node_id)
 
     @staticmethod
-    def _create_edge(graph: Graph, start_node: Node, end_node: Node) -> Edge:
-        return Edge(graph, start_node, end_node)
+    def _create_edge(start_node: Node, end_node: Node) -> Edge:
+        return Edge(start_node, end_node)
 
     @staticmethod
     def _create_message() -> Message:

@@ -1,7 +1,5 @@
 from unittest import TestCase
 
-import torch as to
-
 from src.domain.graph import Graph
 from src.domain.graph_preprocessor import GraphPreprocessor
 from tests.fixtures.matrices_and_vectors import BASE_GRAPH, BASE_GRAPH_NODE_FEATURES
@@ -16,7 +14,7 @@ class TestGraphPreprocessor(TestCase):
         features = BASE_GRAPH_NODE_FEATURES
         labels = BASE_GRAPH
         dataset_unprocessed = [(features, labels)]
-        graph_expected = Graph(BASE_GRAPH, BASE_GRAPH_NODE_FEATURES, to.tensor([]))
+        graph_expected = Graph(BASE_GRAPH, BASE_GRAPH_NODE_FEATURES)
         batches = 1
         dataset_expected = [[graph_expected]]
 

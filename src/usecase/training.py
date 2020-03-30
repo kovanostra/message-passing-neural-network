@@ -18,10 +18,10 @@ class Training:
         graph_preprocessor = GraphPreprocessor()
         training_data_in_batches = graph_preprocessor.preprocess(training_data, batches=5)
         for epoch in range(self.epochs):
-            running_loss = 0.0
             for batch in training_data_in_batches:
                 for graph in batch:
-                    graph_encoder = GraphEncoder(graph)
+                    graph_encoder = GraphEncoder()
+                    graph_encoder.initialize_tensors(graph)
                     self.loss_function = nn.MSELoss()
                     self.optimizer = optim.SGD(graph_encoder.parameters(), lr=0.001, momentum=0.9)
                     running_loss = 0.0
@@ -29,7 +29,7 @@ class Training:
                     self.optimizer.zero_grad()
 
                     outputs = graph_encoder.forward(graph)
-                    loss = self.loss_function(outputs, graph.adjacency_matrix)
+                    loss = self.loss_function(outputs, graph.adjacency_matrix.view(-1))
                     loss.backward()
                     self.optimizer.step()
 
