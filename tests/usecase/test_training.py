@@ -7,12 +7,9 @@ from tests.fixtures.matrices_and_vectors import BASE_GRAPH, BASE_GRAPH_NODE_FEAT
 
 
 class TestTraining(TestCase):
-    def setUp(self) -> None:
-        self.training = None
-
     def test_start(self):
         # Given
-        self.training = Training(epochs=10, loss_function='MSE', optimizer='SGD')
+        training = Training(epochs=10, loss_function='MSE', optimizer='SGD')
         dataset = 'training-test-data'
         tests_path = 'tests/data'
         repository = TrainingDataRepository(dataset, tests_path)
@@ -25,9 +22,9 @@ class TestTraining(TestCase):
         repository.save(filenames_to_save[1], labels)
 
         # When
-        self.training.start(repository)
+        training.start(repository)
 
         # Then
-        self.assertTrue(self.training.running_loss > 0.0)
+        self.assertTrue(training.running_loss > 0.0)
         os.remove(filenames_expected[0])
         os.remove(filenames_expected[1])
