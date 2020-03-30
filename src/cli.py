@@ -10,7 +10,7 @@ from src.message_passing_nn import create
 @click.option('--dataset', help='Select which dataset to use', required=True, type=str)
 @click.option('--epochs', default=10, help='Set the number of epochs', show_default=True, type=int)
 @click.option('--loss_function', default='MSE', help='Set the loss function', show_default=True, type=str)
-@click.option('--optimizer', default='adam', help='Set the optimizer', show_default=True, type=str)
+@click.option('--optimizer', default='SGD', help='Set the optimizer', show_default=True, type=str)
 def start_training(dataset: str, epochs: int, loss_function: str, optimizer: str) -> None:
     get_logger().info("Starting training")
     message_passing_nn = create(dataset, epochs, loss_function, optimizer)

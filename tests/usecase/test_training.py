@@ -12,7 +12,7 @@ class TestTraining(TestCase):
 
     def test_start(self):
         # Given
-        self.training = Training(epochs=10, loss_function='MSE', optimizer='adam')
+        self.training = Training(epochs=10, loss_function='MSE', optimizer='SGD')
         dataset = 'training-test-data'
         tests_path = 'tests/data'
         repository = TrainingDataRepository(dataset, tests_path)
@@ -25,9 +25,9 @@ class TestTraining(TestCase):
         repository.save(filenames_to_save[1], labels)
 
         # When
-        running_loss = self.training.start(repository)
+        self.training.start(repository)
 
         # Then
-        self.assertTrue(running_loss > 0.0)
+        self.assertTrue(self.training.running_loss > 0.0)
         os.remove(filenames_expected[0])
         os.remove(filenames_expected[1])
