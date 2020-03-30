@@ -1,3 +1,4 @@
+import logging
 from math import ceil
 from typing import Any
 
@@ -10,6 +11,7 @@ class GraphPreprocessor(Preprocessor):
         super().__init__()
 
     def preprocess(self, dataset: Any, batches: int) -> Any:
+        self.get_logger().info("Started preprocessing data")
         batch_length = self._calculate_batch_length(len(dataset), batches)
         dataset_in_batches = []
         for batch_index in range(0, len(dataset), batch_length):
@@ -22,6 +24,7 @@ class GraphPreprocessor(Preprocessor):
                 if len(batch) == batch_length or data_index == len(dataset):
                     batch_is_complete = True
             dataset_in_batches.append(batch)
+        self.get_logger().info("Finished preprocessing data into " + str(len(dataset_in_batches)) + " batches")
         return dataset_in_batches
 
     @staticmethod
@@ -35,3 +38,7 @@ class GraphPreprocessor(Preprocessor):
         else:
             batch_length = ceil(dataset_length / batches)
         return batch_length
+
+    @staticmethod
+    def get_logger() -> logging.Logger:
+        return logging.getLogger('message_passing_nn')

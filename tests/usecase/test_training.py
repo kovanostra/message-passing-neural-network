@@ -11,7 +11,7 @@ class TestTraining(TestCase):
         # Given
         training = Training(epochs=10, loss_function='MSE', optimizer='SGD')
         dataset = 'training-test-data'
-        tests_path = 'tests/data'
+        tests_path = 'tests/data/'
         repository = TrainingDataRepository(dataset, tests_path)
         features = BASE_GRAPH_NODE_FEATURES
         labels = BASE_GRAPH
