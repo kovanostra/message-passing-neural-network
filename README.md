@@ -30,16 +30,35 @@ tox
 
 This will build an artifact and place it in ~/message-passing-nn/.tox/dist/graph-to-graph-version.zip. The version can be specified in the setup.py. The contents of this folder are cleaned at the start of every new build.
 
+### Dataset
+
+This repository contains two dataset folders:
+
+    - sample-dataset: Contains just one pair of features/labels with some default values. This dataset lets you run the code in demo mode.
+    - protein-folding: Contains a pair of features/labels for various proteins. The features represent protein characteristics, and the labels the distance between all aminoacids.
+
+The repository expects the data to be in the following format:
+
+    - filenames: something_features.pickle & something_labels.pickle
+    - features: torch.tensor.Size(N,M)
+    - labels: torch.tensor.Size(N,N)
+    
+For example, in the protein-folding dataset:
+
+    - N: represents the number of aminoacids
+    - M: represents the number of protein features
+
 ### Entrypoint
 
 To start training the model please run the following from inside ~/message-passing-nn/:
 ```
-python src/ci.py start-training
+python src/ci.py start-training --dataset your_dataset
 ```
+Where 'your_dataset' should be the name of your data folder which is placed inside '~/message-passing-nn/src/data/'.
 
 The model runs with default values for the number of epochs (10), loss function ('MSE') and optimizer ('SGD'). However, these can be changed as seen below:
  ```
- python src/ci.py start-training --epochs 10 -- loss_function 'SGD' --optimizer 'adam'
+ python src/ci.py --dataset sample-dataset start-training --epochs 10 -- loss_function 'MSE' --optimizer 'SGD'
  ```
 
 ### Docker
