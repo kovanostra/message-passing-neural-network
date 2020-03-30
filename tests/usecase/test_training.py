@@ -19,8 +19,8 @@ class TestTraining(TestCase):
         features = BASE_GRAPH_NODE_FEATURES
         labels = BASE_GRAPH
         filenames_to_save = ['training_features.pickle', 'training_labels.pickle']
-        filenames_expected = ['tests/data/train-test-data/training_features.pickle',
-                              'tests/data/train-test-data/training_labels.pickle']
+        filenames_expected = ['tests/data/training-test-data/training_features.pickle',
+                              'tests/data/training-test-data/training_labels.pickle']
         repository.save(filenames_to_save[0], features)
         repository.save(filenames_to_save[1], labels)
 
