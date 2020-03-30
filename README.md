@@ -52,13 +52,13 @@ For example, in the protein-folding dataset:
 
 To start training the model please run the following from inside ~/message-passing-nn/:
 ```
-python src/ci.py start-training --dataset your_dataset
+python src/cli.py start-training --dataset your_dataset
 ```
 Where 'your_dataset' should be the name of your data folder which is placed inside '~/message-passing-nn/src/data/'.
 
 The model runs with default values for the number of epochs (10), loss function ('MSE') and optimizer ('SGD'). However, these can be changed as seen below:
  ```
- python src/ci.py --dataset sample-dataset start-training --epochs 10 -- loss_function 'MSE' --optimizer 'SGD'
+ python src/cli.py --dataset sample-dataset start-training --epochs 10 -- loss_function 'MSE' --optimizer 'SGD'
  ```
 
 ### Docker
@@ -74,11 +74,13 @@ The train-model.sh will:
     - Start the container
     - Print the containner's logs with the --follow option activated
 
-Afterwards, you can clear the docker container and images created by running again from inside ~/message-passing-nn/:
+By default the dockerfile uses the sample-dataset. To change that please access the dockerfile and insert the name of the dataset folder you wish to use.
+
+You can clear the docker container and images created by running again from inside ~/message-passing-nn/:
 ```
 . remove-containers-and-images.sh
 ```
-This, by default will not remove any untagged images created by the train-model.sh. However, you can uncomment the following line if you want to do so:
+This, by default will remove only tagged images created by the train-model.sh. However, you can uncomment the following line if you want to remove the untagged images too:
 ```
 docker rmi $(docker images | grep "^<none>" | awk "{print $3}")
 ```
