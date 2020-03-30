@@ -10,16 +10,18 @@ from tests.fixtures.matrices_and_vectors import BASE_GRAPH, BASE_GRAPH_NODE_FEAT
 
 class TestTrainingDataRepository(TestCase):
     def setUp(self) -> None:
-        tests_path = 'tests/data/'
-        self.training_data_repository = TrainingDataRepository(tests_path)
+        dataset = 'repo-test-data'
+        tests_path = 'tests/data'
+        self.training_data_repository = TrainingDataRepository(dataset, tests_path)
 
     def test_save(self):
         # Given
         features = BASE_GRAPH_NODE_FEATURES
         labels = BASE_GRAPH
 
-        filenames_to_save = ['features.pickle', 'labels.pickle']
-        filenames_expected = ['tests/data/features.pickle', 'tests/data/labels.pickle']
+        filenames_to_save = ['code_features.pickle', 'code_labels.pickle']
+        filenames_expected = ['tests/data/repo-test-data/code_features.pickle',
+                              'tests/data/repo-test-data/code_labels.pickle']
 
         # When
         self.training_data_repository.save(filenames_to_save[0], features)

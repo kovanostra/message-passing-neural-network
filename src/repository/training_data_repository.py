@@ -6,13 +6,13 @@ from src.repository.interface.repository import Repository
 
 
 class TrainingDataRepository(Repository):
-    def __init__(self, path='src/data/') -> None:
+    def __init__(self, dataset: str, path='src/data/') -> None:
         super().__init__()
-        self.path = path
+        self.path = path + '/' + dataset + '/'
 
-    def save(self, filename: str, dataset: Any) -> None:
+    def save(self, filename: str, data: Any) -> None:
         with open(self.path + filename, 'wb') as file:
-            pickle.dump(dataset, file)
+            pickle.dump(data, file)
 
     def get_all_features_and_labels_from_separate_files(self) -> List[Tuple[Any, Any]]:
         files_in_path = self._extract_name_prefixes_from_filenames()
