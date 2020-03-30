@@ -12,9 +12,7 @@ from tests.fixtures.matrices_and_vectors import BASE_GRAPH, BASE_GRAPH_NODE_FEAT
 class TestGraphEncoder(TestCase):
 
     def setUp(self) -> None:
-        graph = Graph(BASE_GRAPH,
-                      BASE_GRAPH_NODE_FEATURES)
-        self.graph_encoder = GraphEncoder(graph, initialize_tensors=False)
+        self.graph_encoder = GraphEncoder()
         self.graph_encoder.w_gru_update_gate_features = nn.Parameter(MULTIPLICATION_FACTOR * BASE_W_MATRIX, requires_grad=True).float()
         self.graph_encoder.w_gru_forget_gate_features = nn.Parameter(MULTIPLICATION_FACTOR * BASE_W_MATRIX, requires_grad=True).float()
         self.graph_encoder.w_gru_current_memory_message_features = nn.Parameter(MULTIPLICATION_FACTOR * BASE_W_MATRIX, requires_grad=True).float()

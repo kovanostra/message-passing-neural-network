@@ -26,6 +26,31 @@ class Training:
             self._feed_batches(epoch, fully_connected_layer, graph_encoder, training_data_in_batches)
         self.get_logger().info('Finished Training')
 
+    @staticmethod
+    def _prepare_dataset(repository: Repository) -> Any:
+        training_data = repository.get_all_features_and_labels_from_separate_files()
+        graph_preprocessor = GraphPreprocessor()
+        training_data_in_batches = graph_preprocessor.preprocess(training_data, batches=5)
+        return training_data_in_batches
+
+    def _create_graph_encoder(self, training_data_in_batches: Any) -> GraphEncoder:
+        initialization_graph = self._extract_initialization_graph(training_data_in_batches)
+        graph_encoder = GraphEncoder()
+        graph_encoder.initialize_tensors(initialization_graph)
+        return graph_encoder
+
+    def _create_fully_connected_layer(self, training_data_in_batches: Any) -> Any:
+        initialization_graph = self._extract_initialization_graph(training_data_in_batches)
+        fully_connected_input_size = initialization_graph.number_of_nodes * initialization_graph.number_of_node_features
+        fully_connected_output_size = len(initialization_graph.adjacency_matrix.view(-1))
+        fully_connected_layer = FullyConnectedLayer(fully_connected_input_size, fully_connected_output_size)
+        return fully_connected_layer
+
+    def _set_the_loss_function_and_optimizer(self, graph_encoder: GraphEncoder, fully_connected_layer: Any) -> None:
+        self.loss_function = nn.MSELoss()
+        model_parameters = list(graph_encoder.parameters()) + list(fully_connected_layer.parameters())
+        self.optimizer = optim.SGD(model_parameters, lr=0.001, momentum=0.9)
+
     def _feed_batches(self,
                       epoch: int,
                       fully_connected_layer: Any,
@@ -46,20 +71,6 @@ class Training:
             running_loss = self._backpropagate_the_errors(epoch, loss, running_loss)
         return running_loss
 
-    @staticmethod
-    def _prepare_dataset(repository: Repository) -> Any:
-        training_data = repository.get_all_features_and_labels_from_separate_files()
-        graph_preprocessor = GraphPreprocessor()
-        training_data_in_batches = graph_preprocessor.preprocess(training_data, batches=5)
-        return training_data_in_batches
-
-    def _backpropagate_the_errors(self, epoch: int, loss: Any, running_loss: float) -> float:
-        loss.backward()
-        self.optimizer.step()
-        running_loss += loss.item()
-        self.get_logger().info('[%d] loss: %.3f' % (epoch + 1, running_loss))
-        return running_loss
-
     def _make_a_forward_pass(self,
                              fully_connected_layer: Any,
                              graph: Graph,
@@ -69,23 +80,12 @@ class Training:
         loss = self.loss_function(outputs, graph.adjacency_matrix.view(-1))
         return loss
 
-    def _set_the_loss_function_and_optimizer(self, graph_encoder: GraphEncoder, fully_connected_layer: Any) -> None:
-        self.loss_function = nn.MSELoss()
-        model_parameters = list(graph_encoder.parameters()) + list(fully_connected_layer.parameters())
-        self.optimizer = optim.SGD(model_parameters, lr=0.001, momentum=0.9)
-
-    def _create_fully_connected_layer(self, training_data_in_batches: Any) -> Any:
-        initialization_graph = self._extract_initialization_graph(training_data_in_batches)
-        fully_connected_input_size = initialization_graph.number_of_nodes * initialization_graph.number_of_node_features
-        fully_connected_output_size = len(initialization_graph.adjacency_matrix.view(-1))
-        fully_connected_layer = FullyConnectedLayer(fully_connected_input_size, fully_connected_output_size)
-        return fully_connected_layer
-
-    def _create_graph_encoder(self, training_data_in_batches: Any) -> GraphEncoder:
-        initialization_graph = self._extract_initialization_graph(training_data_in_batches)
-        graph_encoder = GraphEncoder()
-        graph_encoder.initialize_tensors(initialization_graph)
-        return graph_encoder
+    def _backpropagate_the_errors(self, epoch: int, loss: Any, running_loss: float) -> float:
+        loss.backward()
+        self.optimizer.step()
+        running_loss += loss.item()
+        self.get_logger().info('[%d] loss: %.3f' % (epoch + 1, running_loss))
+        return running_loss
 
     @staticmethod
     def _extract_initialization_graph(training_data_in_batches: Any) -> Graph:
