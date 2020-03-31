@@ -1,15 +1,21 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='protein-folding',
-    version='0.1',
+    name='message-passing-nn',
+    version='0.3',
     packages=find_packages(exclude=["tests"]),
     url='',
-    license='',
+    license='MIT',
     author='Michail Kovanis',
-    description='',
+    description='A message passing neural network with GRU units',
     install_requires=[
+        'click',
         'numpy==1.17.4',
         'torch==1.4.0'
-    ]
+    ],
+    entry_points={
+        'console_scripts': [
+            'message-passing-nn = src.cli:main'
+        ],
+    },
 )

@@ -4,3 +4,7 @@
 /graph_to_graph.egg-info/
 */__pycache__/
 */*/__pycache__/
+SUCCESS
+/dist/
+*.egg-info/
+.pickle

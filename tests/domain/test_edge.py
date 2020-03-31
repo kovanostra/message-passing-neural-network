@@ -1,22 +1,20 @@
 from unittest import TestCase
 
 import numpy as np
-import torch as to
 
 from src.domain.edge import Edge
 from src.domain.graph import Graph
 from src.domain.node import Node
-from tests.fixtures.matrices_and_vectors import BASE_GRAPH, BASE_GRAPH_NODE_FEATURES, BASE_GRAPH_EDGE_FEATURES
+from tests.fixtures.matrices_and_vectors import BASE_GRAPH, BASE_GRAPH_NODE_FEATURES
 
 
 class TestEdge(TestCase):
     def setUp(self) -> None:
         graph = Graph(BASE_GRAPH,
-                      BASE_GRAPH_NODE_FEATURES,
-                      BASE_GRAPH_EDGE_FEATURES)
+                      BASE_GRAPH_NODE_FEATURES)
         start_node = Node(graph, 2)
         end_node = Node(graph, 0)
-        self.edge = Edge(graph, start_node, end_node)
+        self.edge = Edge(start_node, end_node)
 
     def test_get_edge_slice(self):
         # Given
