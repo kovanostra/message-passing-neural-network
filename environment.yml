@@ -1,4 +1,4 @@
-name: proteinfolding
+name: message-passing-nn
 channels:
   - pytorch
   - defaults
