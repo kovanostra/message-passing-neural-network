@@ -23,9 +23,8 @@ steps:
 
 - script: |
     python -m pip install --upgrade pip
-    pip install -r requirements.txt
-  displayName: 'Install dependencies'
+  displayName: 'Upgrade pip'
 
 - script: |
     tox
-  displayName: 'tox'
+  displayName: 'Run tox'
