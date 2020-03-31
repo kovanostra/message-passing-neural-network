@@ -28,7 +28,13 @@ To run all tests and build the project, just cd to ~/message-passing-nn/ and run
 tox
 ```
 
-This will build an artifact and place it in ~/message-passing-nn/.tox/dist/graph-to-graph-version.zip. The version can be specified in the setup.py. The contents of this folder are cleaned at the start of every new build.
+This will create a .tox/ directory, build an artifact, and place it in ~/message-passing-nn/.tox/dist/graph-to-graph-version.zip. The version can be specified in the setup.py. The contents of this folder are cleaned at the start of every new build.
+
+### Environment
+To create the conda environment please run from ~/message-passing-nn the following command:
+```
+conda env create -f environment.yml
+```
 
 ### Dataset
 
