@@ -1,4 +1,4 @@
-[![Build Status](https://dev.azure.com/kovamos/message-passing-nn/_apis/build/status/kovanostra.protein-folding?branchName=master)](https://dev.azure.com/kovamos/message-passing-nn/_build/latest?definitionId=2&branchName=master)
+[![Build Status](https://dev.azure.com/kovamos/message-passing-nn/_apis/build/status/kovanostra.message-passing-nn?branchName=master)](https://dev.azure.com/kovamos/message-passing-nn/_build/latest?definitionId=2&branchName=master)
 
 ### Description
 
