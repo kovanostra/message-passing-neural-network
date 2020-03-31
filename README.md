@@ -42,7 +42,7 @@ conda env create -f environment.yml
 This repository contains two dataset folders:
 
     - sample-dataset: Contains just one pair of features/labels with some default values. This dataset lets you run the code in demo mode.
-    - protein-folding: Contains a pair of features/labels for various proteins. The features represent protein characteristics, and the labels the distance between all aminoacids.
+    - protein-folding: Contains pairs of features/labels for various proteins. The features represent protein characteristics, and the labels the distance between all aminoacids.
 
 The repository expects the data to be in the following format:
 
@@ -59,11 +59,11 @@ For example, in the protein-folding dataset:
 
 To start training the model please run the following from inside ~/message-passing-nn/:
 ```
-export PYTHONPATH=your/path/to/message-passing-nn/
-```
-And then:
-```
 python src/cli.py start-training --dataset your_dataset
+```
+In some cases you may need to export the path to the message-passing-nn repository first:
+```
+export PYTHONPATH=your/path/to/message-passing-nn/
 ```
 Where 'your_dataset' should be the name of your data folder which is placed inside '~/message-passing-nn/src/data/'.
 
