@@ -59,6 +59,10 @@ For example, in the protein-folding dataset:
 
 To start training the model please run the following from inside ~/message-passing-nn/:
 ```
+export PYTHONPATH=your/path/to/message-passing-nn/
+```
+And then:
+```
 python src/cli.py start-training --dataset your_dataset
 ```
 Where 'your_dataset' should be the name of your data folder which is placed inside '~/message-passing-nn/src/data/'.
@@ -87,8 +91,9 @@ You can clear the docker container and images created by running again from insi
 ```
 . remove-containers-and-images.sh
 ```
-This, by default will remove only tagged images created by the train-model.sh. However, you can uncomment the following line if you want to remove the untagged images too:
+This, by default will remove only tagged images created by the train-model.sh. However, you can uncomment the following lines if you want to remove all stopped containers and untagged images too:
 ```
+docker container rm $(docker container ls -aq)
 docker rmi $(docker images | grep "^<none>" | awk "{print $3}")
 ```
 Please note that this will delete also untagged images created by other projects, so use with caution.
