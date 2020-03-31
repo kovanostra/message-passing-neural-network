@@ -40,13 +40,13 @@ This repository contains two dataset folders:
 The repository expects the data to be in the following format:
 
     - filenames: something_features.pickle & something_labels.pickle
-    - features: torch.tensor.Size(N,M)
-    - labels: torch.tensor.Size(N,N)
+    - features: torch.tensor.Size(M,N)
+    - labels: torch.tensor.Size(M,M)
     
 For example, in the protein-folding dataset:
 
-    - N: represents the number of aminoacids
-    - M: represents the number of protein features
+    - M: represents the number of aminoacids
+    - N: represents the number of protein features
 
 ### Entrypoint
 
