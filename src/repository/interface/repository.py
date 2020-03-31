@@ -4,7 +4,7 @@ from typing import List, Tuple, Any
 
 class Repository(metaclass=ABCMeta):
     def __init__(self):
-        self.path = None
+        pass
 
     @abstractmethod
     def save(self, filename: str, dataset: Any) -> None:

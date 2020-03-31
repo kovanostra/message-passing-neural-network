@@ -11,8 +11,8 @@ class TestTraining(TestCase):
         # Given
         training = Training(epochs=10, loss_function='MSE', optimizer='SGD')
         dataset = 'training-test-data'
-        tests_path = 'tests/data/'
-        repository = TrainingDataRepository(dataset, tests_path)
+        tests_data_path = 'tests/data/'
+        repository = TrainingDataRepository(tests_data_path, dataset)
         features = BASE_GRAPH_NODE_FEATURES
         labels = BASE_GRAPH
         filenames_to_save = ['training_features.pickle', 'training_labels.pickle']

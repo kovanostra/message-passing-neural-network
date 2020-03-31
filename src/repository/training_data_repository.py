@@ -7,12 +7,12 @@ from src.repository.interface.repository import Repository
 
 
 class TrainingDataRepository(Repository):
-    def __init__(self, dataset: str, path='src/data/') -> None:
+    def __init__(self, data_path: str, dataset: str) -> None:
         super().__init__()
-        self.path = path + dataset + '/'
+        self.data_path = data_path + dataset + '/'
 
     def save(self, filename: str, data: Any) -> None:
-        with open(self.path + filename, 'wb') as file:
+        with open(self.data_path + filename, 'wb') as file:
             pickle.dump(data, file)
 
     def get_all_features_and_labels_from_separate_files(self) -> List[Tuple[Any, Any]]:
@@ -25,12 +25,12 @@ class TrainingDataRepository(Repository):
         return dataset
 
     def _get_labels(self, file):
-        with open(self.path + file + 'labels.pickle', 'rb') as labels_file:
+        with open(self.data_path + file + 'labels.pickle', 'rb') as labels_file:
             labels = pickle.load(labels_file)
         return labels
 
     def _get_features(self, file):
-        with open(self.path + file + 'features.pickle', 'rb') as features_file:
+        with open(self.data_path + file + 'features.pickle', 'rb') as features_file:
             features = pickle.load(features_file)
         return features
 
@@ -38,8 +38,7 @@ class TrainingDataRepository(Repository):
         return set([self._reconstruct_filename(file) for file in self._get_data_filenames()])
 
     def _get_data_filenames(self):
-        print(os.listdir('./'))
-        return sorted([file for file in os.listdir(self.path) if file.endswith(".pickle")])
+        return sorted([file for file in os.listdir(self.data_path) if file.endswith(".pickle")])
 
     @staticmethod
     def _reconstruct_filename(file):

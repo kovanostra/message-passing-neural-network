@@ -11,8 +11,8 @@ from tests.fixtures.matrices_and_vectors import BASE_GRAPH, BASE_GRAPH_NODE_FEAT
 class TestTrainingDataRepository(TestCase):
     def setUp(self) -> None:
         dataset = 'repo-test-data'
-        tests_path = 'tests/data/'
-        self.training_data_repository = TrainingDataRepository(dataset, tests_path)
+        tests_data_path = 'tests/data/'
+        self.training_data_repository = TrainingDataRepository(tests_data_path, dataset)
 
     def test_save(self):
         # Given
