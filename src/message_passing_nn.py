@@ -11,9 +11,9 @@ class MessagePassingNN:
         self.training.start(self.repository)
 
 
-def create(dataset: str, epochs: int, loss_function: str, optimizer: str) -> MessagePassingNN:
+def create(dataset: str, epochs: int, loss_function: str, optimizer: str, datapath: str) -> MessagePassingNN:
     create_success_file()
-    training_data_repository = TrainingDataRepository(dataset)
+    training_data_repository = TrainingDataRepository(dataset, datapath)
     training = Training(epochs, loss_function, optimizer)
     return MessagePassingNN(training, training_data_repository)
 

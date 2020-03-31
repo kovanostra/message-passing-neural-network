@@ -38,6 +38,7 @@ class TrainingDataRepository(Repository):
         return set([self._reconstruct_filename(file) for file in self._get_data_filenames()])
 
     def _get_data_filenames(self):
+        print(os.listdir('./'))
         return sorted([file for file in os.listdir(self.path) if file.endswith(".pickle")])
 
     @staticmethod
