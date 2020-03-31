@@ -11,7 +11,6 @@ Python 3.7.6
 Run
 ```
 click
-numpy==1.17.4
 pytorch=1.4.0
 ```
 
@@ -19,20 +18,25 @@ Build
 ```
 click
 tox==3.14.3
+pytorch=1.4.0
+```
+
+Tests
+```
 numpy==1.17.4
 pytorch=1.4.0
 ```
 
-To run all tests and build the project, just cd to ~/message-passing-nn/ and run (with sudo if necessary)
+To build the project, just cd to ~/message-passing-nn/ and run (with sudo if necessary)
 ```
 tox
 ```
 
-This will create a .tox/ directory, build an artifact, and place it in ~/message-passing-nn/.tox/dist/graph-to-graph-version.zip. The version can be specified in the setup.py. The contents of this folder are cleaned at the start of every new build.
+This will download the dependencies and run all the tests. If the tests pass, tox will build an artifact, and place it in /dist/graph-to-graph-code_version.tar.gz. The version of your code can be specified in the setup.py. The contents of this folder are cleaned at the start of every new build.
 
 ### Environment
 
-To create the conda environment please run from ~/message-passing-nn/ the following command:
+To create the message-passing-nn conda environment please run from ~/message-passing-nn/ the following command:
 ```
 conda env create -f environment.yml
 ```
@@ -61,12 +65,12 @@ To start training the model please run the following from inside ~/message-passi
 ```
 python src/cli.py start-training --dataset your_dataset
 ```
+Where 'your_dataset' should be the name of your data folder which is placed inside '~/message-passing-nn/data/'.
+
 In some cases you may need to export the path to the message-passing-nn repository first:
 ```
 export PYTHONPATH=your/path/to/message-passing-nn/
 ```
-Where 'your_dataset' should be the name of your data folder which is placed inside '~/message-passing-nn/src/data/'.
-
 The model runs with default values for the number of epochs (10), loss function ('MSE') and optimizer ('SGD'). However, these can be changed as seen below:
  ```
  python src/cli.py --dataset sample-dataset start-training --epochs 10 -- loss_function 'MSE' --optimizer 'SGD'
