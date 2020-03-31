@@ -31,7 +31,8 @@ tox
 This will create a .tox/ directory, build an artifact, and place it in ~/message-passing-nn/.tox/dist/graph-to-graph-version.zip. The version can be specified in the setup.py. The contents of this folder are cleaned at the start of every new build.
 
 ### Environment
-To create the conda environment please run from ~/message-passing-nn the following command:
+
+To create the conda environment please run from ~/message-passing-nn/ the following command:
 ```
 conda env create -f environment.yml
 ```
