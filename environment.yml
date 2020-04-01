@@ -1,4 +1,4 @@
-name: message-passing-nn
+name: message-passing-nn-test
 channels:
   - pytorch
   - defaults
@@ -9,18 +9,3 @@ dependencies:
   - setuptools=46.0.0
   - torchvision=0.5.0
   - click
-  - pip:
-    - appdirs==1.4.3
-    - distlib==0.3.0
-    - filelock==3.0.12
-    - importlib-metadata==1.5.0
-    - packaging==20.3
-    - pluggy==0.13.1
-    - py==1.8.1
-    - pyparsing==2.4.6
-    - toml==0.10.0
-    - tox==3.14.5
-    - virtualenv==20.0.13
-    - zipp==3.1.0
-prefix: /opt/anaconda3/envs/message-passing-nn
-
