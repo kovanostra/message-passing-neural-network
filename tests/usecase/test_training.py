@@ -1,6 +1,7 @@
 import os
 from unittest import TestCase
 
+import torch as to
 from torch import nn
 
 from src.repository.training_data_repository import TrainingDataRepository
@@ -12,7 +13,8 @@ class TestTraining(TestCase):
     def test_start(self):
         # Given
         loss_function = nn.MSELoss()
-        training = Training(epochs=10, loss_function=loss_function, optimizer='SGD')
+        optimizer = to.optim.SGD
+        training = Training(epochs=10, loss_function=loss_function, optimizer=optimizer)
 
         dataset = 'training-test-data'
         tests_data_path = 'tests/data/'
