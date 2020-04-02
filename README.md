@@ -46,7 +46,7 @@ conda env create -f environment.yml
 This repository contains two dataset folders:
 
     - sample-dataset: Contains just one pair of features/labels with some default values. This dataset lets you run the code in demo mode.
-    - protein-folding: Contains pairs of features/labels for various proteins. The features represent protein characteristics, and the labels the distance between all aminoacids.
+    - protein-folding: Contains pairs of features/labels for various proteins (prepared using https://github.com/simonholmes001/structure_prediction). The features represent protein characteristics, and the labels the distance between all aminoacids.
 
 The repository expects the data to be in the following format:
 
