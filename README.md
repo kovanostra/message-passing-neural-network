@@ -76,6 +76,11 @@ The model runs with default values for the number of epochs (10), loss function 
  python src/cli.py --dataset sample-dataset start-training --epochs 10 -- loss_function 'MSE' --optimizer 'SGD'
  ```
 
+To see which loss functions and optimizers are available to use please run:
+```
+python src/cli.py start-training --help
+```
+
 ### Docker
 The model can be run from inside a docker container. To do so please execute the following shell script from inside ~/message-passing-nn/:
 ```
