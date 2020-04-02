@@ -1,7 +1,7 @@
 import logging
 from typing import Any
 
-from torch import nn, optim
+from torch import optim
 
 from src.domain.fully_connected_layer import FullyConnectedLayer
 from src.domain.graph import Graph
@@ -48,7 +48,6 @@ class Training:
         return fully_connected_layer
 
     def _set_the_loss_function_and_optimizer(self, graph_encoder: GraphEncoder, fully_connected_layer: Any) -> None:
-        self.loss_function = nn.MSELoss()
         model_parameters = list(graph_encoder.parameters()) + list(fully_connected_layer.parameters())
         self.optimizer = optim.SGD(model_parameters, lr=0.001, momentum=0.9)
 
