@@ -16,6 +16,7 @@ class TestTraining(TestCase):
         optimizer = to.optim.SGD
         training = Training(epochs=10, loss_function=loss_function, optimizer=optimizer)
         device = "cpu"
+        multiple_gpus = False
         dataset = 'training-test-data'
         tests_data_path = 'tests/data/'
         repository = TrainingDataRepository(tests_data_path, dataset)
@@ -28,7 +29,7 @@ class TestTraining(TestCase):
         repository.save(filenames_to_save[1], labels)
 
         # When
-        training.start(repository, device)
+        training.start(repository, device, multiple_gpus)
 
         # Then
         self.assertTrue(training.running_loss > 0.0)

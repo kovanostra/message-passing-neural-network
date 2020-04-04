@@ -17,11 +17,18 @@ from src.message_passing_nn import create
               type=click.Choice(list(optimizers.keys())))
 @click.option('--data_path', default='data/', help='Set the path of your data folder', required=True,
               type=str)
-@click.option('--enable_gpu', default='True', help='If True and there is an available gpu, it will use it',
+@click.option('--enable_gpu', default='True', help='If there is an available gpu and True, then the model will use it',
               show_default=True, type=click.Choice(['True', 'False']))
-def start_training(dataset: str, epochs: int, loss_function: str, optimizer: str, data_path: str, enable_gpu: bool) -> None:
+@click.option('--which_gpu', help='Choose which of the available GPUs to use.', show_default=True,
+              type=str)
+@click.option('--multiple_gpus', default='True',
+              help='If multiple gpus exist and True, then the model will use all of them', show_default=True,
+              type=click.Choice(['True', 'False']))
+def start_training(dataset: str, epochs: int, loss_function: str, optimizer: str, data_path: str,
+                   enable_gpu: str, which_gpu: str, multiple_gpus: str) -> None:
     get_logger().info("Starting training")
-    message_passing_nn = create(dataset, epochs, loss_function, optimizer, data_path, enable_gpu)
+    message_passing_nn = create(dataset, epochs, loss_function, optimizer, data_path, enable_gpu, which_gpu,
+                                multiple_gpus)
     message_passing_nn.start()
 
 
