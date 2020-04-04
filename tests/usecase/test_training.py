@@ -15,7 +15,7 @@ class TestTraining(TestCase):
         loss_function = nn.MSELoss()
         optimizer = to.optim.SGD
         training = Training(epochs=10, loss_function=loss_function, optimizer=optimizer)
-
+        device = "cpu"
         dataset = 'training-test-data'
         tests_data_path = 'tests/data/'
         repository = TrainingDataRepository(tests_data_path, dataset)
@@ -28,7 +28,7 @@ class TestTraining(TestCase):
         repository.save(filenames_to_save[1], labels)
 
         # When
-        training.start(repository)
+        training.start(repository, device)
 
         # Then
         self.assertTrue(training.running_loss > 0.0)

@@ -17,9 +17,11 @@ from src.message_passing_nn import create
               type=click.Choice(list(optimizers.keys())))
 @click.option('--data_path', default='data/', help='Set the path of your data folder', required=True,
               type=str)
-def start_training(dataset: str, epochs: int, loss_function: str, optimizer: str, data_path: str) -> None:
+@click.option('--enable_gpu', default='True', help='If True and there is an available gpu, it will use it',
+              show_default=True, type=click.Choice(['True', 'False']))
+def start_training(dataset: str, epochs: int, loss_function: str, optimizer: str, data_path: str, enable_gpu: bool) -> None:
     get_logger().info("Starting training")
-    message_passing_nn = create(dataset, epochs, loss_function, optimizer, data_path)
+    message_passing_nn = create(dataset, epochs, loss_function, optimizer, data_path, enable_gpu)
     message_passing_nn.start()
 
 
