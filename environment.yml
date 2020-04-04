@@ -1,4 +1,4 @@
-name: message-passing-nn-test
+name: message-passing-nn
 channels:
   - pytorch
   - defaults

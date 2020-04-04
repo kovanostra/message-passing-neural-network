@@ -15,7 +15,7 @@ from src.message_passing_nn import create
               type=click.Choice(list(loss_functions.keys())))
 @click.option('--optimizer', default='SGD', help='Set the optimizer', show_default=True,
               type=click.Choice(list(optimizers.keys())))
-@click.option('--data_path', default='data/', help='Select the path your data folder is contained ', required=True,
+@click.option('--data_path', default='data/', help='Set the path of your data folder', required=True,
               type=str)
 def start_training(dataset: str, epochs: int, loss_function: str, optimizer: str, data_path: str) -> None:
     get_logger().info("Starting training")

@@ -88,6 +88,7 @@ The model can be run from inside a docker container. To do so please execute the
 ```
 The train-model.sh will:
 
+    - Remove any previous message-passing-nn containers and images
     - Build the project
     - Create a docker image
     - Create a docker container
