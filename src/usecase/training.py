@@ -17,10 +17,10 @@ class Training:
         self.optimizer = optimizer
         self.running_loss = 0.0
 
-    def start(self, repository: Repository, device: str, multiple_gpus: bool):
+    def start(self, repository: Repository, device: str, use_all_gpus: bool):
         training_data_in_batches = self._prepare_dataset(repository, batches=5)
-        graph_encoder = self._create_graph_encoder(training_data_in_batches, device, multiple_gpus)
-        fully_connected_layer = self._create_fully_connected_layer(training_data_in_batches, device, multiple_gpus)
+        graph_encoder = self._create_graph_encoder(training_data_in_batches, device, use_all_gpus)
+        fully_connected_layer = self._create_fully_connected_layer(training_data_in_batches, device, use_all_gpus)
         self._instantiate_the_optimizer(fully_connected_layer, graph_encoder)
         self.get_logger().info('Started Training')
         for epoch in range(self.epochs):
@@ -34,20 +34,20 @@ class Training:
         training_data_in_batches = graph_preprocessor.preprocess(training_data, batches)
         return training_data_in_batches
 
-    def _create_graph_encoder(self, training_data_in_batches: Any, device: str, multiple_gpus: bool) -> GraphEncoder:
+    def _create_graph_encoder(self, training_data_in_batches: Any, device: str, use_all_gpus: bool) -> GraphEncoder:
         initialization_graph = self._extract_initialization_graph(training_data_in_batches)
         graph_encoder = GraphEncoder()
         graph_encoder.initialize_tensors(initialization_graph)
-        if multiple_gpus:
+        if use_all_gpus:
             graph_encoder = nn.DataParallel(graph_encoder)
         return graph_encoder.to(device)
 
-    def _create_fully_connected_layer(self, training_data_in_batches: Any, device: str, multiple_gpus: bool) -> Any:
+    def _create_fully_connected_layer(self, training_data_in_batches: Any, device: str, use_all_gpus: bool) -> Any:
         initialization_graph = self._extract_initialization_graph(training_data_in_batches)
         fully_connected_input_size = initialization_graph.number_of_nodes * initialization_graph.number_of_node_features
         fully_connected_output_size = initialization_graph.number_of_nodes ** 2
         fully_connected_layer = FullyConnectedLayer(fully_connected_input_size, fully_connected_output_size)
-        if multiple_gpus:
+        if use_all_gpus:
             fully_connected_layer = nn.DataParallel(fully_connected_layer)
         return fully_connected_layer.to(device)
 

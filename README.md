@@ -81,6 +81,26 @@ To see which loss functions and optimizers are available to use please run:
 python src/cli.py start-training --help
 ```
 
+### GPU support
+
+The model will automatically use a GPU if it is available. Otherwise it will use the CPU. The command line allows for various options to modify this behavior:
+
+- --enable_gpu is set by default to True and will automatically use one GPU if it is available. 
+- --which_gpu allows to select the name of the GPU you want to use if you have more than 1 available
+- --use_all_gpus is set by default to True and sets the model to use all available GPUs.
+
+### Command line interface default values
+
+Command "start-training":
+- --dataset: No default value
+- --epochs: 10
+- --loss_function: MSE
+- --optimizer: SGD
+- --data_path: data/
+- --enable_gpu: True
+- --which_gpu: No default value
+- --use_all_gpus: True
+
 ### Docker
 The model can be run from inside a docker container. To do so please execute the following shell script from inside ~/message-passing-nn/:
 ```
@@ -95,7 +115,7 @@ The train-model.sh will:
     - Start the container
     - Print the containner's logs with the --follow option activated
 
-By default the dockerfile uses the sample-dataset. To change that please access the dockerfile and insert the name of the dataset folder you wish to use.
+The Dockerfile uses all the default values of the command line interface. These values can be changed by modifying the CMD at the end of the Dockerfile.
 
 You can clear the docker container and images created by running again from inside ~/message-passing-nn/:
 ```
