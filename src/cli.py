@@ -3,15 +3,20 @@ import logging
 import click
 import sys
 
+from src.fixtures.loss_functions import loss_functions
+from src.fixtures.optimizers import optimizers
 from src.message_passing_nn import create
 
 
 @click.command("start-training", help='Starts the training')
 @click.option('--dataset', help='Select which dataset to use', required=True, type=str)
 @click.option('--epochs', default=10, help='Set the number of epochs', show_default=True, type=int)
-@click.option('--loss_function', default='MSE', help='Set the loss function', show_default=True, type=str)
-@click.option('--optimizer', default='SGD', help='Set the optimizer', show_default=True, type=str)
-@click.option('--data_path', default='data/', help='Select the path your data folder is contained ', required=True, type=str)
+@click.option('--loss_function', default='MSE', help='Set the loss function', show_default=True,
+              type=click.Choice(list(loss_functions.keys())))
+@click.option('--optimizer', default='SGD', help='Set the optimizer', show_default=True,
+              type=click.Choice(list(optimizers.keys())))
+@click.option('--data_path', default='data/', help='Set the path of your data folder', required=True,
+              type=str)
 def start_training(dataset: str, epochs: int, loss_function: str, optimizer: str, data_path: str) -> None:
     get_logger().info("Starting training")
     message_passing_nn = create(dataset, epochs, loss_function, optimizer, data_path)

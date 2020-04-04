@@ -1,6 +1,9 @@
 import os
 from unittest import TestCase
 
+import torch as to
+from torch import nn
+
 from src.repository.training_data_repository import TrainingDataRepository
 from src.usecase.training import Training
 from tests.fixtures.matrices_and_vectors import BASE_GRAPH, BASE_GRAPH_NODE_FEATURES
@@ -9,7 +12,10 @@ from tests.fixtures.matrices_and_vectors import BASE_GRAPH, BASE_GRAPH_NODE_FEAT
 class TestTraining(TestCase):
     def test_start(self):
         # Given
-        training = Training(epochs=10, loss_function='MSE', optimizer='SGD')
+        loss_function = nn.MSELoss()
+        optimizer = to.optim.SGD
+        training = Training(epochs=10, loss_function=loss_function, optimizer=optimizer)
+
         dataset = 'training-test-data'
         tests_data_path = 'tests/data/'
         repository = TrainingDataRepository(tests_data_path, dataset)

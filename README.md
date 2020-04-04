@@ -46,7 +46,7 @@ conda env create -f environment.yml
 This repository contains two dataset folders:
 
     - sample-dataset: Contains just one pair of features/labels with some default values. This dataset lets you run the code in demo mode.
-    - protein-folding: Contains pairs of features/labels for various proteins. The features represent protein characteristics, and the labels the distance between all aminoacids.
+    - protein-folding: Contains pairs of features/labels for various proteins (prepared using https://github.com/simonholmes001/structure_prediction). The features represent protein characteristics, and the labels the distance between all aminoacids.
 
 The repository expects the data to be in the following format:
 
@@ -76,6 +76,11 @@ The model runs with default values for the number of epochs (10), loss function 
  python src/cli.py --dataset sample-dataset start-training --epochs 10 -- loss_function 'MSE' --optimizer 'SGD'
  ```
 
+To see which loss functions and optimizers are available to use please run:
+```
+python src/cli.py start-training --help
+```
+
 ### Docker
 The model can be run from inside a docker container. To do so please execute the following shell script from inside ~/message-passing-nn/:
 ```
@@ -83,6 +88,7 @@ The model can be run from inside a docker container. To do so please execute the
 ```
 The train-model.sh will:
 
+    - Remove any previous message-passing-nn containers and images
     - Build the project
     - Create a docker image
     - Create a docker container

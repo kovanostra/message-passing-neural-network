@@ -1,8 +1,6 @@
 import logging
 from typing import Any
 
-from torch import nn, optim
-
 from src.domain.fully_connected_layer import FullyConnectedLayer
 from src.domain.graph import Graph
 from src.domain.graph_encoder import GraphEncoder
@@ -21,7 +19,7 @@ class Training:
         training_data_in_batches = self._prepare_dataset(repository, batches=5)
         graph_encoder = self._create_graph_encoder(training_data_in_batches)
         fully_connected_layer = self._create_fully_connected_layer(training_data_in_batches)
-        self._set_the_loss_function_and_optimizer(fully_connected_layer, graph_encoder)
+        self._instantiate_the_optimizer(fully_connected_layer, graph_encoder)
         self.get_logger().info('Started Training')
         for epoch in range(self.epochs):
             self._feed_batches(epoch, fully_connected_layer, graph_encoder, training_data_in_batches)
@@ -47,10 +45,9 @@ class Training:
         fully_connected_layer = FullyConnectedLayer(fully_connected_input_size, fully_connected_output_size)
         return fully_connected_layer
 
-    def _set_the_loss_function_and_optimizer(self, graph_encoder: GraphEncoder, fully_connected_layer: Any) -> None:
-        self.loss_function = nn.MSELoss()
+    def _instantiate_the_optimizer(self, graph_encoder: GraphEncoder, fully_connected_layer: Any) -> None:
         model_parameters = list(graph_encoder.parameters()) + list(fully_connected_layer.parameters())
-        self.optimizer = optim.SGD(model_parameters, lr=0.001, momentum=0.9)
+        self.optimizer = self.optimizer(model_parameters, lr=0.001, momentum=0.9)
 
     def _feed_batches(self,
                       epoch: int,

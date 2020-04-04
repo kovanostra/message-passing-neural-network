@@ -1,3 +1,6 @@
+#!/bin/bash
+
+echo "Removing previous containers and images for message-passing-nn"
 docker rm -f message-passing-nn-container
 docker rmi message-passing-nn
 # echo "Removing stopped containers and untagged images"
