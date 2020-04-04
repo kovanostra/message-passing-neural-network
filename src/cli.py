@@ -24,12 +24,11 @@ def main(debug):
               type=click.Choice(list(optimizers.keys())))
 @click.option('--data_path', default='data/', help='Set the path of your data folder', required=True,
               type=str)
-@click.option('--enable_gpu', default='True', help='If there is an available gpu and True, then the model will use it',
+@click.option('--enable_gpu', default='True', help='If there is an available GPU & True, the model will use it',
               show_default=True, type=click.Choice(['True', 'False']))
 @click.option('--which_gpu', help='Choose which of the available GPUs to use.', show_default=True, type=str)
-@click.option('--use_all_gpus', default='True',
-              help='If multiple gpus exist and True, then the model will use all of them', show_default=True,
-              type=click.Choice(['True', 'False']))
+@click.option('--use_all_gpus', default='True', help='If multiple GPUs exist & True, the model will use all of them',
+              show_default=True, type=click.Choice(['True', 'False']))
 def start_training(dataset: str, epochs: int, loss_function: str, optimizer: str, data_path: str,
                    enable_gpu: str, which_gpu: str, use_all_gpus: str) -> None:
     get_logger().info("Starting training")
