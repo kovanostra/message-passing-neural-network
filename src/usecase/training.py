@@ -17,7 +17,7 @@ class Training:
         self.optimizer = optimizer
         self.running_loss = 0.0
 
-    def start(self, repository: Repository, device: str, use_all_gpus: bool):
+    def start(self, repository: Repository, device: Any, use_all_gpus: bool):
         training_data_in_batches = self._prepare_dataset(repository, batches=5)
         graph_encoder = self._create_graph_encoder(training_data_in_batches, device, use_all_gpus)
         fully_connected_layer = self._create_fully_connected_layer(training_data_in_batches, device, use_all_gpus)
@@ -34,7 +34,7 @@ class Training:
         training_data_in_batches = graph_preprocessor.preprocess(training_data, batches)
         return training_data_in_batches
 
-    def _create_graph_encoder(self, training_data_in_batches: Any, device: str, use_all_gpus: bool) -> GraphEncoder:
+    def _create_graph_encoder(self, training_data_in_batches: Any, device: Any, use_all_gpus: bool) -> GraphEncoder:
         initialization_graph = self._extract_initialization_graph(training_data_in_batches)
         graph_encoder = GraphEncoder()
         graph_encoder.initialize_tensors(initialization_graph)
@@ -42,7 +42,7 @@ class Training:
             graph_encoder = nn.DataParallel(graph_encoder)
         return graph_encoder.to(device)
 
-    def _create_fully_connected_layer(self, training_data_in_batches: Any, device: str, use_all_gpus: bool) -> Any:
+    def _create_fully_connected_layer(self, training_data_in_batches: Any, device: Any, use_all_gpus: bool) -> Any:
         initialization_graph = self._extract_initialization_graph(training_data_in_batches)
         fully_connected_input_size = initialization_graph.number_of_nodes * initialization_graph.number_of_node_features
         fully_connected_output_size = initialization_graph.number_of_nodes ** 2
@@ -60,7 +60,7 @@ class Training:
                       fully_connected_layer: Any,
                       graph_encoder: GraphEncoder,
                       training_data_in_batches: Any,
-                      device: str) -> None:
+                      device: Any) -> None:
         for batch in training_data_in_batches:
             self.running_loss = self._train_batch(batch, epoch, fully_connected_layer, graph_encoder, device)
 
@@ -69,7 +69,7 @@ class Training:
                      epoch: int,
                      fully_connected_layer: Any,
                      graph_encoder: GraphEncoder,
-                     device: str,
+                     device: Any,
                      running_loss=0.0) -> float:
         for graph in batch:
             self.optimizer.zero_grad()
@@ -81,7 +81,7 @@ class Training:
                              fully_connected_layer: Any,
                              graph: Graph,
                              graph_encoder: GraphEncoder,
-                             device: str) -> Any:
+                             device: Any) -> Any:
         inputs, labels = graph.to(device), self._extract_labels_from_graph(graph).to(device)
         graph_outputs = graph_encoder.forward(inputs)
         outputs = fully_connected_layer(graph_outputs.view(-1).float())

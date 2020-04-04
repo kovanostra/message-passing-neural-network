@@ -15,7 +15,7 @@ class TestTraining(TestCase):
         loss_function = nn.MSELoss()
         optimizer = to.optim.SGD
         training = Training(epochs=10, loss_function=loss_function, optimizer=optimizer)
-        device = "cpu"
+        device = to.device("cpu")
         multiple_gpus = False
         dataset = 'training-test-data'
         tests_data_path = 'tests/data/'

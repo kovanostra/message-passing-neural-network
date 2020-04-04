@@ -1,3 +1,5 @@
+from typing import Any
+
 import torch as to
 
 from src.domain.loss_function_selector import LossFunctionSelector
@@ -8,7 +10,7 @@ from src.usecase.training import Training
 
 
 class MessagePassingNN:
-    def __init__(self, training: Training, repository: Repository, device: str, use_all_gpus: str) -> None:
+    def __init__(self, training: Training, repository: Repository, device: Any, use_all_gpus: str) -> None:
         self.training = training
         self.repository = repository
         self.device = device
@@ -35,11 +37,12 @@ def create(dataset: str,
     return MessagePassingNN(training, training_data_repository, device, use_all_gpus)
 
 
-def setup_gpu(enable_gpu: str, which_gpu: str) -> str:
+def setup_gpu(enable_gpu: str, which_gpu: str) -> Any:
     if to_boolean(enable_gpu):
-        device = to.device(which_gpu if to.cuda.is_available() else "cpu")
+        gpu_to_use = which_gpu if which_gpu else 'cuda'
+        device = to.device(gpu_to_use if to.cuda.is_available() else "cpu")
     else:
-        device = "cpu"
+        device = to.device("cpu")
     return device
 
 
