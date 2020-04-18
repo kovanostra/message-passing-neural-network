@@ -42,17 +42,17 @@ class GraphEncoder(nn.Module):
                                 graph.number_of_node_features,
                                 graph.number_of_node_features]
         base_2d_tensor_shape = [graph.number_of_node_features]
-        self.w_gru_update_gate_features = nn.Parameter(to.rand(base_4d_tensor_shape, requires_grad=True))
-        self.w_gru_forget_gate_features = nn.Parameter(to.rand(base_4d_tensor_shape, requires_grad=True))
-        self.w_gru_current_memory_message_features = nn.Parameter(to.rand(base_4d_tensor_shape, requires_grad=True))
-        self.u_gru_update_gate = nn.Parameter(to.rand(base_4d_tensor_shape, requires_grad=True))
-        self.u_gru_forget_gate = nn.Parameter(to.rand(base_4d_tensor_shape, requires_grad=True))
-        self.u_gru_current_memory_message = nn.Parameter(to.rand(base_4d_tensor_shape, requires_grad=True))
-        self.b_gru_update_gate = nn.Parameter(to.rand(base_2d_tensor_shape, requires_grad=True))
-        self.b_gru_forget_gate = nn.Parameter(to.rand(base_2d_tensor_shape, requires_grad=True))
-        self.b_gru_current_memory_message = nn.Parameter(to.rand(base_2d_tensor_shape, requires_grad=True))
-        self.u_graph_node_features = nn.Parameter(to.rand(base_3d_tensor_shape, requires_grad=True))
-        self.u_graph_neighbor_messages = nn.Parameter(to.rand(base_3d_tensor_shape, requires_grad=True))
+        self.w_gru_update_gate_features = nn.Parameter(to.rand(base_4d_tensor_shape), requires_grad=True)
+        self.w_gru_forget_gate_features = nn.Parameter(to.rand(base_4d_tensor_shape), requires_grad=True)
+        self.w_gru_current_memory_message_features = nn.Parameter(to.rand(base_4d_tensor_shape), requires_grad=True)
+        self.u_gru_update_gate = nn.Parameter(to.rand(base_4d_tensor_shape), requires_grad=True)
+        self.u_gru_forget_gate = nn.Parameter(to.rand(base_4d_tensor_shape), requires_grad=True)
+        self.u_gru_current_memory_message = nn.Parameter(to.rand(base_4d_tensor_shape), requires_grad=True)
+        self.b_gru_update_gate = nn.Parameter(to.rand(base_2d_tensor_shape), requires_grad=True)
+        self.b_gru_forget_gate = nn.Parameter(to.rand(base_2d_tensor_shape), requires_grad=True)
+        self.b_gru_current_memory_message = nn.Parameter(to.rand(base_2d_tensor_shape), requires_grad=True)
+        self.u_graph_node_features = nn.Parameter(to.rand(base_3d_tensor_shape), requires_grad=True)
+        self.u_graph_neighbor_messages = nn.Parameter(to.rand(base_3d_tensor_shape), requires_grad=True)
 
     def _send_messages(self, graph: Graph) -> Any:
         messages = to.zeros((graph.number_of_nodes,
