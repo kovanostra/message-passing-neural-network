@@ -19,7 +19,7 @@ class Training:
         training_data_in_batches = self._prepare_dataset(repository, batches=5)
         graph_encoder = self._create_graph_encoder(training_data_in_batches)
         fully_connected_layer = self._create_fully_connected_layer(training_data_in_batches)
-        self._instantiate_the_optimizer(fully_connected_layer, graph_encoder)
+        self._instantiate_the_optimizer(graph_encoder, fully_connected_layer)
         self.get_logger().info('Started Training')
         for epoch in range(self.epochs):
             self._feed_batches(epoch, fully_connected_layer, graph_encoder, training_data_in_batches)
