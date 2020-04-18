@@ -1,10 +1,12 @@
 import logging
 from typing import Any
 
+from torch.utils.data import DataLoader
+
 from src.domain.fully_connected_layer import FullyConnectedLayer
 from src.domain.graph import Graph
+from src.domain.graph_dataset import GraphDataset
 from src.domain.graph_encoder import GraphEncoder
-from src.domain.graph_preprocessor import GraphPreprocessor
 from src.repository.interface.repository import Repository
 
 
@@ -16,30 +18,29 @@ class Training:
         self.running_loss = 0.0
 
     def start(self, repository: Repository):
-        training_data_in_batches = self._prepare_dataset(repository, batches=5)
-        graph_encoder = self._create_graph_encoder(training_data_in_batches)
-        fully_connected_layer = self._create_fully_connected_layer(training_data_in_batches)
+        training_data, initialization_graph = self._prepare_dataset(repository, batches=5)
+        graph_encoder = self._create_graph_encoder(initialization_graph)
+        fully_connected_layer = self._create_fully_connected_layer(initialization_graph)
         self._instantiate_the_optimizer(graph_encoder, fully_connected_layer)
         self.get_logger().info('Started Training')
         for epoch in range(self.epochs):
-            self._feed_batches(epoch, fully_connected_layer, graph_encoder, training_data_in_batches)
+            self._feed_batches(epoch, fully_connected_layer, graph_encoder, training_data)
         self.get_logger().info('Finished Training')
 
-    @staticmethod
-    def _prepare_dataset(repository: Repository, batches: int) -> Any:
-        training_data = repository.get_all_features_and_labels_from_separate_files()
-        graph_preprocessor = GraphPreprocessor()
-        training_data_in_batches = graph_preprocessor.preprocess(training_data, batches)
-        return training_data_in_batches
+    def _prepare_dataset(self, repository: Repository, batches: int) -> Any:
+        raw_training_data = repository.get_all_features_and_labels_from_separate_files()
+        graph_dataset = GraphDataset(raw_training_data)
+        training_data = DataLoader(graph_dataset, batches)
+        return training_data, self._extract_initialization_graph(raw_training_data)
 
-    def _create_graph_encoder(self, training_data_in_batches: Any) -> GraphEncoder:
-        initialization_graph = self._extract_initialization_graph(training_data_in_batches)
+    @staticmethod
+    def _create_graph_encoder(initialization_graph: Graph) -> GraphEncoder:
         graph_encoder = GraphEncoder()
         graph_encoder.initialize_tensors(initialization_graph)
         return graph_encoder
 
-    def _create_fully_connected_layer(self, training_data_in_batches: Any) -> Any:
-        initialization_graph = self._extract_initialization_graph(training_data_in_batches)
+    @staticmethod
+    def _create_fully_connected_layer(initialization_graph: Graph) -> Any:
         fully_connected_input_size = initialization_graph.number_of_nodes * initialization_graph.number_of_node_features
         fully_connected_output_size = initialization_graph.number_of_nodes ** 2
         fully_connected_layer = FullyConnectedLayer(fully_connected_input_size, fully_connected_output_size)
@@ -53,8 +54,8 @@ class Training:
                       epoch: int,
                       fully_connected_layer: Any,
                       graph_encoder: GraphEncoder,
-                      training_data_in_batches: Any) -> None:
-        for batch in training_data_in_batches:
+                      training_data: Any) -> None:
+        for batch in training_data:
             self.running_loss = self._train_batch(batch, epoch, fully_connected_layer, graph_encoder)
 
     def _train_batch(self,
@@ -91,8 +92,8 @@ class Training:
         return running_loss
 
     @staticmethod
-    def _extract_initialization_graph(training_data_in_batches: Any) -> Graph:
-        return training_data_in_batches[0][0]
+    def _extract_initialization_graph(training_data: Any) -> Graph:
+        return Graph(training_data[0][1], training_data[0][0])
 
     @staticmethod
     def get_logger() -> logging.Logger:
