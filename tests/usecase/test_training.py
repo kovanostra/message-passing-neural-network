@@ -12,6 +12,7 @@ from tests.fixtures.matrices_and_vectors import BASE_GRAPH, BASE_GRAPH_NODE_FEAT
 class TestTraining(TestCase):
     def test_start(self):
         # Given
+        batch_size = 1
         loss_function = nn.MSELoss()
         optimizer = to.optim.SGD
         training = Training(epochs=10, loss_function=loss_function, optimizer=optimizer)
@@ -28,7 +29,7 @@ class TestTraining(TestCase):
         repository.save(filenames_to_save[1], labels)
 
         # When
-        training.start(repository)
+        training.start(repository, batch_size)
 
         # Then
         self.assertTrue(training.running_loss > 0.0)

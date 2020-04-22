@@ -3,17 +3,16 @@ from unittest import TestCase
 import numpy as np
 
 from src.domain.edge import Edge
-from src.domain.graph import Graph
 from src.domain.node import Node
 from tests.fixtures.matrices_and_vectors import BASE_GRAPH, BASE_GRAPH_NODE_FEATURES
 
 
 class TestEdge(TestCase):
     def setUp(self) -> None:
-        graph = Graph(BASE_GRAPH,
-                      BASE_GRAPH_NODE_FEATURES)
-        start_node = Node(graph, 2)
-        end_node = Node(graph, 0)
+        node_features = BASE_GRAPH_NODE_FEATURES
+        labels = BASE_GRAPH.view(-1)
+        start_node = Node(node_features, labels, 2)
+        end_node = Node(node_features, labels, 0)
         self.edge = Edge(start_node, end_node)
 
     def test_get_edge_slice(self):

@@ -14,8 +14,6 @@ BASE_GRAPH_EDGE_FEATURES = to.tensor([[[0.0, 0.0],   [1.0, 2.0], [2.0, 0.5],   [
                                       [[1.0, 2.0],   [0.0, 0.0], [1.0, 1.0],   [0.0, 0.0]],
                                       [[2.0, 0.5],   [1.0, 1.0], [0.0, 0.0],   [0.5, 0.5]],
                                       [[0.0, 0.0],   [0.0, 0.0], [0.5, 0.5],   [0.0, 0.0]]])
-BASE_GRAPH_NODES_NUMBER = BASE_GRAPH.shape[0]
-BASE_GRAPH_EDGES_NUMBER = 2 * BASE_GRAPH_EDGE_FEATURES.shape[0]
 BASE_W_MATRIX = to.tensor([[BASE_ZEROS_MATRIX, BASE_UNITY_MATRIX, BASE_UNITY_MATRIX, BASE_ZEROS_MATRIX],
                            [BASE_UNITY_MATRIX, BASE_ZEROS_MATRIX, BASE_UNITY_MATRIX, BASE_ZEROS_MATRIX],
                            [BASE_UNITY_MATRIX, BASE_UNITY_MATRIX, BASE_ZEROS_MATRIX, BASE_UNITY_MATRIX],

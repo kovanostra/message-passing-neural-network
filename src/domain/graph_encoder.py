@@ -5,14 +5,16 @@ import torch.nn as nn
 
 from src.domain.edge import Edge
 from src.domain.graph import Graph
-from src.domain.message_gru import Message
+from src.domain.message_gru import MessageGRU
 from src.domain.node import Node
 
 
 class GraphEncoder(nn.Module):
-    def __init__(self):
+    def __init__(self, time_steps: int, number_of_nodes: int, number_of_node_features: int):
         super(GraphEncoder, self).__init__()
-        self.time_steps = 5
+        self.time_steps = time_steps
+        self.number_of_nodes = number_of_nodes
+        self.number_of_node_features = number_of_node_features
         self.w_gru_update_gate_features = None
         self.w_gru_forget_gate_features = None
         self.w_gru_current_memory_message_features = None
@@ -25,12 +27,12 @@ class GraphEncoder(nn.Module):
         self.u_graph_node_features = None
         self.u_graph_neighbor_messages = None
 
-    def forward(self, graph: Graph) -> Any:
-        return self.encode(graph)
+    def forward(self, node_features: Any, adjacency_matrix: Any, batch_size: int) -> Any:
+        return self.encode(node_features, adjacency_matrix, batch_size)
 
-    def encode(self, graph: Graph) -> Any:
-        messages = self._send_messages(graph)
-        encodings = self._encode_nodes(graph, messages)
+    def encode(self, node_features: Any, adjacency_matrix: Any, batch_size: int) -> Any:
+        messages = self._send_messages(node_features, adjacency_matrix, batch_size)
+        encodings = self._encode_nodes(node_features, messages, batch_size)
         return encodings
 
     def initialize_tensors(self, graph: Graph) -> None:
@@ -54,107 +56,130 @@ class GraphEncoder(nn.Module):
         self.u_graph_node_features = nn.Parameter(to.rand(base_3d_tensor_shape), requires_grad=True)
         self.u_graph_neighbor_messages = nn.Parameter(to.rand(base_3d_tensor_shape), requires_grad=True)
 
-    def _send_messages(self, graph: Graph) -> Any:
-        messages = to.zeros((graph.number_of_nodes,
-                             graph.number_of_nodes,
-                             graph.number_of_node_features))
-        for step in range(self.time_steps):
-            messages = self._compose_messages_from_nodes_to_targets(graph, messages)
+    def _send_messages(self, node_features: Any, adjacency_matrix: Any, batch_size: int) -> Any:
+        messages = to.zeros((batch_size,
+                             self.number_of_nodes,
+                             self.number_of_nodes,
+                             self.number_of_node_features))
+        for batch in range(batch_size):
+            for step in range(self.time_steps):
+                messages[batch] = self._compose_messages_from_nodes_to_targets(node_features[batch],
+                                                                               adjacency_matrix[batch],
+                                                                               messages[batch])
         return messages
 
-    def _encode_nodes(self, graph: Graph, messages: Any) -> Any:
-        encoded_node = to.zeros(graph.node_features.shape)
-        for node_id in range(graph.number_of_nodes):
-            encoded_node[node_id] += self._apply_recurrent_layer_for_node(graph, messages, node_id)
+    def _encode_nodes(self, node_features: Any, messages: Any, batch_size: int) -> Any:
+        encoded_node = to.zeros(batch_size, self.number_of_nodes, self.number_of_node_features)
+        for batch in range(batch_size):
+            for node_id in range(self.number_of_nodes):
+                encoded_node[batch, node_id] += self._apply_recurrent_layer_for_node(node_features[batch],
+                                                                                     messages[batch],
+                                                                                     node_id)
         return encoded_node
 
-    def _apply_recurrent_layer_for_node(self, graph: Graph, messages: Any, node_id: int) -> Any:
-        node_encoding_features = self.u_graph_node_features[node_id].matmul(graph.node_features[node_id])
+    def _apply_recurrent_layer_for_node(self, node_features: Any, messages: Any, node_id: int) -> Any:
+        node_encoding_features = self.u_graph_node_features[node_id].matmul(node_features[node_id])
         node_encoding_messages = self.u_graph_neighbor_messages[node_id].matmul(to.sum(messages[node_id], dim=0))
         return to.relu(node_encoding_features + node_encoding_messages)
 
-    def _compose_messages_from_nodes_to_targets(self, graph: Graph, messages: Any) -> Any:
+    def _compose_messages_from_nodes_to_targets(self, node_features: Any, adjacency_matrix: Any, messages: Any) -> Any:
         new_messages = to.zeros(messages.shape)
-        for node_id in range(graph.number_of_nodes):
-            node = self._create_node(graph, node_id)
+        for node_id in range(self.number_of_nodes):
+            node = self._create_node(node_features, adjacency_matrix, node_id)
             for end_node_id in node.neighbors:
-                end_node = self._create_node(graph, end_node_id)
+                end_node = self._create_node(node_features, adjacency_matrix, end_node_id)
                 edge = self._create_edge(node, end_node)
                 edge_slice = edge.get_edge_slice()
-                message = self._get_message_inputs(messages, node, edge, graph)
+                message = self._get_message_inputs(messages, node, edge, node_features, adjacency_matrix)
                 message.compose()
                 new_messages[edge_slice] = message.value
         return new_messages
 
-    def _get_message_inputs(self, messages: Any, node: Node, edge: Edge, graph: Graph) -> Message:
+    def _get_message_inputs(self, messages: Any,
+                            node: Node,
+                            edge: Edge,
+                            node_features: Any,
+                            adjacency_matrix: Any) -> MessageGRU:
         message = self._create_message()
         message.previous_messages = self._get_messages_from_all_node_neighbors_except_target_summed(messages,
                                                                                                     node,
-                                                                                                    edge).value
-        message.update_gate = self._pass_through_update_gate(messages, node, edge, graph)
-        message.current_memory = self._get_current_memory_message(messages, node, edge, graph)
+                                                                                                    edge)
+        message.update_gate = self._pass_through_update_gate(messages, node, edge, node_features)
+        message.current_memory = self._get_current_memory_message(messages, node, edge, node_features, adjacency_matrix)
         return message
 
-    def _get_messages_from_all_node_neighbors_except_target_summed(self, messages: Any, node: Node,
-                                                                   edge: Edge) -> Message:
-        messages_from_the_other_neighbors = self._create_message()
-        messages_from_the_other_neighbors.value = to.zeros(node.features.shape[0])
+    @staticmethod
+    def _get_messages_from_all_node_neighbors_except_target_summed(messages: Any, node: Node,
+                                                                   edge: Edge) -> Any:
+        messages_from_the_other_neighbors = to.zeros(node.features.shape[0])
         if node.neighbors_count > 1:
             neighbors_slice = edge.get_start_node_neighbors_without_end_node()
-            messages_from_the_other_neighbors.value = to.sum(messages[neighbors_slice], dim=0)
+            messages_from_the_other_neighbors = to.sum(messages[neighbors_slice], dim=0)
         return messages_from_the_other_neighbors
 
-    def _pass_through_update_gate(self, messages: Any, node: Node, edge: Edge, graph: Graph) -> Any:
+    def _pass_through_update_gate(self, messages: Any, node: Node, edge: Edge, node_features: Any) -> Any:
         message_from_a_neighbor_other_than_target = self._get_messages_from_all_node_neighbors_except_target_summed(
             messages,
             node,
             edge)
         edge_slice = edge.get_edge_slice()
         update_gate_output = to.sigmoid(
-            self.w_gru_update_gate_features[edge_slice].matmul(graph.node_features[node.node_id]) +
-            self.u_gru_update_gate[edge_slice].matmul(message_from_a_neighbor_other_than_target.value) +
-            self.b_gru_update_gate)
+            to.add(
+                to.add(self.w_gru_update_gate_features[edge_slice].matmul(node_features[node.node_id]),
+                       self.u_gru_update_gate[edge_slice].matmul(message_from_a_neighbor_other_than_target)),
+                self.b_gru_update_gate))
         return update_gate_output
 
-    def _get_current_memory_message(self, messages: Any, node: Node, edge: Edge, graph: Graph) -> Any:
-        messages_passed_through_reset_gate = self._keep_or_reset_messages(messages, node, edge, graph)
+    def _get_current_memory_message(self, messages: Any,
+                                    node: Node,
+                                    edge: Edge,
+                                    node_features: Any,
+                                    adjacency_matrix: Any) -> Any:
+        messages_passed_through_reset_gate = self._keep_or_reset_messages(messages,
+                                                                          node,
+                                                                          edge,
+                                                                          node_features,
+                                                                          adjacency_matrix)
         edge_slice = edge.get_edge_slice()
-        current_memory_message = self.w_gru_current_memory_message_features[edge_slice].matmul(
-            graph.node_features[node.node_id]) + self.u_gru_current_memory_message[edge_slice].matmul(
-            messages_passed_through_reset_gate) + self.b_gru_current_memory_message
+        current_memory_message = to.add(
+            to.add(self.w_gru_current_memory_message_features[edge_slice].matmul(node_features[node.node_id]),
+                   self.u_gru_current_memory_message[edge_slice].matmul(messages_passed_through_reset_gate)),
+            self.b_gru_current_memory_message)
         return to.tanh(current_memory_message)
 
-    def _keep_or_reset_messages(self, messages: Any, node: Node, edge: Edge, graph: Graph) -> Any:
-        messages_from_the_other_neighbors_summed = self._create_message()
-        messages_from_the_other_neighbors_summed.value = to.zeros(node.features.shape[0])
-        neighbors_slice = edge.get_start_node_neighbors_without_end_node()[0]
+    def _keep_or_reset_messages(self, messages: Any,
+                                node: Node,
+                                edge: Edge,
+                                node_features: Any,
+                                adjacency_matrix: Any) -> Any:
         edge_slice = edge.get_edge_slice()
+        neighbors_slice = edge.get_start_node_neighbors_without_end_node()[0]
+        messages_from_the_other_neighbors = to.zeros(node.features.shape[0])
         for reset_node_index in neighbors_slice:
-            reset_node = self._create_node(graph, reset_node_index)
+            reset_node = self._create_node(node_features, adjacency_matrix, reset_node_index)
             reset_edge = self._create_edge(node, reset_node)
             reset_edge_slice = reset_edge.get_edge_slice()
-            reset_gate_output = self._pass_through_reset_gate(messages, node, reset_edge, graph)
-            messages_from_the_other_neighbors_summed.value += reset_gate_output * messages[reset_edge_slice]
-        return self.u_gru_current_memory_message[edge_slice].matmul(messages_from_the_other_neighbors_summed.value)
+            reset_gate_output = self._pass_through_reset_gate(messages, node, reset_edge, node_features)
+            messages_from_the_other_neighbors += to.mul(reset_gate_output, messages[reset_edge_slice])
+        return self.u_gru_current_memory_message[edge_slice].matmul(messages_from_the_other_neighbors)
 
-    def _pass_through_reset_gate(self, messages: Any, node: Node, edge: Edge, graph: Graph) -> Any:
+    def _pass_through_reset_gate(self, messages: Any, node: Node, edge: Edge, node_features: Any) -> Any:
         edge_slice = edge.get_edge_slice()
         message_from_a_neighbor_other_than_target = messages[edge_slice]
-        reset_gate_output = to.sigmoid(
-            self.w_gru_update_gate_features[edge_slice].matmul(graph.node_features[node.node_id]) +
-            self.u_gru_update_gate[edge_slice].matmul(message_from_a_neighbor_other_than_target) +
-            self.b_gru_update_gate)
-        return reset_gate_output
+        return to.sigmoid(
+            to.add(
+                to.add(self.w_gru_update_gate_features[edge_slice].matmul(node_features[node.node_id]),
+                       self.u_gru_update_gate[edge_slice].matmul(message_from_a_neighbor_other_than_target)),
+                self.b_gru_update_gate)).long()
 
     @staticmethod
-    def _create_node(graph: Graph, node_id: int) -> Node:
-        return Node(graph, node_id)
+    def _create_node(node_features: Any, adjacency_matrix: Any, node_id: int) -> Node:
+        return Node(node_features, adjacency_matrix, node_id)
 
     @staticmethod
     def _create_edge(start_node: Node, end_node: Node) -> Edge:
         return Edge(start_node, end_node)
 
     @staticmethod
-    def _create_message() -> Message:
-        return Message()
-
+    def _create_message() -> MessageGRU:
+        return MessageGRU()

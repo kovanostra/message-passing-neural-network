@@ -4,7 +4,7 @@ import torch as to
 
 
 class FullyConnectedLayer(to.nn.Module):
-    def __init__(self, input_size, output_size):
+    def __init__(self, input_size: int, output_size: int):
         super().__init__()
         self.input_size = input_size
         self.output_size = output_size

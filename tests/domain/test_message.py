@@ -1,23 +1,23 @@
 from unittest import TestCase
 
-import numpy as np
+import torch as to
 
-from src.domain.message_gru import Message
+from src.domain.message_gru import MessageGRU
 
 
 class TestMessage(TestCase):
     def setUp(self) -> None:
-        self.message = Message()
-        self.message.update_gate = np.array([1, 2])
-        self.message.previous_messages = np.array([-2, 2])
-        self.message.current_memory = np.array([-1, 1])
+        self.message = MessageGRU()
+        self.message.update_gate = to.tensor([1, 2])
+        self.message.previous_messages = to.tensor([-2, 2])
+        self.message.current_memory = to.tensor([-1, 1])
 
     def test_compose(self):
         # Given
-        message_value_expected = np.array([-1, 0])
+        message_value_expected = to.tensor([-1, 0]).float()
 
         # When
         self.message.compose()
 
         # Then
-        self.assertTrue(np.array_equal(message_value_expected, self.message.value))
+        self.assertTrue(to.allclose(message_value_expected, self.message.value))
