@@ -12,14 +12,15 @@ from src.repository.interface.repository import Repository
 
 
 class Training:
-    def __init__(self, epochs: int, loss_function: Any, optimizer: Any) -> None:
+    def __init__(self, training_data_repository: Repository, epochs: int, loss_function: Any, optimizer: Any) -> None:
+        self.repository = training_data_repository
         self.epochs = epochs
         self.loss_function = loss_function
         self.optimizer = optimizer
         self.running_loss = 0.0
 
-    def start(self, repository: Repository, batch_size: int):
-        training_data, initialization_graph = self._prepare_dataset(repository, batch_size)
+    def start(self, batch_size: int):
+        training_data, initialization_graph = self._prepare_dataset(batch_size)
         graph_encoder = self._instantiate_graph_encoder(initialization_graph)
         fully_connected_layer = self._instantiate_fully_connected_layer(initialization_graph, batch_size)
         self._instantiate_the_optimizer(graph_encoder, fully_connected_layer)
@@ -29,17 +30,16 @@ class Training:
             for features, labels in training_data:
                 current_batch_size = self._get_current_batch_size(features)
                 self.optimizer.zero_grad()
-                with torch.autograd.set_detect_anomaly(True):
-                    loss = self._make_a_forward_pass(graph_encoder,
-                                                     fully_connected_layer,
-                                                     features,
-                                                     labels,
-                                                     current_batch_size)
-                    self.running_loss = self._backpropagate_the_errors(epoch, loss, self.running_loss)
+                loss = self._make_a_forward_pass(graph_encoder,
+                                                 fully_connected_layer,
+                                                 features,
+                                                 labels,
+                                                 current_batch_size)
+                self.running_loss = self._backpropagate_the_errors(epoch, loss, self.running_loss)
         self.get_logger().info('Finished Training')
 
-    def _prepare_dataset(self, repository: Repository, batch_size: int) -> Any:
-        raw_training_data = repository.get_all_features_and_labels_from_separate_files()
+    def _prepare_dataset(self, batch_size: int) -> Any:
+        raw_training_data = self.repository.get_all_features_and_labels_from_separate_files()
         graph_dataset = GraphDataset(raw_training_data)
         training_data = DataLoader(graph_dataset, batch_size)
         return training_data, self._extract_initialization_graph(raw_training_data)
@@ -57,7 +57,7 @@ class Training:
         fully_connected_input_size = batch_size * \
                                      initialization_graph.number_of_nodes * \
                                      initialization_graph.number_of_node_features
-        fully_connected_output_size = initialization_graph.number_of_nodes ** 2
+        fully_connected_output_size = batch_size * initialization_graph.number_of_nodes ** 2
         fully_connected_layer = FullyConnectedLayer(fully_connected_input_size, fully_connected_output_size)
         return fully_connected_layer
 
@@ -72,9 +72,10 @@ class Training:
                              labels: Any,
                              current_batch_size: int) -> Any:
         graph_outputs = graph_encoder.forward(features, adjacency_matrix=labels, batch_size=current_batch_size)
-        graph_outputs_flattened = self._flatten(graph_outputs, current_batch_size)
+        labels_flattened = self._flatten(labels, desired_size=fully_connected_layer.output_size)
+        graph_outputs_flattened = self._flatten(graph_outputs, desired_size=fully_connected_layer.input_size)
         outputs = fully_connected_layer(graph_outputs_flattened)
-        loss = self.loss_function(outputs, labels)
+        loss = self.loss_function(outputs, labels_flattened)
         return loss
 
     def _backpropagate_the_errors(self, epoch: int, loss: Any, running_loss: float) -> float:
@@ -89,8 +90,12 @@ class Training:
         return graph.adjacency_matrix.float().view(-1)
 
     @staticmethod
-    def _flatten(tensors: List[Any], batch_size: int) -> Any:
-        return tensors.view(batch_size, -1)
+    def _flatten(tensors: List[Any], desired_size: Any = 0) -> Any:
+        flattened_tensor = tensors.view(-1)
+        if 0 < desired_size != len(flattened_tensor):
+            size_difference = abs(len(flattened_tensor) - desired_size)
+            flattened_tensor = torch.cat((flattened_tensor, torch.zeros(size_difference)))
+        return flattened_tensor
 
     @staticmethod
     def _extract_initialization_graph(training_data: Any) -> Graph:
