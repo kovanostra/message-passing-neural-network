@@ -71,9 +71,9 @@ In some cases you may need to export the path to the message-passing-nn reposito
 ```
 export PYTHONPATH=your/path/to/message-passing-nn/
 ```
-The model runs with default values for the number of epochs (10), loss function ('MSE') and optimizer ('SGD'). However, these can be changed as seen below:
+The model runs with default values for the number of epochs (10), loss function ('MSE'), optimizer ('SGD') and batch size (1). However, these can be changed as seen below:
  ```
- python src/cli.py --dataset sample-dataset start-training --epochs 10 -- loss_function 'MSE' --optimizer 'SGD'
+ python src/cli.py start-training --dataset sample-dataset --epochs 10 -- loss_function 'MSE' --optimizer 'SGD' --batch_size 1
  ```
 
 To see which loss functions and optimizers are available to use please run:
