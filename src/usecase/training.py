@@ -20,7 +20,7 @@ class Training:
         self.running_loss = 0.0
 
     def start(self, batch_size: int):
-        training_data, initialization_graph = self._prepare_dataset(batch_size)
+        training_data, validation_data, initialization_graph = self._prepare_dataset(batch_size)
         graph_encoder = self._instantiate_graph_encoder(initialization_graph)
         fully_connected_layer = self._instantiate_fully_connected_layer(initialization_graph, batch_size)
         self._instantiate_the_optimizer(graph_encoder, fully_connected_layer)
@@ -38,11 +38,13 @@ class Training:
                 self.running_loss = self._backpropagate_the_errors(epoch, loss, self.running_loss)
         self.get_logger().info('Finished Training')
 
-    def _prepare_dataset(self, batch_size: int) -> Any:
-        raw_training_data = self.repository.get_all_features_and_labels_from_separate_files()
-        graph_dataset = GraphDataset(raw_training_data)
-        training_data = DataLoader(graph_dataset, batch_size)
-        return training_data, self._extract_initialization_graph(raw_training_data)
+    def _prepare_dataset(self, batch_size: int, validation_split: float = 0.2) -> Any:
+        raw_dataset = self.repository.get_all_features_and_labels_from_separate_files()
+        training_data = DataLoader(GraphDataset(raw_dataset[:int((1 - validation_split) * len(raw_dataset))]),
+                                   batch_size)
+        validation_data = DataLoader(GraphDataset(raw_dataset[int((1 - validation_split) * len(raw_dataset)):]),
+                                     batch_size)
+        return training_data, validation_data, self._extract_initialization_graph(raw_dataset)
 
     @staticmethod
     def _instantiate_graph_encoder(initialization_graph: Graph) -> GraphEncoder:
