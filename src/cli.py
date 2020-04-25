@@ -17,9 +17,10 @@ from src.message_passing_nn import create
               type=click.Choice(list(optimizers.keys())))
 @click.option('--data_path', default='data/', help='Set the path of your data folder', required=True,
               type=str)
-def start_training(dataset: str, epochs: int, loss_function: str, optimizer: str, data_path: str) -> None:
+@click.option('--batch_size', default=1, help='Set the batch size', required=True, type=int)
+def start_training(dataset: str, epochs: int, loss_function: str, optimizer: str, data_path: str, batch_size: int) -> None:
     get_logger().info("Starting training")
-    message_passing_nn = create(dataset, epochs, loss_function, optimizer, data_path)
+    message_passing_nn = create(dataset, epochs, loss_function, optimizer, data_path, batch_size)
     message_passing_nn.start()
 
 

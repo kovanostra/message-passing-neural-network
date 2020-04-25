@@ -1,7 +1,9 @@
+import torch as to
+
 from src.domain.interface.message import Message
 
 
-class Message(Message):
+class MessageGRU(Message):
 
     def __init__(self):
         super().__init__()
@@ -10,4 +12,10 @@ class Message(Message):
         self.current_memory = None
 
     def compose(self) -> None:
-        self.value = (1 - self.update_gate) * self.previous_messages + self.update_gate * self.current_memory
+        self.value = to.add(
+                            to.mul(
+                                   to.sub(to.ones(self.update_gate.shape),
+                                          self.update_gate),
+                                   self.previous_messages),
+                            to.mul(self.update_gate,
+                                   self.current_memory))
