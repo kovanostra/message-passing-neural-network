@@ -31,8 +31,9 @@ class ModelTrainer:
             self.optimizer.zero_grad()
             outputs = self.model.forward(features, adjacency_matrix=labels, batch_size=current_batch_size)
             loss = self.loss_function(outputs, labels)
-            training_loss += self._do_backpropagate(epoch, loss, training_loss)
+            training_loss += self._do_backpropagate(loss, training_loss)
         training_loss /= len(training_data)
+        self.get_logger().info('[Iteration %d] training loss: %.3f' % (epoch + 1, training_loss))
         return training_loss
 
     def do_evaluate(self, evaluation_data: Any, epoch: int = None) -> float:
@@ -46,16 +47,15 @@ class ModelTrainer:
                 evaluation_loss += float(loss)
             evaluation_loss /= len(evaluation_data)
             if epoch is not None:
-                self.get_logger().info('[%d] validation loss: %.3f' % (epoch + 1, evaluation_loss))
+                self.get_logger().info('[Iteration %d] validation loss: %.3f' % (epoch + 1, evaluation_loss))
             else:
                 self.get_logger().info('Test loss: %.3f' % evaluation_loss)
         return evaluation_loss
 
-    def _do_backpropagate(self, epoch: int, loss: Any, training_loss: float) -> float:
+    def _do_backpropagate(self, loss: Any, training_loss: float) -> float:
         loss.backward()
         self.optimizer.step()
         training_loss += loss.item()
-        self.get_logger().info('[%d] training loss: %.3f' % (epoch + 1, training_loss))
         return training_loss
 
     def _instantiate_the_optimizer(self, optimizer: Any) -> Any:

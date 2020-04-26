@@ -20,7 +20,7 @@ class Training:
         self.get_logger().info('Started Training')
         training_loss, validation_loss, test_loss = (0.0, 0.0, 0.0)
         for epoch in range(self.epochs):
-            training_loss = self.model_trainer.do_train(training_data, epoch,)
+            training_loss = self.model_trainer.do_train(training_data, epoch)
             if epoch % 10 == 0:
                 validation_loss = self.model_trainer.do_evaluate(validation_data, epoch)
         test_loss = self.model_trainer.do_evaluate(test_data)
