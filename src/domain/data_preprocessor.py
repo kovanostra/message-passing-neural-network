@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Tuple, List
+from typing import Any, Tuple
 
 import torch as to
 from torch.utils.data import DataLoader
@@ -30,8 +30,13 @@ class DataPreprocessor(Preprocessor):
         return Graph(raw_dataset[0][1], raw_dataset[0][0])
 
     @staticmethod
-    def flatten(tensors: List[Any], desired_size: Any = 0) -> Any:
+    def flatten(tensors: Any, desired_size: Any = 0) -> Any:
         flattened_tensor = tensors.view(-1)
+        flattened_tensor = DataPreprocessor._pad_zeros(desired_size, flattened_tensor)
+        return flattened_tensor
+
+    @staticmethod
+    def _pad_zeros(desired_size, flattened_tensor):
         if 0 < desired_size != len(flattened_tensor):
             size_difference = abs(len(flattened_tensor) - desired_size)
             flattened_tensor = to.cat((flattened_tensor, to.zeros(size_difference)))

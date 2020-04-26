@@ -14,6 +14,8 @@ class TestTraining(TestCase):
         # Given
         batch_size = 3
         dataset_size = 6
+        validation_split = 0.2
+        test_split = 0.1
         loss_function = nn.MSELoss()
         optimizer = to.optim.SGD
         dataset = 'training-test-data'
@@ -30,7 +32,7 @@ class TestTraining(TestCase):
             repository.save(labels_filenames[i], labels)
 
         # When
-        training.start(batch_size)
+        training.start(batch_size, validation_split, test_split)
 
         # Then
         self.assertTrue(training.running_loss > 0.0)
@@ -42,6 +44,8 @@ class TestTraining(TestCase):
         # Given
         batch_size = 3
         dataset_size = 5
+        validation_split = 0.2
+        test_split = 0.1
         loss_function = nn.MSELoss()
         optimizer = to.optim.SGD
         dataset = 'training-test-data'
@@ -58,7 +62,7 @@ class TestTraining(TestCase):
             repository.save(labels_filenames[i], labels)
 
         # When
-        training.start(batch_size)
+        training.start(batch_size, validation_split, test_split)
 
         # Then
         self.assertTrue(training.running_loss > 0.0)
