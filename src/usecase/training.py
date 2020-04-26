@@ -18,6 +18,7 @@ class Training:
                                                                                                 test_split)
         self.model_trainer.instantiate_model_and_optimizer(initialization_graph)
         self.get_logger().info('Started Training')
+        training_loss, validation_loss, test_loss = (0.0, 0.0, 0.0)
         for epoch in range(self.epochs):
             training_loss = self.model_trainer.do_train(epoch, training_data)
             if epoch % 10 == 0:
