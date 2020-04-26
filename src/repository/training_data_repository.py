@@ -26,12 +26,12 @@ class TrainingDataRepository(Repository):
 
     def _get_labels(self, file):
         with open(self.data_path + file + 'labels.pickle', 'rb') as labels_file:
-            labels = pickle.load(labels_file)
+            labels = pickle.load(labels_file).float()
         return labels
 
     def _get_features(self, file):
         with open(self.data_path + file + 'features.pickle', 'rb') as features_file:
-            features = pickle.load(features_file)
+            features = pickle.load(features_file).float()
         return features
 
     def _extract_name_prefixes_from_filenames(self):
