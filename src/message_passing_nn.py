@@ -3,11 +3,11 @@ from src.domain.loss_function_selector import LossFunctionSelector
 from src.domain.model_trainer import ModelTrainer
 from src.domain.optimizer_selector import OptimizerSelector
 from src.repository.training_data_repository import TrainingDataRepository
-from src.usecase.training import Training
+from src.usecase.grid_search import GridSearch
 
 
 class MessagePassingNN:
-    def __init__(self, training: Training, batch_size: int, validation_split: float, test_split: float) -> None:
+    def __init__(self, training: GridSearch, batch_size: int, validation_split: float, test_split: float) -> None:
         self.training = training
         self.batch_size = batch_size
         self.validation_split = validation_split
@@ -30,7 +30,7 @@ def create(dataset: str,
     loss_function = LossFunctionSelector(loss_function_selection).loss_function
     optimizer = OptimizerSelector(optimizer_selection).optimizer
     model_trainer = ModelTrainer(GraphEncoder, loss_function, optimizer)
-    training = Training(training_data_repository, model_trainer, epochs)
+    training = GridSearch(training_data_repository, model_trainer, epochs)
     return MessagePassingNN(training, batch_size, validation_split, test_split)
 
 

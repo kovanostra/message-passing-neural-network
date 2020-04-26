@@ -6,7 +6,7 @@ from src.domain.model_trainer import ModelTrainer
 from src.repository.interface.repository import Repository
 
 
-class Training:
+class GridSearch:
     def __init__(self, training_data_repository: Repository, model_trainer: ModelTrainer, epochs: int) -> None:
         self.repository = training_data_repository
         self.model_trainer = model_trainer

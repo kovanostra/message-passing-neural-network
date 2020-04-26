@@ -7,7 +7,7 @@ from torch import nn
 from src.domain.graph_encoder import GraphEncoder
 from src.domain.model_trainer import ModelTrainer
 from src.repository.training_data_repository import TrainingDataRepository
-from src.usecase.training import Training
+from src.usecase.grid_search import GridSearch
 from tests.fixtures.matrices_and_vectors import BASE_GRAPH, BASE_GRAPH_NODE_FEATURES
 
 
@@ -24,7 +24,7 @@ class TestTraining(TestCase):
         tests_data_path = 'tests/data/'
         repository = TrainingDataRepository(tests_data_path, dataset)
         model_trainer = ModelTrainer(GraphEncoder, loss_function, optimizer)
-        training = Training(repository, model_trainer, epochs=10)
+        training = GridSearch(repository, model_trainer, epochs=10)
 
         features = BASE_GRAPH_NODE_FEATURES
         labels = BASE_GRAPH
@@ -57,7 +57,7 @@ class TestTraining(TestCase):
         tests_data_path = 'tests/data/'
         repository = TrainingDataRepository(tests_data_path, dataset)
         model_trainer = ModelTrainer(GraphEncoder, loss_function, optimizer)
-        training = Training(repository, model_trainer, epochs=10)
+        training = GridSearch(repository, model_trainer, epochs=10)
 
         features = BASE_GRAPH_NODE_FEATURES
         labels = BASE_GRAPH
