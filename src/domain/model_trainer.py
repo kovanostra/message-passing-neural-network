@@ -45,7 +45,7 @@ class ModelTrainer:
                 loss = self.loss_function(outputs, labels_validation)
                 evaluation_loss += float(loss)
             evaluation_loss /= len(evaluation_data)
-            if epoch:
+            if epoch is not None:
                 self.get_logger().info('[%d] validation loss: %.3f' % (epoch + 1, evaluation_loss))
             else:
                 self.get_logger().info('Test loss: %.3f' % evaluation_loss)
