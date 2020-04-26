@@ -32,14 +32,14 @@ class DataPreprocessor(Preprocessor):
     @staticmethod
     def flatten(tensors: Any, desired_size: Any = 0) -> Any:
         flattened_tensor = tensors.view(-1)
-        flattened_tensor = DataPreprocessor._pad_zeros(desired_size, flattened_tensor)
+        if 0 < desired_size != len(flattened_tensor):
+            flattened_tensor = DataPreprocessor._pad_zeros(flattened_tensor, desired_size)
         return flattened_tensor
 
     @staticmethod
-    def _pad_zeros(desired_size, flattened_tensor):
-        if 0 < desired_size != len(flattened_tensor):
-            size_difference = abs(len(flattened_tensor) - desired_size)
-            flattened_tensor = to.cat((flattened_tensor, to.zeros(size_difference)))
+    def _pad_zeros(flattened_tensor: Any, desired_size: int) -> Any:
+        size_difference = abs(len(flattened_tensor) - desired_size)
+        flattened_tensor = to.cat((flattened_tensor, to.zeros(size_difference)))
         return flattened_tensor
 
     @staticmethod

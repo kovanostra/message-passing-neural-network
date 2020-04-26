@@ -3,6 +3,7 @@ from typing import Any
 import torch as to
 import torch.nn as nn
 
+from src.domain.data_preprocessor import DataPreprocessor
 from src.domain.edge import Edge
 from src.domain.graph import Graph
 from src.domain.message_gru import MessageGRU
@@ -10,11 +11,17 @@ from src.domain.node import Node
 
 
 class GraphEncoder(nn.Module):
-    def __init__(self, time_steps: int, number_of_nodes: int, number_of_node_features: int):
+    def __init__(self, time_steps: int,
+                 number_of_nodes: int,
+                 number_of_node_features: int,
+                 fully_connected_layer_input_size: int,
+                 fully_connected_layer_output_size: int) -> None:
         super(GraphEncoder, self).__init__()
         self.time_steps = time_steps
         self.number_of_nodes = number_of_nodes
         self.number_of_node_features = number_of_node_features
+        self.fully_connected_layer_input_size = fully_connected_layer_input_size
+        self.fully_connected_layer_output_size = fully_connected_layer_output_size
         self.w_gru_update_gate_features = None
         self.w_gru_forget_gate_features = None
         self.w_gru_current_memory_message_features = None
@@ -26,13 +33,19 @@ class GraphEncoder(nn.Module):
         self.b_gru_current_memory_message = None
         self.u_graph_node_features = None
         self.u_graph_neighbor_messages = None
+        self.linear = to.nn.Linear(self.fully_connected_layer_input_size, self.fully_connected_layer_output_size)
+        self.sigmoid = to.nn.Sigmoid()
 
     def forward(self, node_features: Any, adjacency_matrix: Any, batch_size: int) -> Any:
-        return self.encode(node_features, adjacency_matrix, batch_size)
+        outputs = to.zeros(batch_size, self.fully_connected_layer_output_size)
+        for batch in range(batch_size):
+            raw_outputs = self.encode(node_features[batch], adjacency_matrix[batch])
+            outputs[batch] = self.sigmoid(self.linear(DataPreprocessor.flatten(raw_outputs)))
+        return outputs
 
-    def encode(self, node_features: Any, adjacency_matrix: Any, batch_size: int) -> Any:
-        messages = self._send_messages(node_features, adjacency_matrix, batch_size)
-        encodings = self._encode_nodes(node_features, messages, batch_size)
+    def encode(self, node_features: Any, adjacency_matrix: Any) -> Any:
+        messages = self._send_messages(node_features, adjacency_matrix)
+        encodings = self._encode_nodes(node_features, messages)
         return encodings
 
     def initialize_tensors(self, graph: Graph) -> None:
@@ -56,25 +69,20 @@ class GraphEncoder(nn.Module):
         self.u_graph_node_features = nn.Parameter(to.rand(base_3d_tensor_shape), requires_grad=True)
         self.u_graph_neighbor_messages = nn.Parameter(to.rand(base_3d_tensor_shape), requires_grad=True)
 
-    def _send_messages(self, node_features: Any, adjacency_matrix: Any, batch_size: int) -> Any:
-        messages = to.zeros((batch_size,
-                             self.number_of_nodes,
-                             self.number_of_nodes,
-                             self.number_of_node_features))
-        for batch in range(batch_size):
-            for step in range(self.time_steps):
-                messages[batch] = self._compose_messages_from_nodes_to_targets(node_features[batch],
-                                                                               adjacency_matrix[batch],
-                                                                               messages[batch])
+    def _send_messages(self, node_features: Any, adjacency_matrix: Any) -> Any:
+        messages = to.zeros((self.number_of_nodes, self.number_of_nodes, self.number_of_node_features))
+        for step in range(self.time_steps):
+            messages = self._compose_messages_from_nodes_to_targets(node_features,
+                                                                    adjacency_matrix,
+                                                                    messages)
         return messages
 
-    def _encode_nodes(self, node_features: Any, messages: Any, batch_size: int) -> Any:
-        encoded_node = to.zeros(batch_size, self.number_of_nodes, self.number_of_node_features)
-        for batch in range(batch_size):
-            for node_id in range(self.number_of_nodes):
-                encoded_node[batch, node_id] += self._apply_recurrent_layer_for_node(node_features[batch],
-                                                                                     messages[batch],
-                                                                                     node_id)
+    def _encode_nodes(self, node_features: Any, messages: Any) -> Any:
+        encoded_node = to.zeros(self.number_of_nodes, self.number_of_node_features)
+        for node_id in range(self.number_of_nodes):
+            encoded_node[node_id] += self._apply_recurrent_layer_for_node(node_features,
+                                                                          messages,
+                                                                          node_id)
         return encoded_node
 
     def _apply_recurrent_layer_for_node(self, node_features: Any, messages: Any, node_id: int) -> Any:
