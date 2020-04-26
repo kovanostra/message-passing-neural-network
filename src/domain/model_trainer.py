@@ -24,7 +24,7 @@ class ModelTrainer:
         self.model.initialize_tensors(initialization_graph)
         self.optimizer = self._instantiate_the_optimizer(self.optimizer)
 
-    def do_train(self, epoch: int, training_data: Any) -> Any:
+    def do_train(self, training_data: Any, epoch: int) -> Any:
         training_loss = 0.0
         for features, labels in training_data:
             current_batch_size = self._get_current_batch_size(features)

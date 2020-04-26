@@ -21,8 +21,14 @@ class DataPreprocessor(Preprocessor):
         test_index, validation_index = DataPreprocessor._get_validation_and_test_indexes(raw_dataset, test_split,
                                                                                          validation_split)
         training_data = DataLoader(GraphDataset(raw_dataset[:validation_index]), batch_size)
-        validation_data = DataLoader(GraphDataset(raw_dataset[validation_index:test_index]), batch_size)
-        test_data = DataLoader(GraphDataset(raw_dataset[test_index:]), batch_size)
+        if validation_split:
+            validation_data = DataLoader(GraphDataset(raw_dataset[validation_index:test_index]), batch_size)
+        else:
+            validation_data = DataLoader(GraphDataset([]))
+        if test_split:
+            test_data = DataLoader(GraphDataset(raw_dataset[test_index:]), batch_size)
+        else:
+            test_data = DataLoader(GraphDataset([]))
         return training_data, validation_data, test_data
 
     @staticmethod
