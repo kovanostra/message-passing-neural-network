@@ -20,7 +20,7 @@ class Training:
         self.running_loss = 0.0
 
     def start(self, batch_size: int):
-        training_data, validation_data, initialization_graph = self._prepare_dataset(batch_size)
+        training_data, validation_data, test_data, initialization_graph = self._prepare_dataset(batch_size)
         graph_encoder = self._instantiate_graph_encoder(initialization_graph)
         fully_connected_layer = self._instantiate_fully_connected_layer(initialization_graph, batch_size)
         self._instantiate_the_optimizer(graph_encoder, fully_connected_layer)
@@ -29,8 +29,12 @@ class Training:
             self.running_loss = 0.0
             for features, labels in training_data:
                 self._do_train(epoch, graph_encoder, fully_connected_layer, features, labels)
-                if epoch % 10 == 0:
-                    self._do_validate(epoch, graph_encoder, fully_connected_layer, validation_data)
+            if epoch % 10 == 0:
+                validation_loss = self._do_evaluate(graph_encoder, fully_connected_layer, validation_data)
+                self.get_logger().info("The validation loss at iteration " + str(epoch) + " is: " +
+                                       str(round(validation_loss, 3)))
+        test_loss = self._do_evaluate(graph_encoder, fully_connected_layer, test_data)
+        self.get_logger().info("The test loss is: " + str(round(test_loss, 3)))
         self.get_logger().info('Finished Training')
 
     def _do_train(self,
@@ -56,11 +60,10 @@ class Training:
         self.get_logger().info('[%d] loss: %.3f' % (epoch + 1, running_loss))
         return running_loss
 
-    def _do_validate(self,
-                     epoch: int,
+    def _do_evaluate(self,
                      graph_encoder: GraphEncoder,
                      fully_connected_layer: FullyConnectedLayer,
-                     validation_data: Any) -> None:
+                     validation_data: Any) -> float:
         validation_loss = 0.0
         with torch.no_grad():
             for features_validation, labels_validation in validation_data:
@@ -72,18 +75,19 @@ class Training:
                 labels_flattened = self._flatten(labels_validation, desired_size=fully_connected_layer.output_size)
                 outputs = fully_connected_layer(graph_outputs_flattened)
                 loss = self.loss_function(outputs, labels_flattened)
-                validation_loss += loss
+                validation_loss += float(loss)
             validation_loss /= len(validation_data)
-            self.get_logger().info("The validation loss at iteration " + str(epoch) + " is " +
-                                   str(round(float(validation_loss), 3)))
+        return validation_loss
 
-    def _prepare_dataset(self, batch_size: int, validation_split: float = 0.2) -> Any:
+    def _prepare_dataset(self, batch_size: int, validation_split: float = 0.2, test_split: float = 0.1) -> Any:
         raw_dataset = self.repository.get_all_features_and_labels_from_separate_files()
-        training_data = DataLoader(GraphDataset(raw_dataset[:int((1 - validation_split) * len(raw_dataset))]),
-                                   batch_size)
-        validation_data = DataLoader(GraphDataset(raw_dataset[int((1 - validation_split) * len(raw_dataset)):]),
-                                     batch_size)
-        return training_data, validation_data, self._extract_initialization_graph(raw_dataset)
+        validation_index = int((1 - validation_split - test_split) * len(raw_dataset))
+        test_index = int((1 - test_split) * len(raw_dataset))
+        print(validation_index, test_index)
+        training_data = DataLoader(GraphDataset(raw_dataset[:validation_index]), batch_size)
+        validation_data = DataLoader(GraphDataset(raw_dataset[validation_index:test_index]), batch_size)
+        test_data = DataLoader(GraphDataset(raw_dataset[test_index:]), batch_size)
+        return training_data, validation_data, test_data, self._extract_initialization_graph(raw_dataset)
 
     @staticmethod
     def _instantiate_graph_encoder(initialization_graph: Graph) -> GraphEncoder:
