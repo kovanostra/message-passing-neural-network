@@ -18,9 +18,25 @@ from src.message_passing_nn import create
 @click.option('--data_path', default='data/', help='Set the path of your data folder', required=True,
               type=str)
 @click.option('--batch_size', default=1, help='Set the batch size', required=True, type=int)
-def start_training(dataset: str, epochs: int, loss_function: str, optimizer: str, data_path: str, batch_size: int) -> None:
+@click.option('--validation_split', default=0.2, help='Set the validation set size', required=True, type=float)
+@click.option('--test_split', default=0.1, help='Set the test set size', required=True, type=float)
+def start_training(dataset: str,
+                   epochs: int,
+                   loss_function: str,
+                   optimizer: str,
+                   data_path: str,
+                   batch_size: int,
+                   validation_split: float,
+                   test_split: float) -> None:
     get_logger().info("Starting training")
-    message_passing_nn = create(dataset, epochs, loss_function, optimizer, data_path, batch_size)
+    message_passing_nn = create(dataset,
+                                epochs,
+                                loss_function,
+                                optimizer,
+                                data_path,
+                                batch_size,
+                                validation_split,
+                                test_split)
     message_passing_nn.start()
 
 

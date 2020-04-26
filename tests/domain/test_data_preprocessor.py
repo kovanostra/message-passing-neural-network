@@ -1,13 +1,13 @@
 from unittest import TestCase
 
+from src.domain.data_preprocessor import DataPreprocessor
 from src.domain.graph import Graph
-from src.domain.graph_preprocessor import GraphPreprocessor
 from tests.fixtures.matrices_and_vectors import BASE_GRAPH, BASE_GRAPH_NODE_FEATURES
 
 
 class TestGraphPreprocessor(TestCase):
     def setUp(self) -> None:
-        self.graph_preprocessor = GraphPreprocessor()
+        self.graph_preprocessor = DataPreprocessor()
 
     def test_preprocess_returns_graph_objects(self):
         # Given
