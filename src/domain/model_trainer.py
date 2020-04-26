@@ -55,7 +55,7 @@ class ModelTrainer:
         loss.backward()
         self.optimizer.step()
         training_loss += loss.item()
-        self.get_logger().info('[%d] loss: %.3f' % (epoch + 1, training_loss))
+        self.get_logger().info('[%d] training loss: %.3f' % (epoch + 1, training_loss))
         return training_loss
 
     def _instantiate_the_optimizer(self, optimizer: Any) -> Any:
