@@ -4,6 +4,8 @@ from unittest import TestCase
 import torch as to
 from torch import nn
 
+from src.domain.graph_encoder import GraphEncoder
+from src.domain.model_trainer import ModelTrainer
 from src.repository.training_data_repository import TrainingDataRepository
 from src.usecase.training import Training
 from tests.fixtures.matrices_and_vectors import BASE_GRAPH, BASE_GRAPH_NODE_FEATURES
@@ -14,12 +16,15 @@ class TestTraining(TestCase):
         # Given
         batch_size = 3
         dataset_size = 6
+        validation_split = 0.2
+        test_split = 0.1
         loss_function = nn.MSELoss()
         optimizer = to.optim.SGD
         dataset = 'training-test-data'
         tests_data_path = 'tests/data/'
         repository = TrainingDataRepository(tests_data_path, dataset)
-        training = Training(repository, epochs=10, loss_function=loss_function, optimizer=optimizer)
+        model_trainer = ModelTrainer(GraphEncoder, loss_function, optimizer)
+        training = Training(repository, model_trainer, epochs=10)
 
         features = BASE_GRAPH_NODE_FEATURES
         labels = BASE_GRAPH
@@ -30,10 +35,12 @@ class TestTraining(TestCase):
             repository.save(labels_filenames[i], labels)
 
         # When
-        training.start(batch_size)
+        training_loss, validation_loss, test_loss = training.start(batch_size, validation_split, test_split)
 
         # Then
-        self.assertTrue(training.running_loss > 0.0)
+        self.assertTrue(training_loss > 0.0)
+        self.assertTrue(validation_loss > 0.0)
+        self.assertTrue(test_loss > 0.0)
         for i in range(dataset_size):
             os.remove(tests_data_path + dataset + "/" + features_filenames[i])
             os.remove(tests_data_path + dataset + "/" + labels_filenames[i])
@@ -42,12 +49,15 @@ class TestTraining(TestCase):
         # Given
         batch_size = 3
         dataset_size = 5
+        validation_split = 0.2
+        test_split = 0.1
         loss_function = nn.MSELoss()
         optimizer = to.optim.SGD
         dataset = 'training-test-data'
         tests_data_path = 'tests/data/'
         repository = TrainingDataRepository(tests_data_path, dataset)
-        training = Training(repository, epochs=10, loss_function=loss_function, optimizer=optimizer)
+        model_trainer = ModelTrainer(GraphEncoder, loss_function, optimizer)
+        training = Training(repository, model_trainer, epochs=10)
 
         features = BASE_GRAPH_NODE_FEATURES
         labels = BASE_GRAPH
@@ -58,10 +68,12 @@ class TestTraining(TestCase):
             repository.save(labels_filenames[i], labels)
 
         # When
-        training.start(batch_size)
+        training_loss, validation_loss, test_loss = training.start(batch_size, validation_split, test_split)
 
         # Then
-        self.assertTrue(training.running_loss > 0.0)
+        self.assertTrue(training_loss > 0.0)
+        self.assertTrue(validation_loss > 0.0)
+        self.assertTrue(test_loss > 0.0)
         for i in range(dataset_size):
             os.remove(tests_data_path + dataset + "/" + features_filenames[i])
             os.remove(tests_data_path + dataset + "/" + labels_filenames[i])
