@@ -83,7 +83,6 @@ class Training:
         raw_dataset = self.repository.get_all_features_and_labels_from_separate_files()
         validation_index = int((1 - validation_split - test_split) * len(raw_dataset))
         test_index = int((1 - test_split) * len(raw_dataset))
-        print(validation_index, test_index)
         training_data = DataLoader(GraphDataset(raw_dataset[:validation_index]), batch_size)
         validation_data = DataLoader(GraphDataset(raw_dataset[validation_index:test_index]), batch_size)
         test_data = DataLoader(GraphDataset(raw_dataset[test_index:]), batch_size)
