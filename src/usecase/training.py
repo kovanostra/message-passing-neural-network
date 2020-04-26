@@ -51,7 +51,7 @@ class Training:
                             validation_loss += loss
                         validation_loss /= len(validation_data)
                         self.get_logger().info("The validation loss at iteration " + str(epoch) + " is " +
-                                               str(float(validation_loss)))
+                                               str(round(float(validation_loss), 3)))
         self.get_logger().info('Finished Training')
 
     def _prepare_dataset(self, batch_size: int, validation_split: float = 0.2) -> Any:
