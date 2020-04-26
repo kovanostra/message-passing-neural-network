@@ -36,6 +36,22 @@ class Training:
                                                  labels,
                                                  current_batch_size)
                 self.running_loss = self._backpropagate_the_errors(epoch, loss, self.running_loss)
+                if epoch % 10 == 0:
+                    validation_loss = 0.0
+                    with torch.no_grad():
+                        for features_validation, labels_validation in validation_data:
+                            current_batch_size = self._get_current_batch_size(features_validation)
+                            graph_encoder.eval()
+                            fully_connected_layer.eval()
+                            loss = self._make_a_forward_pass(graph_encoder,
+                                                             fully_connected_layer,
+                                                             features_validation,
+                                                             labels_validation,
+                                                             current_batch_size)
+                            validation_loss += loss
+                        validation_loss /= len(validation_data)
+                        self.get_logger().info("The validation loss at iteration " + str(epoch) + " is " +
+                                               str(float(validation_loss)))
         self.get_logger().info('Finished Training')
 
     def _prepare_dataset(self, batch_size: int, validation_split: float = 0.2) -> Any:
