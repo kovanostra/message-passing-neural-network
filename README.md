@@ -59,6 +59,8 @@ For example, in the protein-folding dataset:
     - M: represents the number of aminoacids
     - N: represents the number of protein features
 
+By default 20% of the dataset will be used for validation every 10 epochs.
+
 ### Entrypoint
 
 To start training the model please run the following from inside ~/message-passing-nn/:
