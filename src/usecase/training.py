@@ -28,31 +28,54 @@ class Training:
         for epoch in range(self.epochs):
             self.running_loss = 0.0
             for features, labels in training_data:
-                current_batch_size = self._get_current_batch_size(features)
-                self.optimizer.zero_grad()
-                loss = self._make_a_forward_pass(graph_encoder,
-                                                 fully_connected_layer,
-                                                 features,
-                                                 labels,
-                                                 current_batch_size)
-                self.running_loss = self._backpropagate_the_errors(epoch, loss, self.running_loss)
+                self._do_train(epoch, graph_encoder, fully_connected_layer, features, labels)
                 if epoch % 10 == 0:
-                    validation_loss = 0.0
-                    with torch.no_grad():
-                        for features_validation, labels_validation in validation_data:
-                            current_batch_size = self._get_current_batch_size(features_validation)
-                            graph_encoder.eval()
-                            fully_connected_layer.eval()
-                            loss = self._make_a_forward_pass(graph_encoder,
-                                                             fully_connected_layer,
-                                                             features_validation,
-                                                             labels_validation,
-                                                             current_batch_size)
-                            validation_loss += loss
-                        validation_loss /= len(validation_data)
-                        self.get_logger().info("The validation loss at iteration " + str(epoch) + " is " +
-                                               str(round(float(validation_loss), 3)))
+                    self._do_validate(epoch, graph_encoder, fully_connected_layer, validation_data)
         self.get_logger().info('Finished Training')
+
+    def _do_train(self,
+                  epoch: int,
+                  graph_encoder: GraphEncoder,
+                  fully_connected_layer: FullyConnectedLayer,
+                  features: Any,
+                  labels: Any) -> Any:
+        current_batch_size = self._get_current_batch_size(features)
+        self.optimizer.zero_grad()
+        graph_outputs = graph_encoder.forward(features, adjacency_matrix=labels, batch_size=current_batch_size)
+        graph_outputs_flattened = self._flatten(graph_outputs, desired_size=fully_connected_layer.input_size)
+        labels_flattened = self._flatten(labels, desired_size=fully_connected_layer.output_size)
+        outputs = fully_connected_layer(graph_outputs_flattened)
+        loss = self.loss_function(outputs, labels_flattened)
+        self.running_loss = self._do_backpropagate(epoch, loss, self.running_loss)
+        return self.running_loss
+
+    def _do_backpropagate(self, epoch: int, loss: Any, running_loss: float) -> float:
+        loss.backward()
+        self.optimizer.step()
+        running_loss += loss.item()
+        self.get_logger().info('[%d] loss: %.3f' % (epoch + 1, running_loss))
+        return running_loss
+
+    def _do_validate(self,
+                     epoch: int,
+                     graph_encoder: GraphEncoder,
+                     fully_connected_layer: FullyConnectedLayer,
+                     validation_data: Any) -> None:
+        validation_loss = 0.0
+        with torch.no_grad():
+            for features_validation, labels_validation in validation_data:
+                graph_encoder.eval()
+                fully_connected_layer.eval()
+                current_batch_size = self._get_current_batch_size(features_validation)
+                graph_outputs = graph_encoder.forward(features_validation, adjacency_matrix=labels_validation, batch_size=current_batch_size)
+                graph_outputs_flattened = self._flatten(graph_outputs, desired_size=fully_connected_layer.input_size)
+                labels_flattened = self._flatten(labels_validation, desired_size=fully_connected_layer.output_size)
+                outputs = fully_connected_layer(graph_outputs_flattened)
+                loss = self.loss_function(outputs, labels_flattened)
+                validation_loss += loss
+            validation_loss /= len(validation_data)
+            self.get_logger().info("The validation loss at iteration " + str(epoch) + " is " +
+                                   str(round(float(validation_loss), 3)))
 
     def _prepare_dataset(self, batch_size: int, validation_split: float = 0.2) -> Any:
         raw_dataset = self.repository.get_all_features_and_labels_from_separate_files()
@@ -82,26 +105,6 @@ class Training:
     def _instantiate_the_optimizer(self, graph_encoder: GraphEncoder, fully_connected_layer: Any) -> None:
         model_parameters = list(graph_encoder.parameters()) + list(fully_connected_layer.parameters())
         self.optimizer = self.optimizer(model_parameters, lr=0.001, momentum=0.9)
-
-    def _make_a_forward_pass(self,
-                             graph_encoder: GraphEncoder,
-                             fully_connected_layer: FullyConnectedLayer,
-                             features: Any,
-                             labels: Any,
-                             current_batch_size: int) -> Any:
-        graph_outputs = graph_encoder.forward(features, adjacency_matrix=labels, batch_size=current_batch_size)
-        labels_flattened = self._flatten(labels, desired_size=fully_connected_layer.output_size)
-        graph_outputs_flattened = self._flatten(graph_outputs, desired_size=fully_connected_layer.input_size)
-        outputs = fully_connected_layer(graph_outputs_flattened)
-        loss = self.loss_function(outputs, labels_flattened)
-        return loss
-
-    def _backpropagate_the_errors(self, epoch: int, loss: Any, running_loss: float) -> float:
-        loss.backward()
-        self.optimizer.step()
-        running_loss += loss.item()
-        self.get_logger().info('[%d] loss: %.3f' % (epoch + 1, running_loss))
-        return running_loss
 
     @staticmethod
     def _extract_labels_from_graph(graph: Graph) -> Any:
