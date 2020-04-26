@@ -39,8 +39,10 @@ class GraphEncoder(nn.Module):
     def forward(self, node_features: Any, adjacency_matrix: Any, batch_size: int) -> Any:
         outputs = to.zeros(batch_size, self.fully_connected_layer_output_size)
         for batch in range(batch_size):
-            raw_outputs = self.encode(node_features[batch], adjacency_matrix[batch])
-            outputs[batch] = self.sigmoid(self.linear(DataPreprocessor.flatten(raw_outputs)))
+            outputs[batch] = self.sigmoid(
+                self.linear(
+                    DataPreprocessor.flatten(
+                        self.encode(node_features[batch], adjacency_matrix[batch]))))
         return outputs
 
     def encode(self, node_features: Any, adjacency_matrix: Any) -> Any:
