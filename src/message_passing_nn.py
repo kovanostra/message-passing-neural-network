@@ -1,4 +1,6 @@
+from src.domain.graph_encoder import GraphEncoder
 from src.domain.loss_function_selector import LossFunctionSelector
+from src.domain.model_trainer import ModelTrainer
 from src.domain.optimizer_selector import OptimizerSelector
 from src.repository.training_data_repository import TrainingDataRepository
 from src.usecase.training import Training
@@ -27,7 +29,8 @@ def create(dataset: str,
     training_data_repository = TrainingDataRepository(data_path, dataset)
     loss_function = LossFunctionSelector(loss_function_selection).loss_function
     optimizer = OptimizerSelector(optimizer_selection).optimizer
-    training = Training(training_data_repository, epochs, loss_function, optimizer)
+    model_trainer = ModelTrainer(GraphEncoder, loss_function, optimizer)
+    training = Training(training_data_repository, model_trainer, epochs)
     return MessagePassingNN(training, batch_size, validation_split, test_split)
 
 
