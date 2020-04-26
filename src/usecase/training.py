@@ -27,8 +27,7 @@ class Training:
         self.get_logger().info('Started Training')
         for epoch in range(self.epochs):
             self.running_loss = 0.0
-            for features, labels in training_data:
-                self._do_train(epoch, model, features, labels)
+            self._do_train(epoch, model, training_data)
             if epoch % 10 == 0:
                 validation_loss = self._do_evaluate(model, validation_data)
                 self.get_logger().info("The validation loss at iteration " + str(epoch) + " is: " +
@@ -40,21 +39,14 @@ class Training:
     def _do_train(self,
                   epoch: int,
                   model: nn.Module,
-                  features: Any,
-                  labels: Any) -> Any:
-        current_batch_size = self._get_current_batch_size(features)
-        self.optimizer.zero_grad()
-        outputs = model.forward(features, adjacency_matrix=labels, batch_size=current_batch_size)
-        loss = self.loss_function(outputs, labels)
-        self.running_loss = self._do_backpropagate(epoch, loss, self.running_loss)
+                  training_data: Any) -> Any:
+        for features, labels in training_data:
+            current_batch_size = self._get_current_batch_size(features)
+            self.optimizer.zero_grad()
+            outputs = model.forward(features, adjacency_matrix=labels, batch_size=current_batch_size)
+            loss = self.loss_function(outputs, labels)
+            self.running_loss = self._do_backpropagate(epoch, loss, self.running_loss)
         return self.running_loss
-
-    def _do_backpropagate(self, epoch: int, loss: Any, running_loss: float) -> float:
-        loss.backward()
-        self.optimizer.step()
-        running_loss += loss.item()
-        self.get_logger().info('[%d] loss: %.3f' % (epoch + 1, running_loss))
-        return running_loss
 
     def _do_evaluate(self,
                      model: nn.Module,
@@ -69,6 +61,13 @@ class Training:
                 validation_loss += float(loss)
             validation_loss /= len(validation_data)
         return validation_loss
+
+    def _do_backpropagate(self, epoch: int, loss: Any, running_loss: float) -> float:
+        loss.backward()
+        self.optimizer.step()
+        running_loss += loss.item()
+        self.get_logger().info('[%d] loss: %.3f' % (epoch + 1, running_loss))
+        return running_loss
 
     def _prepare_dataset(self, batch_size: int, validation_split: float, test_split: float) -> Any:
         raw_dataset = self.repository.get_all_features_and_labels_from_separate_files()
