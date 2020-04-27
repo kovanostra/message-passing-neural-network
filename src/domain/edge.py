@@ -16,7 +16,7 @@ class Edge:
     def get_start_node_neighbors_without_end_node(self) -> Tuple:
         return self._remove_end_node_from_start_node_neighbors(), [self.start_node.node_id]
 
-    def _remove_end_node_from_start_node_neighbors(self) -> Any:
+    def _remove_end_node_from_start_node_neighbors(self) -> to.tensor:
         end_node_index = (self.start_node.neighbors == self.end_node.node_id).nonzero()[0][0].item()
         return to.cat((self.start_node.neighbors[:end_node_index],
                        self.start_node.neighbors[end_node_index + 1:])).tolist()

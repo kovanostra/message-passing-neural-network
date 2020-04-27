@@ -1,8 +1,11 @@
 import logging
-from typing import Any, Dict
+from typing import Dict
 
 import torch as to
 from torch import nn
+from torch.nn.modules.module import Module
+from torch.optim.optimizer import Optimizer
+from torch.utils.data.dataloader import DataLoader
 
 from src.domain.graph import Graph
 from src.domain.loss_function_selector import LossFunctionSelector
@@ -29,7 +32,7 @@ class ModelTrainer:
         self.optimizer = self._instantiate_the_optimizer(
             OptimizerSelector.load_optimizer(configuration_dictionary['optimizer']))
 
-    def do_train(self, training_data: Any, epoch: int) -> Any:
+    def do_train(self, training_data: DataLoader, epoch: int) -> float:
         training_loss = 0.0
         for features, labels in training_data:
             current_batch_size = self._get_current_batch_size(features)
@@ -41,7 +44,7 @@ class ModelTrainer:
         self.get_logger().info('[Iteration %d] training loss: %.3f' % (epoch + 1, training_loss))
         return training_loss
 
-    def do_evaluate(self, evaluation_data: Any, epoch: int = None) -> float:
+    def do_evaluate(self, evaluation_data: DataLoader, epoch: int = None) -> float:
         with to.no_grad():
             evaluation_loss = 0.0
             for features_validation, labels_validation in evaluation_data:
@@ -57,22 +60,22 @@ class ModelTrainer:
                 self.get_logger().info('Test loss: %.3f' % evaluation_loss)
         return evaluation_loss
 
-    def _do_backpropagate(self, loss: Any, training_loss: float) -> float:
+    def _do_backpropagate(self, loss: to.Tensor, training_loss: float) -> float:
         loss.backward()
         self.optimizer.step()
         training_loss += loss.item()
         return training_loss
 
     @staticmethod
-    def _instantiate_the_loss_function(loss_function: Any) -> Any:
+    def _instantiate_the_loss_function(loss_function: Module) -> Module:
         return loss_function()
 
-    def _instantiate_the_optimizer(self, optimizer: Any) -> Any:
+    def _instantiate_the_optimizer(self, optimizer: Module) -> Optimizer:
         model_parameters = list(self.model.parameters())
         return optimizer(model_parameters, lr=0.001, momentum=0.9)
 
     @staticmethod
-    def _get_current_batch_size(features: Any) -> int:
+    def _get_current_batch_size(features: to.Tensor) -> int:
         return len(features)
 
     @staticmethod

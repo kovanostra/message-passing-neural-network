@@ -18,7 +18,7 @@ class MessagePassingNN:
             get_logger().exception("message")
 
 
-def create(dataset: str,
+def create(dataset_name: str,
            data_path: str,
            device: str,
            epochs: str,
@@ -38,7 +38,7 @@ def create(dataset: str,
                                                                                      test_split,
                                                                                      time_steps,
                                                                                      validation_period)
-    training_data_repository = TrainingDataRepository(data_path, dataset)
+    training_data_repository = TrainingDataRepository(data_path, dataset_name)
     model_trainer = ModelTrainer(GraphEncoder)
     grid_search = GridSearch(training_data_repository, model_trainer, grid_search_dictionary)
     return MessagePassingNN(grid_search)

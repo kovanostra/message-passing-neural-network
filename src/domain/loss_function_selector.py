@@ -1,5 +1,6 @@
 import logging
-from typing import Any
+
+from torch.nn.modules.module import Module
 
 from src.fixtures.loss_functions import loss_functions
 
@@ -9,7 +10,7 @@ class LossFunctionSelector:
         pass
 
     @staticmethod
-    def load_loss_function(loss_function_selection: str) -> Any:
+    def load_loss_function(loss_function_selection: str) -> Module:
         if loss_function_selection in loss_functions:
             return loss_functions[loss_function_selection]
         else:

@@ -7,7 +7,7 @@ class Repository(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def save(self, filename: str, dataset: Any) -> None:
+    def save(self, filename: str, dataset_name: str) -> None:
         pass
 
     @abstractmethod

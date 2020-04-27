@@ -1,7 +1,9 @@
 import logging
 import os
 import pickle
-from typing import List, Tuple, Any
+from typing import List, Tuple
+
+import torch as to
 
 from src.repository.interface.repository import Repository
 
@@ -11,11 +13,11 @@ class TrainingDataRepository(Repository):
         super().__init__()
         self.data_path = data_path + dataset + '/'
 
-    def save(self, filename: str, data: Any) -> None:
+    def save(self, filename: str, dataset_name: str) -> None:
         with open(self.data_path + filename, 'wb') as file:
-            pickle.dump(data, file)
+            pickle.dump(dataset_name, file)
 
-    def get_all_features_and_labels_from_separate_files(self) -> List[Tuple[Any, Any]]:
+    def get_all_features_and_labels_from_separate_files(self) -> List[Tuple[to.Tensor, to.Tensor]]:
         self.get_logger().info("Loading dataset")
         files_in_path = self._extract_name_prefixes_from_filenames()
         dataset = []
@@ -24,13 +26,13 @@ class TrainingDataRepository(Repository):
         self.get_logger().info("Finished loading dataset")
         return dataset
 
-    def _get_labels(self, file):
-        with open(self.data_path + file + 'labels.pickle', 'rb') as labels_file:
+    def _get_labels(self, filename: str) -> to.Tensor:
+        with open(self.data_path + filename + 'labels.pickle', 'rb') as labels_file:
             labels = pickle.load(labels_file).float()
         return labels
 
-    def _get_features(self, file):
-        with open(self.data_path + file + 'features.pickle', 'rb') as features_file:
+    def _get_features(self, filename: str) -> to.Tensor:
+        with open(self.data_path + filename + 'features.pickle', 'rb') as features_file:
             features = pickle.load(features_file).float()
         return features
 

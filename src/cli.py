@@ -14,7 +14,7 @@ def main(debug):
 
 
 @click.command("grid-search", help='Starts the grid search')
-@click.argument('--dataset', envvar='DATASET', type=str)
+@click.argument('--dataset_name', envvar='DATASET_NAME', type=str)
 @click.argument('--data_path', envvar='DATA_PATH', type=str)
 @click.argument('--device', envvar='DEVICE', type=str)
 @click.argument('--epochs', envvar='EPOCHS', type=str)
@@ -25,7 +25,7 @@ def main(debug):
 @click.argument('--test_split', envvar='TEST_SPLIT', type=str)
 @click.argument('--time_steps', envvar='TIME_STEPS', type=str)
 @click.argument('--validation_period', envvar='["configuration_id"]', type=str)
-def start_training(dataset: str,
+def start_training(dataset_name: str,
                    data_path: str,
                    device: str,
                    epochs: str,
@@ -37,7 +37,7 @@ def start_training(dataset: str,
                    time_steps: str,
                    validation_period: str) -> None:
     get_logger().info("Starting training")
-    message_passing_nn = create(dataset,
+    message_passing_nn = create(dataset_name,
                                 data_path,
                                 device,
                                 epochs,

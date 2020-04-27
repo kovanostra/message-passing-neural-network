@@ -1,5 +1,5 @@
 import logging
-from typing import Any, List, Dict
+from typing import List, Dict
 
 import numpy as np
 
@@ -57,7 +57,7 @@ class GridSearchParametersParser:
             raise Exception
 
     @staticmethod
-    def _parse_string_selections(loss_function_selection: str) -> List[Any]:
+    def _parse_string_selections(loss_function_selection: str) -> List[str]:
         return loss_function_selection.split(GRID_SEARCH_SEPARATION_CHARACTER)
 
     @staticmethod

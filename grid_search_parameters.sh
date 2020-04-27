@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-export DATASET='sample-dataset'
+export DATASET_NAME='sample-dataset'
 export DATA_PATH='data/'
 export DEVICE='cpu'
 export EPOCHS='10'

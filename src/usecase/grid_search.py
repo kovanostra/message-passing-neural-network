@@ -1,9 +1,11 @@
 import logging
-from typing import Any, Dict, List
+from typing import Dict, List, Tuple
 
 import itertools
+from torch.utils.data.dataloader import DataLoader
 
 from src.domain.data_preprocessor import DataPreprocessor
+from src.domain.graph import Graph
 from src.domain.model_trainer import ModelTrainer
 from src.repository.interface.repository import Repository
 
@@ -28,7 +30,7 @@ class GridSearch:
         self.get_logger().info('Finished Training')
         return losses
 
-    def _search_configuration(self, configuration: Dict, losses: Dict) -> Dict:
+    def _search_configuration(self, configuration: Tuple[Tuple], losses: Dict) -> Dict:
         configuration_dictionary = self._get_configuration_dictionary(configuration)
         training_data, validation_data, test_data, initialization_graph = self._prepare_dataset(
             configuration_dictionary)
@@ -52,7 +54,7 @@ class GridSearch:
         return losses
 
     @staticmethod
-    def _get_configuration_dictionary(configuration: Any) -> Dict:
+    def _get_configuration_dictionary(configuration: Tuple[Tuple]) -> Dict:
         configuration_dictionary = dict(((key, value) for key, value in configuration))
         configuration_id = 'configuration_id'
         for key, value in configuration_dictionary.items():
@@ -60,7 +62,7 @@ class GridSearch:
         configuration_dictionary.update({"configuration_id": configuration_id})
         return configuration_dictionary
 
-    def _prepare_dataset(self, configuration_dictionary: Dict) -> Any:
+    def _prepare_dataset(self, configuration_dictionary: Dict) -> Tuple[DataLoader, DataLoader, DataLoader, Graph]:
         raw_dataset = self.repository.get_all_features_and_labels_from_separate_files()
         training_data, validation_data, test_data = DataPreprocessor \
             .train_validation_test_split(raw_dataset,
@@ -70,7 +72,7 @@ class GridSearch:
         initialization_graph = DataPreprocessor.extract_initialization_graph(raw_dataset)
         return training_data, validation_data, test_data, initialization_graph
 
-    def _get_all_grid_search_configurations(self) -> List[Any]:
+    def _get_all_grid_search_configurations(self) -> List[Tuple[Tuple]]:
         all_grid_search_configurations = []
         for key in self.grid_search_dictionary.keys():
             all_grid_search_configurations.append([(key, value) for value in self.grid_search_dictionary[key]])

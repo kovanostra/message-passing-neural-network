@@ -1,5 +1,6 @@
 import logging
-from typing import Any
+
+from torch.optim.optimizer import Optimizer
 
 from src.fixtures.optimizers import optimizers
 
@@ -9,7 +10,7 @@ class OptimizerSelector:
         pass
 
     @staticmethod
-    def load_optimizer(optimizer_selection: str) -> Any:
+    def load_optimizer(optimizer_selection: str) -> Optimizer:
         if optimizer_selection in optimizers:
             return optimizers[optimizer_selection]
         else:
