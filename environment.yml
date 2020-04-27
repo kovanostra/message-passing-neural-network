@@ -3,8 +3,9 @@ channels:
   - pytorch
   - defaults
 dependencies:
-  - numpy=1.17.4
   - python=3.7.6
+  - numpy=1.17.4
+  - pandas=1.0.3
   - pytorch=1.4.0
   - setuptools=46.0.0
   - torchvision=0.5.0

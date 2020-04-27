@@ -3,6 +3,7 @@ import logging
 from src.domain.graph_encoder import GraphEncoder
 from src.domain.grid_search_parameters_parser import GridSearchParametersParser
 from src.domain.model_trainer import ModelTrainer
+from src.domain.saver import Saver
 from src.repository.training_data_repository import TrainingDataRepository
 from src.usecase.grid_search import GridSearch
 
@@ -20,6 +21,7 @@ class MessagePassingNN:
 
 def create(dataset_name: str,
            data_path: str,
+           results_path: str,
            device: str,
            epochs: str,
            loss_function_selection: str,
@@ -40,6 +42,7 @@ def create(dataset_name: str,
                                                                                      validation_period)
     training_data_repository = TrainingDataRepository(data_path, dataset_name)
     model_trainer = ModelTrainer(GraphEncoder)
+    saver = Saver(results_path)
     grid_search = GridSearch(training_data_repository, model_trainer, grid_search_dictionary)
     return MessagePassingNN(grid_search)
 
