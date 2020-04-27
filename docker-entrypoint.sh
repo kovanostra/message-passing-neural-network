@@ -6,5 +6,5 @@ if [ "$1" = "message-passing-nn" ]; then
     rm SUCCESS
   fi
 fi
-
+ . "/app/grid-search-parameters.sh"
 exec "$@"

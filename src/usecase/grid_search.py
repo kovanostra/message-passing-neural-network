@@ -31,19 +31,21 @@ class GridSearch:
         return losses
 
     def _search_configuration(self, configuration: Tuple[Tuple], losses: Dict) -> Dict:
-        configuration_dictionary = self._get_configuration_dictionary(configuration)
+        grid_search_configuration_dictionary = self._get_grid_search_configuration_dictionary(configuration)
         training_data, validation_data, test_data, initialization_graph = self._prepare_dataset(
-            configuration_dictionary)
-        self.model_trainer.instantiate_attributes(initialization_graph, configuration_dictionary)
-        losses = self._update_losses_with_configuration_id(configuration_dictionary, losses)
-        for epoch in range(1, configuration_dictionary['epochs'] + 1):
+            grid_search_configuration_dictionary)
+        self.model_trainer.instantiate_attributes(initialization_graph, grid_search_configuration_dictionary)
+        losses = self._update_losses_with_configuration_id(grid_search_configuration_dictionary, losses)
+        for epoch in range(1, grid_search_configuration_dictionary['epochs'] + 1):
             training_loss = self.model_trainer.do_train(training_data, epoch)
-            losses['training_loss'][configuration_dictionary["configuration_id"]].update({epoch: training_loss})
-            if epoch % configuration_dictionary["validation_period"] == 0:
+            losses['training_loss'][grid_search_configuration_dictionary["configuration_id"]].update(
+                {epoch: training_loss})
+            if epoch % grid_search_configuration_dictionary["validation_period"] == 0:
                 validation_loss = self.model_trainer.do_evaluate(validation_data, epoch)
-                losses['validation_loss'][configuration_dictionary["configuration_id"]].update({epoch: validation_loss})
+                losses['validation_loss'][grid_search_configuration_dictionary["configuration_id"]].update(
+                    {epoch: validation_loss})
         test_loss = self.model_trainer.do_evaluate(test_data)
-        losses['test_loss'][configuration_dictionary["configuration_id"]] = test_loss
+        losses['test_loss'][grid_search_configuration_dictionary["configuration_id"]] = test_loss
         return losses
 
     @staticmethod
@@ -54,13 +56,13 @@ class GridSearch:
         return losses
 
     @staticmethod
-    def _get_configuration_dictionary(configuration: Tuple[Tuple]) -> Dict:
-        configuration_dictionary = dict(((key, value) for key, value in configuration))
+    def _get_grid_search_configuration_dictionary(configuration: Tuple[Tuple]) -> Dict:
+        grid_search_configuration_dictionary = dict(((key, value) for key, value in configuration))
         configuration_id = 'configuration_id'
-        for key, value in configuration_dictionary.items():
+        for key, value in grid_search_configuration_dictionary.items():
             configuration_id += "_" + str(value)
-        configuration_dictionary.update({"configuration_id": configuration_id})
-        return configuration_dictionary
+        grid_search_configuration_dictionary.update({"configuration_id": configuration_id})
+        return grid_search_configuration_dictionary
 
     def _prepare_dataset(self, configuration_dictionary: Dict) -> Tuple[DataLoader, DataLoader, DataLoader, Graph]:
         raw_dataset = self.repository.get_all_features_and_labels_from_separate_files()
