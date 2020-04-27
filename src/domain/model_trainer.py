@@ -1,5 +1,5 @@
 import logging
-from typing import Dict
+from typing import Dict, Any
 
 import torch as to
 from torch import nn
@@ -41,7 +41,7 @@ class ModelTrainer:
             loss = self.loss_function(outputs, labels)
             training_loss += self._do_backpropagate(loss, training_loss)
         training_loss /= len(training_data)
-        self.get_logger().info('[Iteration %d] training loss: %.3f' % (epoch + 1, training_loss))
+        self.get_logger().info('[Iteration %d] training loss: %.3f' % (epoch, training_loss))
         return training_loss
 
     def do_evaluate(self, evaluation_data: DataLoader, epoch: int = None) -> float:
@@ -55,7 +55,7 @@ class ModelTrainer:
                 evaluation_loss += float(loss)
             evaluation_loss /= len(evaluation_data)
             if epoch is not None:
-                self.get_logger().info('[Iteration %d] validation loss: %.3f' % (epoch + 1, evaluation_loss))
+                self.get_logger().info('[Iteration %d] validation loss: %.3f' % (epoch, evaluation_loss))
             else:
                 self.get_logger().info('Test loss: %.3f' % evaluation_loss)
         return evaluation_loss
@@ -70,7 +70,7 @@ class ModelTrainer:
     def _instantiate_the_loss_function(loss_function: Module) -> Module:
         return loss_function()
 
-    def _instantiate_the_optimizer(self, optimizer: Module) -> Optimizer:
+    def _instantiate_the_optimizer(self, optimizer: Any) -> Optimizer:
         model_parameters = list(self.model.parameters())
         return optimizer(model_parameters, lr=0.001, momentum=0.9)
 

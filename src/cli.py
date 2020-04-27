@@ -13,18 +13,18 @@ def main(debug):
     setup_logging(log_level)
 
 
-@click.command("grid-search", help='Starts the grid search')
-@click.argument('--dataset_name', envvar='DATASET_NAME', type=str)
-@click.argument('--data_path', envvar='DATA_PATH', type=str)
-@click.argument('--device', envvar='DEVICE', type=str)
-@click.argument('--epochs', envvar='EPOCHS', type=str)
-@click.argument('--loss_function', envvar='LOSS_FUNCTION', type=str)
-@click.argument('--optimizer', envvar='OPTIMIZER', type=str)
-@click.argument('--batch_size', envvar='BATCH_SIZE', type=str)
-@click.argument('--validation_split', envvar='VALIDATION_SPLIT', type=str)
-@click.argument('--test_split', envvar='TEST_SPLIT', type=str)
-@click.argument('--time_steps', envvar='TIME_STEPS', type=str)
-@click.argument('--validation_period', envvar='["configuration_id"]', type=str)
+@click.command('grid-search', help='Starts the grid search')
+@click.argument('dataset_name', envvar='DATASET_NAME', type=str)
+@click.argument('data_path', envvar='DATA_PATH', type=str)
+@click.argument('device', envvar='DEVICE', type=str)
+@click.argument('epochs', envvar='EPOCHS', type=str)
+@click.argument('loss_function', envvar='LOSS_FUNCTION', type=str)
+@click.argument('optimizer', envvar='OPTIMIZER', type=str)
+@click.argument('batch_size', envvar='BATCH_SIZE', type=str)
+@click.argument('validation_split', envvar='VALIDATION_SPLIT', type=str)
+@click.argument('test_split', envvar='TEST_SPLIT', type=str)
+@click.argument('time_steps', envvar='TIME_STEPS', type=str)
+@click.argument('validation_period', envvar='VALIDATION_PERIOD', type=str)
 def start_training(dataset_name: str,
                    data_path: str,
                    device: str,
