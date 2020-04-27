@@ -3,8 +3,6 @@ from typing import Any, List, Dict
 
 import numpy as np
 
-from src.domain.loss_function_selector import LossFunctionSelector
-from src.domain.optimizer_selector import OptimizerSelector
 from src.fixtures.characters import GRID_SEARCH_SEPARATION_CHARACTER
 
 
@@ -23,8 +21,8 @@ class GridSearchParametersParser:
                                    validation_period: str) -> Dict:
         return {
             'epochs': self._parse_integer_range(epochs),
-            'loss_function_selection': self._parse_loss_function(loss_function_selection),
-            'optimizer_selection': self._parse_optimizer(optimizer_selection),
+            'loss_function': self._parse_string_selections(loss_function_selection),
+            'optimizer': self._parse_string_selections(optimizer_selection),
             'batch_size': self._parse_integer_range(batch_size),
             'validation_split': self._parse_float_range(validation_split),
             'test_split': self._parse_float_range(test_split),
@@ -59,14 +57,8 @@ class GridSearchParametersParser:
             raise Exception
 
     @staticmethod
-    def _parse_loss_function(loss_function_selection: str) -> List[Any]:
-        loss_functions = loss_function_selection.split(GRID_SEARCH_SEPARATION_CHARACTER)
-        return [LossFunctionSelector(loss_name).loss_function for loss_name in loss_functions]
-
-    @staticmethod
-    def _parse_optimizer(optimizer_selection: str) -> List[Any]:
-        optimizers = optimizer_selection.split(GRID_SEARCH_SEPARATION_CHARACTER)
-        return [OptimizerSelector(optimizer_name).optimizer for optimizer_name in optimizers]
+    def _parse_string_selections(loss_function_selection: str) -> List[Any]:
+        return loss_function_selection.split(GRID_SEARCH_SEPARATION_CHARACTER)
 
     @staticmethod
     def get_logger() -> logging.Logger:

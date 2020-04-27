@@ -3,17 +3,15 @@ from unittest import TestCase
 from src.domain.data_preprocessor import DataPreprocessor
 from src.domain.graph import Graph
 from src.domain.graph_encoder import GraphEncoder
-from src.domain.loss_function_selector import LossFunctionSelector
 from src.domain.model_trainer import ModelTrainer
-from src.domain.optimizer_selector import OptimizerSelector
 from tests.fixtures.matrices_and_vectors import BASE_GRAPH, BASE_GRAPH_NODE_FEATURES
 
 
 class TestModelTrainer(TestCase):
     def setUp(self) -> None:
         time_steps = 1
-        loss_function = LossFunctionSelector("MSE").loss_function
-        optimizer = OptimizerSelector("SGD").optimizer
+        loss_function = "MSE"
+        optimizer = "SGD"
         self.configuration_dictionary = {"loss_function": loss_function,
                                          "optimizer": optimizer,
                                          "time_steps": time_steps}

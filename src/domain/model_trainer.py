@@ -5,6 +5,8 @@ import torch as to
 from torch import nn
 
 from src.domain.graph import Graph
+from src.domain.loss_function_selector import LossFunctionSelector
+from src.domain.optimizer_selector import OptimizerSelector
 
 
 class ModelTrainer:
@@ -22,8 +24,10 @@ class ModelTrainer:
                                    fully_connected_layer_input_size=number_of_nodes * number_of_node_features,
                                    fully_connected_layer_output_size=number_of_nodes ** 2)
         self.model.initialize_tensors(initialization_graph)
-        self.loss_function = configuration_dictionary['loss_function']
-        self.optimizer = self._instantiate_the_optimizer(configuration_dictionary['optimizer'])
+        self.loss_function = self._instantiate_the_loss_function(
+            LossFunctionSelector.load_loss_function(configuration_dictionary['loss_function']))
+        self.optimizer = self._instantiate_the_optimizer(
+            OptimizerSelector.load_optimizer(configuration_dictionary['optimizer']))
 
     def do_train(self, training_data: Any, epoch: int) -> Any:
         training_loss = 0.0
@@ -58,6 +62,10 @@ class ModelTrainer:
         self.optimizer.step()
         training_loss += loss.item()
         return training_loss
+
+    @staticmethod
+    def _instantiate_the_loss_function(loss_function: Any) -> Any:
+        return loss_function()
 
     def _instantiate_the_optimizer(self, optimizer: Any) -> Any:
         model_parameters = list(self.model.parameters())

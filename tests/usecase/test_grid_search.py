@@ -1,9 +1,6 @@
 import os
 from unittest import TestCase
 
-import torch as to
-from torch import nn
-
 from src.domain.graph_encoder import GraphEncoder
 from src.domain.model_trainer import ModelTrainer
 from src.repository.training_data_repository import TrainingDataRepository
@@ -20,8 +17,8 @@ class TestTraining(TestCase):
             "batch_size": [3],
             "validation_split": [0.2],
             "test_split": [0.1],
-            "loss_function": [nn.MSELoss()],
-            "optimizer": [to.optim.SGD],
+            "loss_function": ["MSE"],
+            "optimizer": ["SGD"],
             "time_steps": [1],
             "validation_period": [5]
         }
@@ -59,8 +56,8 @@ class TestTraining(TestCase):
             "batch_size": [3],
             "validation_split": [0.2],
             "test_split": [0.1],
-            "loss_function": [nn.MSELoss()],
-            "optimizer": [to.optim.SGD],
+            "loss_function": ["MSE"],
+            "optimizer": ["SGD"],
             "time_steps": [1],
             "validation_period": [5]
         }
@@ -98,8 +95,8 @@ class TestTraining(TestCase):
             "batch_size": [3, 4],
             "validation_split": [0.2],
             "test_split": [0.1],
-            "loss_function": [nn.MSELoss()],
-            "optimizer": [to.optim.SGD],
+            "loss_function": ["MSE"],
+            "optimizer": ["SGD"],
             "time_steps": [1],
             "validation_period": [5]
         }
