@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+export DATASET='sample-dataset'
+export DATA_PATH='data/'
+export DEVICE='cpu'
+export EPOCHS='10'
+export LOSS_FUNCTION='MSE'
+export OPTIMIZER='SGD'
+export BATCH_SIZE='1'
+export VALIDATION_SPLIT='0.2'
+export TEST_SPLIT='0.1'
+export TIME_STEPS='5'
+export VALIDATION_PERIOD='5'

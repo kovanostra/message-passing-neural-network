@@ -11,7 +11,8 @@ from src.domain.node import Node
 
 
 class GraphEncoder(nn.Module):
-    def __init__(self, time_steps: int,
+    def __init__(self,
+                 time_steps: int,
                  number_of_nodes: int,
                  number_of_node_features: int,
                  fully_connected_layer_input_size: int,
@@ -35,6 +36,19 @@ class GraphEncoder(nn.Module):
         self.u_graph_neighbor_messages = None
         self.linear = to.nn.Linear(self.fully_connected_layer_input_size, self.fully_connected_layer_output_size)
         self.sigmoid = to.nn.Sigmoid()
+
+    @classmethod
+    def of(cls,
+           time_steps: int,
+           number_of_nodes: int,
+           number_of_node_features: int,
+           fully_connected_layer_input_size: int,
+           fully_connected_layer_output_size: int):
+        return cls(time_steps,
+                   number_of_nodes,
+                   number_of_node_features,
+                   fully_connected_layer_input_size,
+                   fully_connected_layer_output_size)
 
     def forward(self, node_features: Any, adjacency_matrix: Any, batch_size: int) -> Any:
         outputs = to.zeros(batch_size, self.fully_connected_layer_output_size)

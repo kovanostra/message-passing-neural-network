@@ -1,5 +1,5 @@
 import logging
-from typing import Any
+from typing import Any, Dict
 
 import torch as to
 from torch import nn
@@ -8,21 +8,22 @@ from src.domain.graph import Graph
 
 
 class ModelTrainer:
-    def __init__(self, model: nn.Module, loss_function: Any, optimizer: Any) -> None:
+    def __init__(self, model: nn.Module) -> None:
         self.model = model
-        self.loss_function = loss_function
-        self.optimizer = optimizer
+        self.loss_function = None
+        self.optimizer = None
 
-    def instantiate_model_and_optimizer(self, initialization_graph: Graph) -> None:
+    def instantiate_attributes(self, initialization_graph: Graph, configuration_dictionary: Dict) -> None:
         number_of_nodes = initialization_graph.number_of_nodes
         number_of_node_features = initialization_graph.number_of_node_features
-        self.model = self.model(time_steps=2,
-                                number_of_nodes=number_of_nodes,
-                                number_of_node_features=number_of_node_features,
-                                fully_connected_layer_input_size=number_of_nodes * number_of_node_features,
-                                fully_connected_layer_output_size=number_of_nodes ** 2)
+        self.model = self.model.of(time_steps=configuration_dictionary['time_steps'],
+                                   number_of_nodes=number_of_nodes,
+                                   number_of_node_features=number_of_node_features,
+                                   fully_connected_layer_input_size=number_of_nodes * number_of_node_features,
+                                   fully_connected_layer_output_size=number_of_nodes ** 2)
         self.model.initialize_tensors(initialization_graph)
-        self.optimizer = self._instantiate_the_optimizer(self.optimizer)
+        self.loss_function = configuration_dictionary['loss_function']
+        self.optimizer = self._instantiate_the_optimizer(configuration_dictionary['optimizer'])
 
     def do_train(self, training_data: Any, epoch: int) -> Any:
         training_loss = 0.0
