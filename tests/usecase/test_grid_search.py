@@ -3,6 +3,7 @@ from unittest import TestCase
 
 from src.domain.graph_encoder import GraphEncoder
 from src.domain.model_trainer import ModelTrainer
+from src.domain.saver import Saver
 from src.repository.training_data_repository import TrainingDataRepository
 from src.usecase.grid_search import GridSearch
 from tests.fixtures.matrices_and_vectors import BASE_GRAPH, BASE_GRAPH_NODE_FEATURES
@@ -23,10 +24,12 @@ class TestTraining(TestCase):
             "validation_period": [5]
         }
         dataset = 'training-test-data'
-        tests_data_path = 'tests/data/'
-        repository = TrainingDataRepository(tests_data_path, dataset)
+        tests_data_directory = 'tests/data/'
+        tests_results_directory = 'tests/results/'
+        repository = TrainingDataRepository(tests_data_directory, dataset)
         model_trainer = ModelTrainer(GraphEncoder)
-        grid_search = GridSearch(repository, model_trainer, grid_search_dictionary)
+        saver = Saver(tests_results_directory)
+        grid_search = GridSearch(repository, model_trainer, grid_search_dictionary, saver)
 
         features = BASE_GRAPH_NODE_FEATURES
         labels = BASE_GRAPH
@@ -43,10 +46,10 @@ class TestTraining(TestCase):
         configuration_id = list(losses["training_loss"].keys())[0]
         self.assertTrue(losses["training_loss"][configuration_id][grid_search_dictionary["epochs"][0]] > 0.0)
         self.assertTrue(losses["validation_loss"][configuration_id][grid_search_dictionary["validation_period"][0]] > 0.0)
-        self.assertTrue(losses["test_loss"][configuration_id] > 0.0)
+        self.assertTrue(losses["test_loss"][configuration_id]["final_epoch"] > 0.0)
         for i in range(dataset_size):
-            os.remove(tests_data_path + dataset + "/" + features_filenames[i])
-            os.remove(tests_data_path + dataset + "/" + labels_filenames[i])
+            os.remove(tests_data_directory + dataset + "/" + features_filenames[i])
+            os.remove(tests_data_directory + dataset + "/" + labels_filenames[i])
 
     def test_start_for_multiple_batches_of_differing_size(self):
         # Given
@@ -62,10 +65,12 @@ class TestTraining(TestCase):
             "validation_period": [5]
         }
         dataset = 'training-test-data'
-        tests_data_path = 'tests/data/'
-        repository = TrainingDataRepository(tests_data_path, dataset)
+        tests_data_directory = 'tests/data/'
+        tests_results_directory = 'tests/results/'
+        repository = TrainingDataRepository(tests_data_directory, dataset)
         model_trainer = ModelTrainer(GraphEncoder)
-        grid_search = GridSearch(repository, model_trainer, grid_search_dictionary)
+        saver = Saver(tests_results_directory)
+        grid_search = GridSearch(repository, model_trainer, grid_search_dictionary, saver)
 
         features = BASE_GRAPH_NODE_FEATURES
         labels = BASE_GRAPH
@@ -82,10 +87,10 @@ class TestTraining(TestCase):
         configuration_id = list(losses["training_loss"].keys())[0]
         self.assertTrue(losses["training_loss"][configuration_id][grid_search_dictionary["epochs"][0]] > 0.0)
         self.assertTrue(losses["validation_loss"][configuration_id][grid_search_dictionary["validation_period"][0]] > 0.0)
-        self.assertTrue(losses["test_loss"][configuration_id] > 0.0)
+        self.assertTrue(losses["test_loss"][configuration_id]["final_epoch"] > 0.0)
         for i in range(dataset_size):
-            os.remove(tests_data_path + dataset + "/" + features_filenames[i])
-            os.remove(tests_data_path + dataset + "/" + labels_filenames[i])
+            os.remove(tests_data_directory + dataset + "/" + features_filenames[i])
+            os.remove(tests_data_directory + dataset + "/" + labels_filenames[i])
 
     def test_start_a_grid_search(self):
         # Given
@@ -101,10 +106,12 @@ class TestTraining(TestCase):
             "validation_period": [5]
         }
         dataset = 'training-test-data'
-        tests_data_path = 'tests/data/'
-        repository = TrainingDataRepository(tests_data_path, dataset)
+        tests_data_directory = 'tests/data/'
+        tests_results_directory = 'tests/results/'
+        repository = TrainingDataRepository(tests_data_directory, dataset)
         model_trainer = ModelTrainer(GraphEncoder)
-        grid_search = GridSearch(repository, model_trainer, grid_search_dictionary)
+        saver = Saver(tests_results_directory)
+        grid_search = GridSearch(repository, model_trainer, grid_search_dictionary, saver)
 
         features = BASE_GRAPH_NODE_FEATURES
         labels = BASE_GRAPH
@@ -121,8 +128,8 @@ class TestTraining(TestCase):
         configuration_id = list(losses["training_loss"].keys())[0]
         self.assertTrue(losses["training_loss"][configuration_id][grid_search_dictionary["epochs"][0]] > 0.0)
         self.assertTrue(losses["validation_loss"][configuration_id][grid_search_dictionary["validation_period"][0]] > 0.0)
-        self.assertTrue(losses["test_loss"][configuration_id] > 0.0)
+        self.assertTrue(losses["test_loss"][configuration_id]["final_epoch"] > 0.0)
         for i in range(dataset_size):
-            os.remove(tests_data_path + dataset + "/" + features_filenames[i])
-            os.remove(tests_data_path + dataset + "/" + labels_filenames[i])
+            os.remove(tests_data_directory + dataset + "/" + features_filenames[i])
+            os.remove(tests_data_directory + dataset + "/" + labels_filenames[i])
 

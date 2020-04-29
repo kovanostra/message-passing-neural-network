@@ -9,12 +9,12 @@ from src.repository.interface.repository import Repository
 
 
 class TrainingDataRepository(Repository):
-    def __init__(self, data_path: str, dataset: str) -> None:
+    def __init__(self, data_directory: str, dataset: str) -> None:
         super().__init__()
-        self.data_path = data_path + dataset + '/'
+        self.data_directory = data_directory + dataset + '/'
 
     def save(self, filename: str, dataset_name: str) -> None:
-        with open(self.data_path + filename, 'wb') as file:
+        with open(self.data_directory + filename, 'wb') as file:
             pickle.dump(dataset_name, file)
 
     def get_all_features_and_labels_from_separate_files(self) -> List[Tuple[to.Tensor, to.Tensor]]:
@@ -27,12 +27,12 @@ class TrainingDataRepository(Repository):
         return dataset
 
     def _get_labels(self, filename: str) -> to.Tensor:
-        with open(self.data_path + filename + 'labels.pickle', 'rb') as labels_file:
+        with open(self.data_directory + filename + 'labels.pickle', 'rb') as labels_file:
             labels = pickle.load(labels_file).float()
         return labels
 
     def _get_features(self, filename: str) -> to.Tensor:
-        with open(self.data_path + filename + 'features.pickle', 'rb') as features_file:
+        with open(self.data_directory + filename + 'features.pickle', 'rb') as features_file:
             features = pickle.load(features_file).float()
         return features
 
@@ -40,7 +40,7 @@ class TrainingDataRepository(Repository):
         return set([self._reconstruct_filename(file) for file in self._get_data_filenames()])
 
     def _get_data_filenames(self):
-        return sorted([file for file in os.listdir(self.data_path) if file.endswith(".pickle")])
+        return sorted([file for file in os.listdir(self.data_directory) if file.endswith(".pickle")])
 
     @staticmethod
     def _reconstruct_filename(file):

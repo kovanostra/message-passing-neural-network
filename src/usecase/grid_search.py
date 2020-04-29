@@ -7,6 +7,7 @@ from torch.utils.data.dataloader import DataLoader
 from src.domain.data_preprocessor import DataPreprocessor
 from src.domain.graph import Graph
 from src.domain.model_trainer import ModelTrainer
+from src.domain.saver import Saver
 from src.repository.interface.repository import Repository
 
 
@@ -14,10 +15,12 @@ class GridSearch:
     def __init__(self,
                  training_data_repository: Repository,
                  model_trainer: ModelTrainer,
-                 grid_search_dictionary: Dict) -> None:
+                 grid_search_dictionary: Dict,
+                 saver: Saver) -> None:
         self.repository = training_data_repository
         self.model_trainer = model_trainer
         self.grid_search_dictionary = grid_search_dictionary
+        self.saver = saver
 
     def start(self) -> Dict:
         all_grid_search_configurations = self._get_all_grid_search_configurations()
@@ -27,6 +30,7 @@ class GridSearch:
                   'test_loss': {}}
         for configuration in all_grid_search_configurations:
             losses = self._search_configuration(configuration, losses)
+        self.saver.save_results(losses)
         self.get_logger().info('Finished Training')
         return losses
 
@@ -45,7 +49,8 @@ class GridSearch:
                 losses['validation_loss'][grid_search_configuration_dictionary["configuration_id"]].update(
                     {epoch: validation_loss})
         test_loss = self.model_trainer.do_evaluate(test_data)
-        losses['test_loss'][grid_search_configuration_dictionary["configuration_id"]] = test_loss
+        losses['test_loss'][grid_search_configuration_dictionary["configuration_id"]].update(
+            {"final_epoch": test_loss})
         return losses
 
     @staticmethod

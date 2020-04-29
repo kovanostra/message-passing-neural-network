@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 export DATASET_NAME='sample-dataset'
-export DATA_PATH='data/'
-export RESULTS_PATH='results/'
+export DATA_DIRECTORY='data/'
+export RESULTS_DIRECTORY='results/'
 export DEVICE='cpu'
 export EPOCHS='10'
 export LOSS_FUNCTION='MSE'

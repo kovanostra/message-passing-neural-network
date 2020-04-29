@@ -20,8 +20,8 @@ class MessagePassingNN:
 
 
 def create(dataset_name: str,
-           data_path: str,
-           results_path: str,
+           data_directory: str,
+           results_directory: str,
            device: str,
            epochs: str,
            loss_function_selection: str,
@@ -40,10 +40,10 @@ def create(dataset_name: str,
                                                                                      test_split,
                                                                                      time_steps,
                                                                                      validation_period)
-    training_data_repository = TrainingDataRepository(data_path, dataset_name)
+    training_data_repository = TrainingDataRepository(data_directory, dataset_name)
     model_trainer = ModelTrainer(GraphEncoder)
-    saver = Saver(results_path)
-    grid_search = GridSearch(training_data_repository, model_trainer, grid_search_dictionary)
+    saver = Saver(results_directory)
+    grid_search = GridSearch(training_data_repository, model_trainer, grid_search_dictionary, saver)
     return MessagePassingNN(grid_search)
 
 
