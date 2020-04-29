@@ -25,10 +25,11 @@ class TestTraining(TestCase):
         }
         dataset = 'training-test-data'
         tests_data_directory = 'tests/data/'
-        tests_results_directory = 'tests/results/'
+        tests_model_directory = 'tests/model'
+        tests_results_directory = 'tests/results'
         repository = TrainingDataRepository(tests_data_directory, dataset)
         model_trainer = ModelTrainer(GraphEncoder)
-        saver = Saver(tests_results_directory)
+        saver = Saver(tests_model_directory, tests_results_directory)
         grid_search = GridSearch(repository, model_trainer, grid_search_dictionary, saver)
 
         features = BASE_GRAPH_NODE_FEATURES
@@ -66,10 +67,11 @@ class TestTraining(TestCase):
         }
         dataset = 'training-test-data'
         tests_data_directory = 'tests/data/'
-        tests_results_directory = 'tests/results/'
+        tests_model_directory = 'tests/model'
+        tests_results_directory = 'tests/results'
         repository = TrainingDataRepository(tests_data_directory, dataset)
         model_trainer = ModelTrainer(GraphEncoder)
-        saver = Saver(tests_results_directory)
+        saver = Saver(tests_model_directory, tests_results_directory)
         grid_search = GridSearch(repository, model_trainer, grid_search_dictionary, saver)
 
         features = BASE_GRAPH_NODE_FEATURES
@@ -107,10 +109,11 @@ class TestTraining(TestCase):
         }
         dataset = 'training-test-data'
         tests_data_directory = 'tests/data/'
-        tests_results_directory = 'tests/results/'
+        tests_model_directory = 'tests/model'
+        tests_results_directory = 'tests/results'
         repository = TrainingDataRepository(tests_data_directory, dataset)
         model_trainer = ModelTrainer(GraphEncoder)
-        saver = Saver(tests_results_directory)
+        saver = Saver(tests_model_directory, tests_results_directory)
         grid_search = GridSearch(repository, model_trainer, grid_search_dictionary, saver)
 
         features = BASE_GRAPH_NODE_FEATURES

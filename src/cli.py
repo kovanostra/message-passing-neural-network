@@ -16,6 +16,7 @@ def main(debug):
 @click.command('grid-search', help='Starts the grid search')
 @click.argument('dataset_name', envvar='DATASET_NAME', type=str)
 @click.argument('data_directory', envvar='DATA_DIRECTORY', type=str)
+@click.argument('model_directory', envvar='MODEL_DIRECTORY', type=str)
 @click.argument('results_directory', envvar='RESULTS_DIRECTORY', type=str)
 @click.argument('device', envvar='DEVICE', type=str)
 @click.argument('epochs', envvar='EPOCHS', type=str)
@@ -28,6 +29,7 @@ def main(debug):
 @click.argument('validation_period', envvar='VALIDATION_PERIOD', type=str)
 def start_training(dataset_name: str,
                    data_directory: str,
+                   model_directory: str,
                    results_directory: str,
                    device: str,
                    epochs: str,
@@ -41,6 +43,7 @@ def start_training(dataset_name: str,
     get_logger().info("Starting training")
     message_passing_nn = create(dataset_name,
                                 data_directory,
+                                model_directory,
                                 results_directory,
                                 device,
                                 epochs,

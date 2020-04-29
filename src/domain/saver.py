@@ -1,19 +1,26 @@
 import logging
 import os
 from datetime import datetime
-from typing import Any, Dict, List
+from typing import Dict, List
 
+import torch as to
 from pandas import pandas as pd
 
 from src.fixtures.filenames import RESULTS_CSV
 
 
 class Saver:
-    def __init__(self, results_directory: str) -> None:
+    def __init__(self, model_directory: str, results_directory: str) -> None:
+        self.model_directory = model_directory
         self.results_directory = results_directory
 
-    def save_model(self, model: Any) -> None:
-        pass
+    def save_model(self, configuration_id: str, model: to.nn.Module) -> None:
+        current_folder = self._join_path([self.model_directory, datetime.now().strftime("%d-%b-%YT%H_%M")])
+        if not os.path.exists(current_folder):
+            os.makedirs(current_folder)
+        path_and_filename = self._join_path([current_folder, configuration_id])
+        to.save(model.state_dict(), path_and_filename)
+        self.get_logger().info("Saved model checkpoint in " + path_and_filename)
 
     def save_results(self, results: Dict) -> None:
         current_folder = self._join_path([self.results_directory, datetime.now().strftime("%d-%b-%YT%H_%M")])

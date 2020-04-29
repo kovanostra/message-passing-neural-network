@@ -2,6 +2,7 @@ import logging
 from typing import Dict, List, Tuple
 
 import itertools
+import numpy as np
 from torch.utils.data.dataloader import DataLoader
 
 from src.domain.data_preprocessor import DataPreprocessor
@@ -35,11 +36,12 @@ class GridSearch:
         return losses
 
     def _search_configuration(self, configuration: Tuple[Tuple], losses: Dict) -> Dict:
-        grid_search_configuration_dictionary = self._get_grid_search_configuration_dictionary(configuration)
+        configuration_id, grid_search_configuration_dictionary = self._get_grid_search_configuration_dictionary(configuration)
         training_data, validation_data, test_data, initialization_graph = self._prepare_dataset(
             grid_search_configuration_dictionary)
         self.model_trainer.instantiate_attributes(initialization_graph, grid_search_configuration_dictionary)
         losses = self._update_losses_with_configuration_id(grid_search_configuration_dictionary, losses)
+        validation_loss_max = np.inf
         for epoch in range(1, grid_search_configuration_dictionary['epochs'] + 1):
             training_loss = self.model_trainer.do_train(training_data, epoch)
             losses['training_loss'][grid_search_configuration_dictionary["configuration_id"]].update(
@@ -48,6 +50,9 @@ class GridSearch:
                 validation_loss = self.model_trainer.do_evaluate(validation_data, epoch)
                 losses['validation_loss'][grid_search_configuration_dictionary["configuration_id"]].update(
                     {epoch: validation_loss})
+                if validation_loss < validation_loss_max:
+                    checkpoint_filename = "_".join(["epoch", str(epoch), configuration_id])
+                    self.saver.save_model(checkpoint_filename, self.model_trainer.model)
         test_loss = self.model_trainer.do_evaluate(test_data)
         losses['test_loss'][grid_search_configuration_dictionary["configuration_id"]].update(
             {"final_epoch": test_loss})
@@ -61,13 +66,13 @@ class GridSearch:
         return losses
 
     @staticmethod
-    def _get_grid_search_configuration_dictionary(configuration: Tuple[Tuple]) -> Dict:
+    def _get_grid_search_configuration_dictionary(configuration: Tuple[Tuple]) -> Tuple[str, Dict]:
         grid_search_configuration_dictionary = dict(((key, value) for key, value in configuration))
         configuration_id = 'configuration_id'
         for key, value in grid_search_configuration_dictionary.items():
-            configuration_id += "_" + str(value)
+            configuration_id += "__" + "_".join([key, str(value)])
         grid_search_configuration_dictionary.update({"configuration_id": configuration_id})
-        return grid_search_configuration_dictionary
+        return configuration_id, grid_search_configuration_dictionary
 
     def _prepare_dataset(self, configuration_dictionary: Dict) -> Tuple[DataLoader, DataLoader, DataLoader, Graph]:
         raw_dataset = self.repository.get_all_features_and_labels_from_separate_files()
