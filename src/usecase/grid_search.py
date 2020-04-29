@@ -29,14 +29,21 @@ class GridSearch:
         losses = {'training_loss': {},
                   'validation_loss': {},
                   'test_loss': {}}
+        configuration_id = ''
         for configuration in all_grid_search_configurations:
-            losses = self._search_configuration(configuration, losses)
-        self.saver.save_results(losses)
+            configuration_id, grid_search_configuration_dictionary = self._get_grid_search_configuration_dictionary(
+                configuration)
+            losses = self._search_configuration(configuration_id,
+                                                grid_search_configuration_dictionary,
+                                                losses)
+        self.saver.save_results(configuration_id, losses)
         self.get_logger().info('Finished Training')
         return losses
 
-    def _search_configuration(self, configuration: Tuple[Tuple], losses: Dict) -> Dict:
-        configuration_id, grid_search_configuration_dictionary = self._get_grid_search_configuration_dictionary(configuration)
+    def _search_configuration(self,
+                              configuration_id: str,
+                              grid_search_configuration_dictionary: Dict,
+                              losses: Dict) -> Dict:
         training_data, validation_data, test_data, initialization_graph = self._prepare_dataset(
             grid_search_configuration_dictionary)
         self.model_trainer.instantiate_attributes(initialization_graph, grid_search_configuration_dictionary)
@@ -51,8 +58,7 @@ class GridSearch:
                 losses['validation_loss'][grid_search_configuration_dictionary["configuration_id"]].update(
                     {epoch: validation_loss})
                 if validation_loss < validation_loss_max:
-                    checkpoint_filename = "_".join(["epoch", str(epoch), configuration_id])
-                    self.saver.save_model(checkpoint_filename, self.model_trainer.model)
+                    self.saver.save_model(epoch, configuration_id, self.model_trainer.model)
         test_loss = self.model_trainer.do_evaluate(test_data)
         losses['test_loss'][grid_search_configuration_dictionary["configuration_id"]].update(
             {"final_epoch": test_loss})
