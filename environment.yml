@@ -2,9 +2,12 @@ name: message-passing-nn
 channels:
   - pytorch
   - defaults
+  - conda-forge
 dependencies:
-  - numpy=1.17.4
   - python=3.7.6
+  - tox=3.14.3
+  - numpy=1.17.4
+  - pandas=1.0.3
   - pytorch=1.4.0
   - setuptools=46.0.0
   - torchvision=0.5.0

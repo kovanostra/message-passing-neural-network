@@ -1,15 +1,15 @@
-import torch
+import torch as to
 
 optimizers = {
-    "Adadelta": torch.optim.Adadelta,
-    "Adagrad": torch.optim.Adagrad,
-    "Adam": torch.optim.Adam,
-    "AdamW": torch.optim.AdamW,
-    "SparseAdam": torch.optim.SparseAdam,
-    "Adamax": torch.optim.Adamax,
-    "ASGD": torch.optim.ASGD,
-    "LBFGS": torch.optim.LBFGS,
-    "RMSprop": torch.optim.RMSprop,
-    "Rprop": torch.optim.Rprop,
-    "SGD": torch.optim.SGD,
+    "Adadelta": to.optim.Adadelta,
+    "Adagrad": to.optim.Adagrad,
+    "Adam": to.optim.Adam,
+    "AdamW": to.optim.AdamW,
+    "SparseAdam": to.optim.SparseAdam,
+    "Adamax": to.optim.Adamax,
+    "ASGD": to.optim.ASGD,
+    "LBFGS": to.optim.LBFGS,
+    "RMSprop": to.optim.RMSprop,
+    "Rprop": to.optim.Rprop,
+    "SGD": to.optim.SGD,
 }

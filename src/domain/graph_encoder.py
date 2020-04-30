@@ -1,5 +1,3 @@
-from typing import Any
-
 import torch as to
 import torch.nn as nn
 
@@ -11,7 +9,8 @@ from src.domain.node import Node
 
 
 class GraphEncoder(nn.Module):
-    def __init__(self, time_steps: int,
+    def __init__(self,
+                 time_steps: int,
                  number_of_nodes: int,
                  number_of_node_features: int,
                  fully_connected_layer_input_size: int,
@@ -36,7 +35,20 @@ class GraphEncoder(nn.Module):
         self.linear = to.nn.Linear(self.fully_connected_layer_input_size, self.fully_connected_layer_output_size)
         self.sigmoid = to.nn.Sigmoid()
 
-    def forward(self, node_features: Any, adjacency_matrix: Any, batch_size: int) -> Any:
+    @classmethod
+    def of(cls,
+           time_steps: int,
+           number_of_nodes: int,
+           number_of_node_features: int,
+           fully_connected_layer_input_size: int,
+           fully_connected_layer_output_size: int):
+        return cls(time_steps,
+                   number_of_nodes,
+                   number_of_node_features,
+                   fully_connected_layer_input_size,
+                   fully_connected_layer_output_size)
+
+    def forward(self, node_features: to.Tensor, adjacency_matrix: to.Tensor, batch_size: int) -> to.Tensor:
         outputs = to.zeros(batch_size, self.fully_connected_layer_output_size)
         for batch in range(batch_size):
             outputs[batch] = self.sigmoid(
@@ -45,7 +57,7 @@ class GraphEncoder(nn.Module):
                         self.encode(node_features[batch], adjacency_matrix[batch]))))
         return outputs
 
-    def encode(self, node_features: Any, adjacency_matrix: Any) -> Any:
+    def encode(self, node_features: to.Tensor, adjacency_matrix: to.Tensor) -> to.Tensor:
         messages = self._send_messages(node_features, adjacency_matrix)
         encodings = self._encode_nodes(node_features, messages)
         return encodings
@@ -71,7 +83,7 @@ class GraphEncoder(nn.Module):
         self.u_graph_node_features = nn.Parameter(to.rand(base_3d_tensor_shape), requires_grad=True)
         self.u_graph_neighbor_messages = nn.Parameter(to.rand(base_3d_tensor_shape), requires_grad=True)
 
-    def _send_messages(self, node_features: Any, adjacency_matrix: Any) -> Any:
+    def _send_messages(self, node_features: to.Tensor, adjacency_matrix: to.Tensor) -> to.Tensor:
         messages = to.zeros((self.number_of_nodes, self.number_of_nodes, self.number_of_node_features))
         for step in range(self.time_steps):
             messages = self._compose_messages_from_nodes_to_targets(node_features,
@@ -79,7 +91,7 @@ class GraphEncoder(nn.Module):
                                                                     messages)
         return messages
 
-    def _encode_nodes(self, node_features: Any, messages: Any) -> Any:
+    def _encode_nodes(self, node_features: to.Tensor, messages: to.Tensor) -> to.Tensor:
         encoded_node = to.zeros(self.number_of_nodes, self.number_of_node_features)
         for node_id in range(self.number_of_nodes):
             encoded_node[node_id] += self._apply_recurrent_layer_for_node(node_features,
@@ -87,12 +99,15 @@ class GraphEncoder(nn.Module):
                                                                           node_id)
         return encoded_node
 
-    def _apply_recurrent_layer_for_node(self, node_features: Any, messages: Any, node_id: int) -> Any:
+    def _apply_recurrent_layer_for_node(self, node_features: to.Tensor, messages: to.Tensor, node_id: int) -> to.Tensor:
         node_encoding_features = self.u_graph_node_features[node_id].matmul(node_features[node_id])
         node_encoding_messages = self.u_graph_neighbor_messages[node_id].matmul(to.sum(messages[node_id], dim=0))
         return to.relu(node_encoding_features + node_encoding_messages)
 
-    def _compose_messages_from_nodes_to_targets(self, node_features: Any, adjacency_matrix: Any, messages: Any) -> Any:
+    def _compose_messages_from_nodes_to_targets(self,
+                                                node_features: to.Tensor,
+                                                adjacency_matrix: to.Tensor,
+                                                messages: to.Tensor) -> to.Tensor:
         new_messages = to.zeros(messages.shape)
         for node_id in range(self.number_of_nodes):
             node = self._create_node(node_features, adjacency_matrix, node_id)
@@ -105,11 +120,11 @@ class GraphEncoder(nn.Module):
                 new_messages[edge_slice] = message.value
         return new_messages
 
-    def _get_message_inputs(self, messages: Any,
+    def _get_message_inputs(self, messages: to.Tensor,
                             node: Node,
                             edge: Edge,
-                            node_features: Any,
-                            adjacency_matrix: Any) -> MessageGRU:
+                            node_features: to.Tensor,
+                            adjacency_matrix: to.Tensor) -> MessageGRU:
         message = self._create_message()
         message.previous_messages = self._get_messages_from_all_node_neighbors_except_target_summed(messages,
                                                                                                     node,
@@ -119,15 +134,20 @@ class GraphEncoder(nn.Module):
         return message
 
     @staticmethod
-    def _get_messages_from_all_node_neighbors_except_target_summed(messages: Any, node: Node,
-                                                                   edge: Edge) -> Any:
+    def _get_messages_from_all_node_neighbors_except_target_summed(messages: to.Tensor,
+                                                                   node: Node,
+                                                                   edge: Edge) -> to.Tensor:
         messages_from_the_other_neighbors = to.zeros(node.features.shape[0])
         if node.neighbors_count > 1:
             neighbors_slice = edge.get_start_node_neighbors_without_end_node()
             messages_from_the_other_neighbors = to.sum(messages[neighbors_slice], dim=0)
         return messages_from_the_other_neighbors
 
-    def _pass_through_update_gate(self, messages: Any, node: Node, edge: Edge, node_features: Any) -> Any:
+    def _pass_through_update_gate(self,
+                                  messages: to.Tensor,
+                                  node: Node,
+                                  edge: Edge,
+                                  node_features: to.Tensor) -> to.Tensor:
         message_from_a_neighbor_other_than_target = self._get_messages_from_all_node_neighbors_except_target_summed(
             messages,
             node,
@@ -140,11 +160,12 @@ class GraphEncoder(nn.Module):
                 self.b_gru_update_gate))
         return update_gate_output
 
-    def _get_current_memory_message(self, messages: Any,
+    def _get_current_memory_message(self,
+                                    messages: to.Tensor,
                                     node: Node,
                                     edge: Edge,
-                                    node_features: Any,
-                                    adjacency_matrix: Any) -> Any:
+                                    node_features: to.Tensor,
+                                    adjacency_matrix: to.Tensor) -> to.Tensor:
         messages_passed_through_reset_gate = self._keep_or_reset_messages(messages,
                                                                           node,
                                                                           edge,
@@ -157,11 +178,12 @@ class GraphEncoder(nn.Module):
             self.b_gru_current_memory_message)
         return to.tanh(current_memory_message)
 
-    def _keep_or_reset_messages(self, messages: Any,
+    def _keep_or_reset_messages(self,
+                                messages: to.Tensor,
                                 node: Node,
                                 edge: Edge,
-                                node_features: Any,
-                                adjacency_matrix: Any) -> Any:
+                                node_features: to.Tensor,
+                                adjacency_matrix: to.Tensor) -> to.Tensor:
         edge_slice = edge.get_edge_slice()
         neighbors_slice = edge.get_start_node_neighbors_without_end_node()[0]
         messages_from_the_other_neighbors = to.zeros(node.features.shape[0])
@@ -173,7 +195,11 @@ class GraphEncoder(nn.Module):
             messages_from_the_other_neighbors += to.mul(reset_gate_output, messages[reset_edge_slice])
         return self.u_gru_current_memory_message[edge_slice].matmul(messages_from_the_other_neighbors)
 
-    def _pass_through_reset_gate(self, messages: Any, node: Node, edge: Edge, node_features: Any) -> Any:
+    def _pass_through_reset_gate(self,
+                                 messages: to.Tensor,
+                                 node: Node,
+                                 edge: Edge,
+                                 node_features: to.Tensor) -> to.Tensor:
         edge_slice = edge.get_edge_slice()
         message_from_a_neighbor_other_than_target = messages[edge_slice]
         return to.sigmoid(
@@ -183,7 +209,7 @@ class GraphEncoder(nn.Module):
                 self.b_gru_update_gate)).long()
 
     @staticmethod
-    def _create_node(node_features: Any, adjacency_matrix: Any, node_id: int) -> Node:
+    def _create_node(node_features: to.Tensor, adjacency_matrix: to.Tensor, node_id: int) -> Node:
         return Node(node_features, adjacency_matrix, node_id)
 
     @staticmethod

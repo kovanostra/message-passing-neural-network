@@ -3,8 +3,6 @@ import logging
 import click
 import sys
 
-from src.fixtures.loss_functions import loss_functions
-from src.fixtures.optimizers import optimizers
 from src.message_passing_nn import create
 
 
@@ -15,35 +13,47 @@ def main(debug):
     setup_logging(log_level)
 
 
-@click.command("start-training", help='Starts the training')
-@click.option('--dataset', help='Select which dataset to use', required=True, type=str)
-@click.option('--epochs', default=10, help='Set the number of epochs', show_default=True, type=int)
-@click.option('--loss_function', default='MSE', help='Set the loss function', show_default=True,
-              type=click.Choice(list(loss_functions.keys())))
-@click.option('--optimizer', default='SGD', help='Set the optimizer', show_default=True,
-              type=click.Choice(list(optimizers.keys())))
-@click.option('--data_path', default='data/', help='Set the path of your data folder', required=True,
-              type=str)
-@click.option('--batch_size', default=1, help='Set the batch size', required=True, type=int)
-@click.option('--validation_split', default=0.2, help='Set the validation set size', required=True, type=float)
-@click.option('--test_split', default=0.1, help='Set the test set size', required=True, type=float)
-def start_training(dataset: str,
-                   epochs: int,
+@click.command('grid-search', help='Starts the grid search')
+@click.argument('dataset_name', envvar='DATASET_NAME', type=str)
+@click.argument('data_directory', envvar='DATA_DIRECTORY', type=str)
+@click.argument('model_directory', envvar='MODEL_DIRECTORY', type=str)
+@click.argument('results_directory', envvar='RESULTS_DIRECTORY', type=str)
+@click.argument('device', envvar='DEVICE', type=str)
+@click.argument('epochs', envvar='EPOCHS', type=str)
+@click.argument('loss_function', envvar='LOSS_FUNCTION', type=str)
+@click.argument('optimizer', envvar='OPTIMIZER', type=str)
+@click.argument('batch_size', envvar='BATCH_SIZE', type=str)
+@click.argument('validation_split', envvar='VALIDATION_SPLIT', type=str)
+@click.argument('test_split', envvar='TEST_SPLIT', type=str)
+@click.argument('time_steps', envvar='TIME_STEPS', type=str)
+@click.argument('validation_period', envvar='VALIDATION_PERIOD', type=str)
+def start_training(dataset_name: str,
+                   data_directory: str,
+                   model_directory: str,
+                   results_directory: str,
+                   device: str,
+                   epochs: str,
                    loss_function: str,
                    optimizer: str,
-                   data_path: str,
-                   batch_size: int,
-                   validation_split: float,
-                   test_split: float) -> None:
+                   batch_size: str,
+                   validation_split: str,
+                   test_split: str,
+                   time_steps: str,
+                   validation_period: str) -> None:
     get_logger().info("Starting training")
-    message_passing_nn = create(dataset,
+    message_passing_nn = create(dataset_name,
+                                data_directory,
+                                model_directory,
+                                results_directory,
+                                device,
                                 epochs,
                                 loss_function,
                                 optimizer,
-                                data_path,
                                 batch_size,
                                 validation_split,
-                                test_split)
+                                test_split,
+                                time_steps,
+                                validation_period)
     message_passing_nn.start()
 
 
