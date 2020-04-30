@@ -12,10 +12,11 @@ class TestModelTrainer(TestCase):
         time_steps = 1
         loss_function = "MSE"
         optimizer = "SGD"
+        device = "cpu"
         self.configuration_dictionary = {"loss_function": loss_function,
                                          "optimizer": optimizer,
                                          "time_steps": time_steps}
-        self.model_trainer = ModelTrainer(GraphEncoder)
+        self.model_trainer = ModelTrainer(GraphEncoder, device)
 
     def test_instantiate_attributes(self):
         # Given

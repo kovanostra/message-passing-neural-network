@@ -1,4 +1,5 @@
 import os
+from typing import List
 from unittest import TestCase
 
 from src.domain.graph_encoder import GraphEncoder
@@ -10,6 +11,18 @@ from tests.fixtures.matrices_and_vectors import BASE_GRAPH, BASE_GRAPH_NODE_FEAT
 
 
 class TestTraining(TestCase):
+    def setUp(self) -> None:
+        self.features = BASE_GRAPH_NODE_FEATURES
+        self.labels = BASE_GRAPH
+        self.dataset = 'training-test-data'
+        self.tests_data_directory = 'tests/data/'
+        tests_model_directory = 'tests/model'
+        tests_results_directory = 'tests/results'
+        device = "cpu"
+        self.repository = TrainingDataRepository(self.tests_data_directory, self.dataset)
+        self.model_trainer = ModelTrainer(GraphEncoder, device)
+        self.saver = Saver(tests_model_directory, tests_results_directory)
+
     def test_start_for_multiple_batches_of_the_same_size(self):
         # Given
         dataset_size = 6
@@ -23,34 +36,26 @@ class TestTraining(TestCase):
             "time_steps": [1],
             "validation_period": [5]
         }
-        dataset = 'training-test-data'
-        tests_data_directory = 'tests/data/'
-        tests_model_directory = 'tests/model'
-        tests_results_directory = 'tests/results'
-        repository = TrainingDataRepository(tests_data_directory, dataset)
-        model_trainer = ModelTrainer(GraphEncoder)
-        saver = Saver(tests_model_directory, tests_results_directory)
-        grid_search = GridSearch(repository, model_trainer, grid_search_dictionary, saver)
+        grid_search = GridSearch(self.repository, self.model_trainer, grid_search_dictionary, self.saver)
 
-        features = BASE_GRAPH_NODE_FEATURES
-        labels = BASE_GRAPH
         features_filenames = [str(i) + '_training_features' + '.pickle' for i in range(dataset_size)]
         labels_filenames = [str(i) + '_training_labels' '.pickle' for i in range(dataset_size)]
         for i in range(dataset_size):
-            repository.save(features_filenames[i], features)
-            repository.save(labels_filenames[i], labels)
+            self.repository.save(features_filenames[i], self.features)
+            self.repository.save(labels_filenames[i], self.labels)
 
         # When
         losses = grid_search.start()
+        configuration_id = list(losses["training_loss"].keys())[0]
 
         # Then
-        configuration_id = list(losses["training_loss"].keys())[0]
         self.assertTrue(losses["training_loss"][configuration_id][grid_search_dictionary["epochs"][0]] > 0.0)
-        self.assertTrue(losses["validation_loss"][configuration_id][grid_search_dictionary["validation_period"][0]] > 0.0)
+        self.assertTrue(
+            losses["validation_loss"][configuration_id][grid_search_dictionary["validation_period"][0]] > 0.0)
         self.assertTrue(losses["test_loss"][configuration_id]["final_epoch"] > 0.0)
-        for i in range(dataset_size):
-            os.remove(tests_data_directory + dataset + "/" + features_filenames[i])
-            os.remove(tests_data_directory + dataset + "/" + labels_filenames[i])
+
+        # Tear down
+        self._remove_files(dataset_size, features_filenames, labels_filenames)
 
     def test_start_for_multiple_batches_of_differing_size(self):
         # Given
@@ -65,34 +70,26 @@ class TestTraining(TestCase):
             "time_steps": [1],
             "validation_period": [5]
         }
-        dataset = 'training-test-data'
-        tests_data_directory = 'tests/data/'
-        tests_model_directory = 'tests/model'
-        tests_results_directory = 'tests/results'
-        repository = TrainingDataRepository(tests_data_directory, dataset)
-        model_trainer = ModelTrainer(GraphEncoder)
-        saver = Saver(tests_model_directory, tests_results_directory)
-        grid_search = GridSearch(repository, model_trainer, grid_search_dictionary, saver)
+        grid_search = GridSearch(self.repository, self.model_trainer, grid_search_dictionary, self.saver)
 
-        features = BASE_GRAPH_NODE_FEATURES
-        labels = BASE_GRAPH
         features_filenames = [str(i) + '_training_features' + '.pickle' for i in range(dataset_size)]
         labels_filenames = [str(i) + '_training_labels' '.pickle' for i in range(dataset_size)]
         for i in range(dataset_size):
-            repository.save(features_filenames[i], features)
-            repository.save(labels_filenames[i], labels)
+            self.repository.save(features_filenames[i], self.features)
+            self.repository.save(labels_filenames[i], self.labels)
 
         # When
         losses = grid_search.start()
+        configuration_id = list(losses["training_loss"].keys())[0]
 
         # Then
-        configuration_id = list(losses["training_loss"].keys())[0]
         self.assertTrue(losses["training_loss"][configuration_id][grid_search_dictionary["epochs"][0]] > 0.0)
-        self.assertTrue(losses["validation_loss"][configuration_id][grid_search_dictionary["validation_period"][0]] > 0.0)
+        self.assertTrue(
+            losses["validation_loss"][configuration_id][grid_search_dictionary["validation_period"][0]] > 0.0)
         self.assertTrue(losses["test_loss"][configuration_id]["final_epoch"] > 0.0)
-        for i in range(dataset_size):
-            os.remove(tests_data_directory + dataset + "/" + features_filenames[i])
-            os.remove(tests_data_directory + dataset + "/" + labels_filenames[i])
+
+        # Tear down
+        self._remove_files(dataset_size, features_filenames, labels_filenames)
 
     def test_start_a_grid_search(self):
         # Given
@@ -107,32 +104,28 @@ class TestTraining(TestCase):
             "time_steps": [1],
             "validation_period": [5]
         }
-        dataset = 'training-test-data'
-        tests_data_directory = 'tests/data/'
-        tests_model_directory = 'tests/model'
-        tests_results_directory = 'tests/results'
-        repository = TrainingDataRepository(tests_data_directory, dataset)
-        model_trainer = ModelTrainer(GraphEncoder)
-        saver = Saver(tests_model_directory, tests_results_directory)
-        grid_search = GridSearch(repository, model_trainer, grid_search_dictionary, saver)
+        grid_search = GridSearch(self.repository, self.model_trainer, grid_search_dictionary, self.saver)
 
-        features = BASE_GRAPH_NODE_FEATURES
-        labels = BASE_GRAPH
         features_filenames = [str(i) + '_training_features' + '.pickle' for i in range(dataset_size)]
         labels_filenames = [str(i) + '_training_labels' '.pickle' for i in range(dataset_size)]
         for i in range(dataset_size):
-            repository.save(features_filenames[i], features)
-            repository.save(labels_filenames[i], labels)
+            self.repository.save(features_filenames[i], self.features)
+            self.repository.save(labels_filenames[i], self.labels)
 
         # When
         losses = grid_search.start()
+        configuration_id = list(losses["training_loss"].keys())[0]
 
         # Then
-        configuration_id = list(losses["training_loss"].keys())[0]
         self.assertTrue(losses["training_loss"][configuration_id][grid_search_dictionary["epochs"][0]] > 0.0)
-        self.assertTrue(losses["validation_loss"][configuration_id][grid_search_dictionary["validation_period"][0]] > 0.0)
+        self.assertTrue(
+            losses["validation_loss"][configuration_id][grid_search_dictionary["validation_period"][0]] > 0.0)
         self.assertTrue(losses["test_loss"][configuration_id]["final_epoch"] > 0.0)
-        for i in range(dataset_size):
-            os.remove(tests_data_directory + dataset + "/" + features_filenames[i])
-            os.remove(tests_data_directory + dataset + "/" + labels_filenames[i])
 
+        # Tear down
+        self._remove_files(dataset_size, features_filenames, labels_filenames)
+
+    def _remove_files(self, dataset_size: int, features_filenames: List[str], labels_filenames: List[str]) -> None:
+        for i in range(dataset_size):
+            os.remove(self.tests_data_directory + self.dataset + "/" + features_filenames[i])
+            os.remove(self.tests_data_directory + self.dataset + "/" + labels_filenames[i])

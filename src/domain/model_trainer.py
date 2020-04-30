@@ -13,10 +13,11 @@ from src.domain.optimizer_selector import OptimizerSelector
 
 
 class ModelTrainer:
-    def __init__(self, model: nn.Module) -> None:
+    def __init__(self, model: nn.Module, device: str) -> None:
         self.model = model
         self.loss_function = None
         self.optimizer = None
+        self.device = device
 
     def instantiate_attributes(self, initialization_graph: Graph, configuration_dictionary: Dict) -> None:
         number_of_nodes = initialization_graph.number_of_nodes
@@ -26,6 +27,7 @@ class ModelTrainer:
                                    number_of_node_features=number_of_node_features,
                                    fully_connected_layer_input_size=number_of_nodes * number_of_node_features,
                                    fully_connected_layer_output_size=number_of_nodes ** 2)
+        self.model.to(self.device)
         self.model.initialize_tensors(initialization_graph)
         self.loss_function = self._instantiate_the_loss_function(
             LossFunctionSelector.load_loss_function(configuration_dictionary['loss_function']))
@@ -35,6 +37,7 @@ class ModelTrainer:
     def do_train(self, training_data: DataLoader, epoch: int) -> float:
         training_loss = 0.0
         for features, labels in training_data:
+            features, labels = features.to(self.device), labels.to(self.device)
             current_batch_size = self._get_current_batch_size(features)
             self.optimizer.zero_grad()
             outputs = self.model.forward(features, adjacency_matrix=labels, batch_size=current_batch_size)

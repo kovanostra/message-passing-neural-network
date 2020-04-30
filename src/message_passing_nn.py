@@ -42,7 +42,7 @@ def create(dataset_name: str,
                                                                                      time_steps,
                                                                                      validation_period)
     training_data_repository = TrainingDataRepository(data_directory, dataset_name)
-    model_trainer = ModelTrainer(GraphEncoder)
+    model_trainer = ModelTrainer(GraphEncoder, device)
     saver = Saver(model_directory, results_directory)
     grid_search = GridSearch(training_data_repository, model_trainer, grid_search_dictionary, saver)
     return MessagePassingNN(grid_search)
