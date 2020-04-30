@@ -7,7 +7,8 @@ from src.domain.message_gru import MessageGRU
 
 class TestMessage(TestCase):
     def setUp(self) -> None:
-        self.message = MessageGRU()
+        device = "cpu"
+        self.message = MessageGRU(device)
         self.message.update_gate = to.tensor([1, 2])
         self.message.previous_messages = to.tensor([-2, 2])
         self.message.current_memory = to.tensor([-1, 1])

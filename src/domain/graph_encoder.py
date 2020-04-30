@@ -43,12 +43,14 @@ class GraphEncoder(nn.Module):
            number_of_nodes: int,
            number_of_node_features: int,
            fully_connected_layer_input_size: int,
-           fully_connected_layer_output_size: int):
+           fully_connected_layer_output_size: int,
+           device: str):
         return cls(time_steps,
                    number_of_nodes,
                    number_of_node_features,
                    fully_connected_layer_input_size,
-                   fully_connected_layer_output_size)
+                   fully_connected_layer_output_size,
+                   device)
 
     def forward(self, node_features: to.Tensor, adjacency_matrix: to.Tensor, batch_size: int) -> to.Tensor:
         outputs = to.zeros(batch_size, self.fully_connected_layer_output_size)
@@ -128,7 +130,7 @@ class GraphEncoder(nn.Module):
                             edge: Edge,
                             node_features: to.Tensor,
                             adjacency_matrix: to.Tensor) -> MessageGRU:
-        message = self._create_message()
+        message = self._create_message(self.device)
         message.previous_messages = self._get_messages_from_all_node_neighbors_except_target_summed(messages,
                                                                                                     node,
                                                                                                     edge)
