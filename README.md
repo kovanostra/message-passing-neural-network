@@ -144,7 +144,7 @@ This script will:
 To install the project using pip please run:
 
 ```
-pip install git+https://github.com/kovanostra/message-passing-nn/tree/grid_search
+pip install git+https://github.com/kovanostra/message-passing-nn/
 ```
 
 The code can be used to either just train a configuration of the message passing neural network or to perform a whole grid search.
@@ -153,31 +153,64 @@ The code can be used to either just train a configuration of the message passing
 
 To train one configuration of the model please execute the following (I use example values):
 ```
-from message-passing-nn.src.domain.model_trainer import ModelTrainer
-from message-passing-nn.src.domain.graph_encoder import GraphEncoder
-from message-passing-nn.src.domain.graph import Graph
+import torch
+from src.domain.model_trainer import ModelTrainer
+from src.domain.graph_encoder import GraphEncoder
+from src.domain.graph import Graph
+from src.domain.data_preprocessor import DataPreprocessor
 
+# Set up the variables 
 epochs = 10
-graph_encoder = GraphEncoder(time_steps=5, number_of_nodes=10, number_of_node_features=2, fully_connected_layer_input_size=20, fully_connected_layer_output_size=100)
-configuration_dictionary = {'time_steps': 5,
+batch_size = 1
+validation_split = 0.2
+test_split = 0.1
+device = 'cpu'
+time_steps = 5
+dataset_size = 10
+number_of_nodes = 10
+number_of_node_features = 2
+fully_connected_layer_input_size = number_of_nodes*number_of_node_features
+fully_connected_layer_output_size = number_of_nodes**2
+
+# Set up some data examples. This is just an example. Please use one example of your node features and adjacency matrix.
+node_features_example = torch.ones(number_of_nodes, number_of_node_features) 
+adjacency_matrix_example = torch.ones(number_of_nodes, number_of_nodes)
+
+
+# Set up the datasets. This is just an example. Please load your own dataset by uncommenting the following part.
+# data_directory = 'the-path-to-the-directory-holding-your-data'
+# dataset_name = 'the-name-of-your-data-directory'
+# training_data_repository = TrainingDataRepository(data_directory, dataset_name)
+# raw_dataset = training_data_repository.get_all_features_and_labels_from_separate_files()
+raw_dataset = [(node_features_example, adjacency_matrix_example) for i in range(dataset_size)]
+training_data, validation_data, test_data = DataPreprocessor.train_validation_test_split(raw_dataset, 
+                                                                                         batch_size, 
+                                                                                         validation_split, 
+                                                                                         test_split)
+
+graph_encoder = GraphEncoder(time_steps, 
+                             number_of_nodes, 
+                             number_of_node_features, 
+                             fully_connected_layer_input_size, 
+                             fully_connected_layer_output_size)
+configuration_dictionary = {'time_steps': time_steps,
                             'loss_function': 'MSE',
                             'optimizer': 'SGD'}
-model_trainer = ModelTrainer(graph_encoder, configuration_dictionary)
+initialization_graph = Graph(node_features_example, adjacency_matrix_example)
+model_trainer = ModelTrainer(GraphEncoder, device)
+model_trainer.instatiate_attributes(initialization_graph, configuration_dictionary)
 
 for epoch in range(epochs):
     training_loss = model_trainer.do_train(training_data, epoch)
-    print('Epoch', str(epoch), '. Training loss:', str(training_loss))
     if epoch % validation_period == 0:
         validation_loss = model_trainer.do_evaluate(validation_data, epoch)
-        print('Epoch', str(epoch), '. Validation loss:', str(validation_loss))
-test_loss = model_trainer.do_evaluate(test_data, epoch)
-print('Test loss:', str(validation_loss))
+test_loss = model_trainer.do_evaluate(test_data)
 ```
 
 ##### Perform a grid search
-To a grid search please execute the following (I use example values for a grid search of 24 combinations):
+To perform a grid search please execute the following (I use example values for a grid search of 24 combinations):
 ```
-from message-passing-nn.message-passing-nn import MessagePassingNN, create
+from src.message_passing_nn import create
 
 message_passing_nn = create(dataset_name='sample-dataset',
                             data_directory='data/',
@@ -186,7 +219,7 @@ message_passing_nn = create(dataset_name='sample-dataset',
                             device='cpu',
                             epochs='10&15&2',
                             loss_function='MSE',
-                            optimizer='SGD&Adam,
+                            optimizer='SGD&Adam',
                             batch_size='1',
                             validation_split='0.2&0.3&2',
                             test_split='0.1',
