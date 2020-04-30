@@ -53,7 +53,6 @@ class ModelTrainer:
             evaluation_loss = 0.0
             for features_validation, labels_validation in evaluation_data:
                 features_validation, labels_validation = features_validation.to(self.device), labels_validation.to(self.device)
-                self.model.eval()
                 current_batch_size = self._get_current_batch_size(features_validation)
                 outputs = self.model.forward(features_validation, labels_validation, current_batch_size)
                 loss = self.loss_function(outputs, labels_validation)
