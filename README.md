@@ -158,6 +158,7 @@ from src.domain.model_trainer import ModelTrainer
 from src.domain.graph_encoder import GraphEncoder
 from src.domain.graph import Graph
 from src.domain.data_preprocessor import DataPreprocessor
+from src.repository.training_data_repository import TrainingDataRepository
 
 # Set up the variables 
 device = 'cpu'
