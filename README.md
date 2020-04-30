@@ -83,7 +83,7 @@ MODEL_DIRECTORY='model'
 
 RESULTS_DIRECTORY='results'
 
-- The option to run the model on 'cpu' or 'gpu' can be controlled by: 
+- The option to run the model on 'cpu' or 'cuda' can be controlled by: 
 
 DEVICE='cpu'
 
