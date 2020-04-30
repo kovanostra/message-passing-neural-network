@@ -153,6 +153,11 @@ class GraphEncoder(nn.Module):
             node,
             edge)
         edge_slice = edge.get_edge_slice()
+        print(self.w_gru_update_gate_features[edge_slice].get_device())
+        print(node_features[node.node_id].get_device())
+        print(self.u_gru_update_gate[edge_slice].get_device())
+        print(message_from_a_neighbor_other_than_target.get_device())
+        print(self.b_gru_update_gate.get_device())
         update_gate_output = to.sigmoid(
             to.add(
                 to.add(self.w_gru_update_gate_features[edge_slice].matmul(node_features[node.node_id]),
