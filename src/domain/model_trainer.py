@@ -26,7 +26,8 @@ class ModelTrainer:
                                    number_of_nodes=number_of_nodes,
                                    number_of_node_features=number_of_node_features,
                                    fully_connected_layer_input_size=number_of_nodes * number_of_node_features,
-                                   fully_connected_layer_output_size=number_of_nodes ** 2)
+                                   fully_connected_layer_output_size=number_of_nodes ** 2,
+                                   device=self.device)
         self.model.to(self.device)
         self.model.initialize_tensors(initialization_graph)
         self.loss_function = self._instantiate_the_loss_function(
@@ -51,7 +52,7 @@ class ModelTrainer:
         with to.no_grad():
             evaluation_loss = 0.0
             for features_validation, labels_validation in evaluation_data:
-                self.model.eval()
+                features_validation, labels_validation = features_validation.to(self.device), labels_validation.to(self.device)
                 current_batch_size = self._get_current_batch_size(features_validation)
                 outputs = self.model.forward(features_validation, labels_validation, current_batch_size)
                 loss = self.loss_function(outputs, labels_validation)
