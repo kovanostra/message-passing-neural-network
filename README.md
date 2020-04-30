@@ -175,7 +175,9 @@ validation_period = 5
 
 dataset_size = 10
 
-# Set up the datasets. Please load your own dataset by uncommenting the following part.
+# Set up the dataset. 
+
+# To load your own dataset please uncomment the following part:
 # dataset_name = 'the-name-of-the-directory-containing-your-dataset'
 # data_directory = 'the-path-to-the-directory-containing-all-your-datasets'
 # training_data_repository = TrainingDataRepository(data_directory, dataset_name)
