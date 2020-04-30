@@ -19,7 +19,7 @@ This repository contains:
 2. A wrapper around the model to perform a grid search, and save model checkpoints when the validation error is best for each configuration.
 
 Google colab notebook containing examples of using the code from this repository:
-https://colab.research.google.com/github/kovanostra/message-passing-nn/blob/master/message_passing_nn.ipynb
+https://colab.research.google.com/drive/1jFJ7l7jIv22BhvvzlmXOWFtgBE15ea2X
 
 ### 2. Requirements
 Python 3.7.6
