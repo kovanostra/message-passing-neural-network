@@ -172,21 +172,23 @@ number_of_node_features = 2
 fully_connected_layer_input_size = number_of_nodes*number_of_node_features
 fully_connected_layer_output_size = number_of_nodes**2
 
-# Set up some data examples. This is just an example. Please use one example of your node features and adjacency matrix.
-node_features_example = torch.ones(number_of_nodes, number_of_node_features) 
-adjacency_matrix_example = torch.ones(number_of_nodes, number_of_nodes)
-
-
-# Set up the datasets. This is just an example. Please load your own dataset by uncommenting the following part.
+# Set up the datasets. Please load your own dataset by uncommenting the following part.
 # data_directory = 'the-path-to-the-directory-holding-your-data'
 # dataset_name = 'the-name-of-your-data-directory'
 # training_data_repository = TrainingDataRepository(data_directory, dataset_name)
 # raw_dataset = training_data_repository.get_all_features_and_labels_from_separate_files()
+# initialization_graph = DataPreprocessor.extract_initialization_graph(raw_dataset)
+
+# This is just an example to make the code executable 
+node_features_example = torch.ones(number_of_nodes, number_of_node_features) 
+adjacency_matrix_example = torch.ones(number_of_nodes, number_of_nodes)
 raw_dataset = [(node_features_example, adjacency_matrix_example) for i in range(dataset_size)]
 training_data, validation_data, test_data = DataPreprocessor.train_validation_test_split(raw_dataset, 
                                                                                          batch_size, 
                                                                                          validation_split, 
                                                                                          test_split)
+initialization_graph = Graph(node_features_example, adjacency_matrix_example)
+
 
 graph_encoder = GraphEncoder(time_steps, 
                              number_of_nodes, 
@@ -196,7 +198,6 @@ graph_encoder = GraphEncoder(time_steps,
 configuration_dictionary = {'time_steps': time_steps,
                             'loss_function': 'MSE',
                             'optimizer': 'SGD'}
-initialization_graph = Graph(node_features_example, adjacency_matrix_example)
 model_trainer = ModelTrainer(GraphEncoder, device)
 model_trainer.instatiate_attributes(initialization_graph, configuration_dictionary)
 
