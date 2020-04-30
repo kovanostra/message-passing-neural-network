@@ -53,7 +53,7 @@ The repository expects the data to be in the following format:
     - filenames: something_features.pickle & something_labels.pickle
     - features: torch.tensor.Size(M,N)
     - labels: torch.tensor.Size(M,M)
-    - All features and labels should be preprocessed to be of the same size
+    * All features and labels should be preprocessed to be of the same size
     
 For example, in the protein-folding dataset:
 
@@ -61,6 +61,68 @@ For example, in the protein-folding dataset:
     - N: represents the number of protein features
 
 ### 5. Environment variables
+
+The model and grid search can be set up using a set of environment variables contained in the grid-search-parameters.sh. 
+
+*NOT USED FOR GRID SEARCH*
+
+- Your dataset folder is defined by: 
+
+DATASET_NAME='sample-dataset'
+
+- Your dataset directory is defined by: 
+
+DATA_DIRECTORY='data/'
+
+- The directory to save the model checkpoints is defined by: 
+
+MODEL_DIRECTORY='model'
+
+- The directory to save the grid search results per configuration is defined by: 
+
+RESULTS_DIRECTORY='results'
+
+- The option to run the model on 'cpu' or 'gpu' can be controlled by: 
+
+DEVICE='cpu'
+
+*USED FOR GRID SEARCH*
+
+To define a range for the grid search please pass the values in the following format:
+1. For numeric ranges: ENVVAR='min_value&max_value_number_of_values' (e.g. '10&15&2')
+2. For string ranges: ENVVAR='selection_1&selection_2' (e.g. 'SGD&Adam')
+
+- The total number of epochs can be controlled by:
+
+EPOCHS='10'
+
+- The choice of the loss function can be controlled by (see src/fixtures/loss_functions.py for a full list):
+
+LOSS_FUNCTION='MSE'
+
+- The choice of the optimizer can be controlled by (see src/fixtures/optimizers.py for a full list):
+
+OPTIMIZER='SGD'
+
+- The batch size can be controlled by:
+
+BATCH_SIZE='1'
+
+- The validation split can be controlled by:
+
+VALIDATION_SPLIT='0.2'
+
+- The test split can be controlled by:
+
+TEST_SPLIT='0.1'
+
+- The message passing time steps can be controlled by:
+
+TIME_STEPS='5'
+
+- The number of epochs to evaluate the model on the validation set can be controlled by:
+
+VALIDATION_PERIOD='5'
 
 ### 6. Execute a grid search
 
