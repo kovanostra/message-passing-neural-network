@@ -6,9 +6,10 @@
 - [4. Dataset](#4-dataset)
 - [5. Environment variables](#5-environment-variables)
 - [6. Execute a grid search](#6-execute-a-grid-search)
-- [7. Tox build](#7-tox-build)
-- [8. Run the code using docker](#8-run-the-code-using-docker)
-- [9. Azure pipelines project](#9-azure-pipelines-project)
+- [7. Import and use](#7-import-and-use)
+- [8. Tox build](#8-tox-build)
+- [9. Run the code using docker](#9-run-the-code-using-docker)
+- [10. Azure pipelines project](#10-azure-pipelines-project)
 
 
 ### 1. Description
@@ -64,7 +65,7 @@ For example, in the protein-folding dataset:
 
 The model and grid search can be set up using a set of environment variables contained in the grid-search-parameters.sh. 
 
-*NOT USED FOR GRID SEARCH*
+**NOT USED FOR GRID SEARCH**
 
 - Your dataset folder is defined by: 
 
@@ -86,10 +87,10 @@ RESULTS_DIRECTORY='results'
 
 DEVICE='cpu'
 
-*USED FOR GRID SEARCH*
+**USED FOR GRID SEARCH**
 
 To define a range for the grid search please pass the values in the following format:
-1. For numeric ranges: ENVVAR='min_value&max_value_number_of_values' (e.g. '10&15&2')
+1. For numeric ranges: ENVVAR='min_value&max_value&number_of_values' (e.g. '10&15&2')
 2. For string ranges: ENVVAR='selection_1&selection_2' (e.g. 'SGD&Adam')
 
 - The total number of epochs can be controlled by:
@@ -139,7 +140,63 @@ This script will:
 4. Export the environment variables to be used for the Grid Search
 5. Run the grid search
 
-### 7. Tox build
+### 7. Import and use
+To install the project using pip please run:
+
+```
+pip install git+https://github.com/kovanostra/message-passing-nn/tree/grid_search
+```
+
+The code can be used to either just train a configuration of the message passing neural network or to perform a whole grid search.
+
+#### Train a configuration
+
+To train one configuration of the model please execute the following (I use example values):
+```
+from message-passing-nn.src.domain.model_trainer import ModelTrainer
+from message-passing-nn.src.domain.graph_encoder import GraphEncoder
+from message-passing-nn.src.domain.graph import Graph
+
+epochs = 10
+graph_encoder = GraphEncoder(time_steps=5, number_of_nodes=10, number_of_node_features=2, fully_connected_layer_input_size=20, fully_connected_layer_output_size=100)
+configuration_dictionary = {'time_steps': 5,
+                            'loss_function': 'MSE',
+                            'optimizer': 'SGD'}
+model_trainer = ModelTrainer(graph_encoder, configuration_dictionary)
+
+for epoch in range(epochs):
+    training_loss = model_trainer.do_train(training_data, epoch)
+    print('Epoch', str(epoch), '. Training loss:', str(training_loss))
+    if epoch % validation_period == 0:
+        validation_loss = model_trainer.do_evaluate(validation_data, epoch)
+        print('Epoch', str(epoch), '. Validation loss:', str(validation_loss))
+test_loss = model_trainer.do_evaluate(test_data, epoch)
+print('Test loss:', str(validation_loss))
+```
+
+##### Perform a grid search
+To a grid search please execute the following (I use example values for a grid search of 24 combinations):
+```
+from message-passing-nn.message-passing-nn import MessagePassingNN, create
+
+message_passing_nn = create(dataset_name='sample-dataset',
+                            data_directory='data/',
+                            model_directory='model',
+                            results_directory='results',
+                            device='cpu',
+                            epochs='10&15&2',
+                            loss_function='MSE',
+                            optimizer='SGD&Adam,
+                            batch_size='1',
+                            validation_split='0.2&0.3&2',
+                            test_split='0.1',
+                            time_steps='2&5&2',
+                            validation_period='5&15&3')
+mesage_passing_nn.start()
+```
+In the above example please note that all values must be passed as strings.
+
+### 8. Tox build
 
 Tox is a tool which downloads the code dependencies, runs all the tests and, if the tests pass, it builds an artifact in the .tox/dist/ directory. The artifact is name tagged by the version of your code which can be specified in the setup.py.
 
@@ -158,7 +215,7 @@ From the parent directory run (with sudo if necessary):
 tox
 ```
 
-### 8. Run the code using docker
+### 9. Run the code using docker
 The model can be run from inside a docker container. To do so please execute the following shell script:
 ```
 . grid-search-docker.sh
@@ -186,6 +243,6 @@ docker rmi $(docker images | grep "^<none>" | awk "{print $3}")
 ```
 Please note that this will delete also untagged images created by other projects, so use with caution.
 
-### 9. Azure pipelines project
+### 10. Azure pipelines project
 
 https://dev.azure.com/kovamos/message-passing-nn
