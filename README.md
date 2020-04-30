@@ -174,10 +174,6 @@ time_steps = 5
 validation_period = 5
 
 dataset_size = 10
-number_of_nodes = 10
-number_of_node_features = 2
-fully_connected_layer_input_size = number_of_nodes*number_of_node_features
-fully_connected_layer_output_size = number_of_nodes**2
 
 # Set up the datasets. Please load your own dataset by uncommenting the following part.
 # dataset_name = 'the-name-of-the-directory-containing-your-dataset'
@@ -196,12 +192,6 @@ training_data, validation_data, test_data = DataPreprocessor.train_validation_te
                                                                                          test_split)
 initialization_graph = Graph(adjacency_matrix_example, node_features_example)
 
-
-graph_encoder = GraphEncoder(time_steps, 
-                             number_of_nodes, 
-                             number_of_node_features, 
-                             fully_connected_layer_input_size, 
-                             fully_connected_layer_output_size)
 configuration_dictionary = {'time_steps': time_steps,
                             'loss_function': loss_function,
                             'optimizer': optimizer}
