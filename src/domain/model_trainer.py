@@ -26,7 +26,8 @@ class ModelTrainer:
                                    number_of_nodes=number_of_nodes,
                                    number_of_node_features=number_of_node_features,
                                    fully_connected_layer_input_size=number_of_nodes * number_of_node_features,
-                                   fully_connected_layer_output_size=number_of_nodes ** 2)
+                                   fully_connected_layer_output_size=number_of_nodes ** 2,
+                                   device=self.device)
         self.model.to(self.device)
         self.model.initialize_tensors(initialization_graph)
         self.loss_function = self._instantiate_the_loss_function(
