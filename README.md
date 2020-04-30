@@ -15,90 +15,86 @@ pytorch=1.4.0
 pandas=1.03
 ```
 
-Build
-```
-click
-tox==3.14.3
-pytorch=1.4.0
-```
-
 Tests
 ```
 numpy==1.17.4
 pytorch=1.4.0
 ```
 
-To build the project, just cd to ~/message-passing-nn/ and run (with sudo if necessary)
-```
-tox
-```
-
-This will download the dependencies and run all the tests. If the tests pass, tox will build an artifact, and place it in /dist/graph-to-graph-code_version.tar.gz. The version of your code can be specified in the setup.py. The contents of this folder are cleaned at the start of every new build.
-
 ### Environment
 
-To create the message-passing-nn conda environment please run from ~/message-passing-nn/ the following command:
+To create the "message-passing-nn" conda environment please run:
 ```
 conda env create -f environment.yml
 ```
 
 ### Dataset
 
-This repository contains two dataset folders:
+This repository contains two dataset folders with examples of data to run the code:
 
-    - sample-dataset: Contains just one pair of features/labels with some default values. This dataset lets you run the code in demo mode.
-    - protein-folding: Contains pairs of features/labels for various proteins (prepared using https://github.com/simonholmes001/structure_prediction). The features represent protein characteristics, and the labels the distance between all aminoacids.
+    - sample-dataset (CPU compatible): Contains just one pair of features/labels with some default values. This dataset lets you run the code in demo mode.
+    - protein-folding (Needs GPU): Contains pairs of features/labels for various proteins (prepared using https://github.com/simonholmes001/structure_prediction). The features represent protein characteristics, and the labels the distance between all aminoacids.
 
 The repository expects the data to be in the following format:
 
     - filenames: something_features.pickle & something_labels.pickle
     - features: torch.tensor.Size(M,N)
     - labels: torch.tensor.Size(M,M)
+    - All features and labels should be preprocessed to be of the same size
     
 For example, in the protein-folding dataset:
 
     - M: represents the number of aminoacids
     - N: represents the number of protein features
 
-By default 20% of the dataset will be used for validation every 10 epochs and 10% for testing at the end of the training.
+### Run the code
 
-### Entrypoint
-
-To start training the model please run the following from inside ~/message-passing-nn/:
+The code can be run by executing a shell script:
 ```
-python src/cli.py start-training --dataset your_dataset
-```
-Where 'your_dataset' should be the name of your data folder which is placed inside '~/message-passing-nn/data/'.
-
-In some cases you may need to export the path to the message-passing-nn repository first:
-```
-export PYTHONPATH=your/path/to/message-passing-nn/
-```
-The model runs with default values for the number of epochs (10), loss function ('MSE'), optimizer ('SGD') and batch size (1). However, these can be changed as seen below:
- ```
- python src/cli.py start-training --dataset sample-dataset --epochs 10 -- loss_function 'MSE' --optimizer 'SGD' --batch_size 1
- ```
-
-To see which loss functions and optimizers are available to use please run:
-```
-python src/cli.py start-training --help
+. grid-search.sh
 ```
 
-### Docker
+This script will
+
+1. Create the conda environment from the environment.yml (if not created already)
+2. Activate it
+3. If necessary export the PYTHONPATH=path/to/message-passing-nn/ (line needs to be uncommented first)
+4. Export the environment variables to be used for the Grid Search
+5. Run the grid search
+
+### Tox build
+
+Tox is a tool which downloads the code dependencies, runs all the tests and, if the tests pass, it builds an artifact in the .tox/dist/ directory. The artifact is name tagged by the version of your code which can be specified in the setup.py.
+
+Requirements
+
+```
+click
+tox==3.14.3
+pytorch=1.4.0
+numpy==1.17.4
+pandas=1.03
+```
+
+From the message-passing-nn/ directory run (with sudo if necessary):
+```
+tox
+```
+### Run the code using docker
 The model can be run from inside a docker container. To do so please execute the following shell script from inside ~/message-passing-nn/:
 ```
-. train-model.sh
+. grid-search-docker.sh
 ```
-The train-model.sh will:
+The grid-search-docker.sh will:
 
-    - Remove any previous message-passing-nn containers and images
-    - Build the project
-    - Create a docker image
-    - Create a docker container
-    - Start the container
-    - Print the containner's logs with the --follow option activated
+    1. Remove any previous message-passing-nn containers and images
+    2. Build the project
+    3. Create a docker image
+    4. Create a docker container
+    5. Start the container
+    6. Print the containner's logs with the --follow option activated
 
-By default the dockerfile uses the sample-dataset. To change that please access the dockerfile and insert the name of the dataset folder you wish to use.
+By default the dockerfile uses the sample-dataset. To change that please modify the grid-search-parameters.sh.
 
 You can clear the docker container and images created by running again from inside ~/message-passing-nn/:
 ```
