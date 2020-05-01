@@ -1,9 +1,8 @@
 import logging
 
-from model.graph_encoder import GraphEncoder
-from trainer.model_trainer import ModelTrainer
-
+from message_passing.model.graph_encoder import GraphEncoder
 from message_passing.repository.file_system_repository import FileSystemRepository
+from message_passing.trainer.model_trainer import ModelTrainer
 from message_passing.usecase.grid_search import GridSearch
 from message_passing.utils.grid_search_parameters_parser import GridSearchParametersParser
 from message_passing.utils.saver import Saver
