@@ -5,10 +5,10 @@ from typing import List, Tuple
 
 import torch as to
 
-from message_passing.repository.interface.repository import Repository
+from message_passing.repository.repository import Repository
 
 
-class TrainingDataRepository(Repository):
+class FileSystemRepository(Repository):
     def __init__(self, data_directory: str, dataset: str) -> None:
         super().__init__()
         self.data_directory = data_directory + dataset + '/'

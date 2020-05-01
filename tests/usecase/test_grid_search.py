@@ -2,11 +2,11 @@ import os
 from typing import List
 from unittest import TestCase
 
-from message_passing.domain.graph_encoder import GraphEncoder
-from message_passing.domain.model_trainer import ModelTrainer
-from message_passing.domain.saver import Saver
-from message_passing.repository.training_data_repository import TrainingDataRepository
+from message_passing.model.graph_encoder import GraphEncoder
+from message_passing.repository.file_system_repository import FileSystemRepository
+from message_passing.trainer.model_trainer import ModelTrainer
 from message_passing.usecase.grid_search import GridSearch
+from message_passing.utils.saver import Saver
 from tests.fixtures.matrices_and_vectors import BASE_GRAPH, BASE_GRAPH_NODE_FEATURES
 
 
@@ -15,11 +15,11 @@ class TestTraining(TestCase):
         self.features = BASE_GRAPH_NODE_FEATURES
         self.labels = BASE_GRAPH
         self.dataset = 'training-test-data'
-        self.tests_data_directory = 'tests/data/'
-        tests_model_directory = 'tests/model'
-        tests_results_directory = 'tests/results'
+        self.tests_data_directory = 'tests/test_data/'
+        tests_model_directory = 'tests/model_checkpoints'
+        tests_results_directory = 'tests/grid_search_results'
         device = "cpu"
-        self.repository = TrainingDataRepository(self.tests_data_directory, self.dataset)
+        self.repository = FileSystemRepository(self.tests_data_directory, self.dataset)
         self.model_trainer = ModelTrainer(GraphEncoder, device)
         self.saver = Saver(tests_model_directory, tests_results_directory)
 

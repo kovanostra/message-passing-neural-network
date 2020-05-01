@@ -7,9 +7,9 @@ from torch.nn.modules.module import Module
 from torch.optim.optimizer import Optimizer
 from torch.utils.data.dataloader import DataLoader
 
-from message_passing.domain.graph import Graph
-from message_passing.domain.loss_function_selector import LossFunctionSelector
-from message_passing.domain.optimizer_selector import OptimizerSelector
+from message_passing.model.graph import Graph
+from message_passing.utils.loss_function_selector import LossFunctionSelector
+from message_passing.utils.optimizer_selector import OptimizerSelector
 
 
 class ModelTrainer:

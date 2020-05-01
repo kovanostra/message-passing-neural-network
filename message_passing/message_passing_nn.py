@@ -1,11 +1,12 @@
 import logging
 
-from message_passing.domain.graph_encoder import GraphEncoder
-from message_passing.domain.grid_search_parameters_parser import GridSearchParametersParser
-from message_passing.domain.model_trainer import ModelTrainer
-from message_passing.domain.saver import Saver
-from message_passing.repository.training_data_repository import TrainingDataRepository
+from model.graph_encoder import GraphEncoder
+from trainer.model_trainer import ModelTrainer
+
+from message_passing.repository.file_system_repository import FileSystemRepository
 from message_passing.usecase.grid_search import GridSearch
+from message_passing.utils.grid_search_parameters_parser import GridSearchParametersParser
+from message_passing.utils.saver import Saver
 
 
 class MessagePassingNN:
@@ -41,10 +42,10 @@ def create(dataset_name: str,
                                                                                      test_split,
                                                                                      time_steps,
                                                                                      validation_period)
-    training_data_repository = TrainingDataRepository(data_directory, dataset_name)
+    file_system_repository = FileSystemRepository(data_directory, dataset_name)
     model_trainer = ModelTrainer(GraphEncoder, device)
     saver = Saver(model_directory, results_directory)
-    grid_search = GridSearch(training_data_repository, model_trainer, grid_search_dictionary, saver)
+    grid_search = GridSearch(file_system_repository, model_trainer, grid_search_dictionary, saver)
     return MessagePassingNN(grid_search)
 
 

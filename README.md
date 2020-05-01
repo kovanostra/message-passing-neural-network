@@ -46,9 +46,9 @@ conda env create -f environment.yml
 
 ### 4. Dataset
 
-This repository contains two dataset folders with examples of data to run the code:
+This repository contains two data folders with examples of data to run the code:
 
-    - sample-dataset (CPU compatible): Contains just one pair of features/labels with some default values. This dataset lets you run the code in demo mode.
+    - sample-data (CPU compatible): Contains just one pair of features/labels with some default values. This data lets you run the code in demo mode.
     - protein-folding (Needs GPU): Contains pairs of features/labels for various proteins (prepared using https://github.com/simonholmes001/structure_prediction). The features represent protein characteristics, and the labels the distance between all aminoacids.
 
 The repository expects the data to be in the following format:
@@ -58,7 +58,7 @@ The repository expects the data to be in the following format:
     - labels: torch.tensor.Size(M,M)
     * All features and labels should be preprocessed to be of the same size
     
-For example, in the protein-folding dataset:
+For example, in the protein-folding data:
 
     - M: represents the number of aminoacids
     - N: represents the number of protein features
@@ -69,11 +69,11 @@ The model and grid search can be set up using a set of environment variables con
 
 **NOT USED FOR GRID SEARCH**
 
-- Your dataset folder is defined by: 
+- Your data folder is defined by: 
 
-DATASET_NAME='sample-dataset'
+DATASET_NAME='sample-data'
 
-- Your dataset directory is defined by: 
+- Your data directory is defined by: 
 
 DATA_DIRECTORY='data/'
 
@@ -156,11 +156,11 @@ The code can be used to either just train a configuration of the message passing
 To train one configuration of the model please execute the following (I use example values):
 ```
 import torch
-from message_passing.domain.model_trainer import ModelTrainer
-from message_passing.domain.graph_encoder import GraphEncoder
-from message_passing.domain.graph import Graph
-from message_passing.domain.data_preprocessor import DataPreprocessor
-from message_passing.repository.training_data_repository import TrainingDataRepository
+from message_passing.trainer.model_trainer import ModelTrainer
+from message_passing.model.graph_encoder import GraphEncoder
+from message_passing.model.graph import Graph
+from message_passing.data.data_preprocessor import DataPreprocessor
+from message_passing.repository.file_system_repository import FileSystemRepository
 
 # Set up the variables 
 device = 'cpu'
@@ -175,10 +175,10 @@ validation_period = 5
 
 dataset_size = 10
 
-# Set up the dataset. 
+# Set up the data. 
 
-# To load your own dataset please uncomment the following part:
-# dataset_name = 'the-name-of-the-directory-containing-your-dataset'
+# To load your own data please uncomment the following part:
+# dataset_name = 'the-name-of-the-directory-containing-your-data'
 # data_directory = 'the-path-to-the-directory-containing-all-your-datasets'
 # training_data_repository = TrainingDataRepository(data_directory, dataset_name)
 # raw_dataset = training_data_repository.get_all_features_and_labels_from_separate_files()
@@ -215,7 +215,7 @@ To perform a grid search please execute the following (I use example values for 
 ```
 from message_passing.message_passing_nn import create
 
-message_passing_nn = create(dataset_name='the-name-of-the-directory-containing-your-dataset',
+message_passing_nn = create(dataset_name='the-name-of-the-directory-containing-your-data',
                             data_directory='the-path-to-the-directory-containing-all-your-datasets',
                             model_directory='model',
                             results_directory='results',
@@ -266,7 +266,7 @@ The grid-search-docker.sh will:
     5. Start the container
     6. Print the containner's logs with the --follow option activated
 
-By default the dockerfile uses the sample-dataset. To change that please modify the grid-search-parameters.sh.
+By default the dockerfile uses the sample-data. To change that please modify the grid-search-parameters.sh.
 
 You can clear the docker container and images created by running:
 ```

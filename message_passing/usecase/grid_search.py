@@ -5,11 +5,11 @@ import itertools
 import numpy as np
 from torch.utils.data.dataloader import DataLoader
 
-from message_passing.domain.data_preprocessor import DataPreprocessor
-from message_passing.domain.graph import Graph
-from message_passing.domain.model_trainer import ModelTrainer
-from message_passing.domain.saver import Saver
-from message_passing.repository.interface.repository import Repository
+from message_passing.data.data_preprocessor import DataPreprocessor
+from message_passing.model.graph import Graph
+from message_passing.repository.repository import Repository
+from message_passing.trainer.model_trainer import ModelTrainer
+from message_passing.utils.saver import Saver
 
 
 class GridSearch:
