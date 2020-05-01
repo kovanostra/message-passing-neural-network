@@ -26,7 +26,7 @@ class ModelTrainer:
                                    number_of_nodes=number_of_nodes,
                                    number_of_node_features=number_of_node_features,
                                    fully_connected_layer_input_size=number_of_nodes * number_of_node_features,
-                                   fully_connected_layer_output_size=int((number_of_nodes ** 2)/2 - number_of_nodes),
+                                   fully_connected_layer_output_size=sum(range(number_of_nodes)),
                                    device=self.device)
         self.model.to(self.device)
         self.model.initialize_tensors(initialization_graph)
@@ -38,10 +38,14 @@ class ModelTrainer:
     def do_train(self, training_data: DataLoader, epoch: int) -> float:
         training_loss = 0.0
         for features, labels in training_data:
-            features, labels = features.to(self.device), labels.to(self.device)
-            current_batch_size = self._get_current_batch_size(features)
+            node_features, adjacency_matrix = features
+            node_features, adjacency_matrix, labels = node_features.to(self.device), \
+                                                      adjacency_matrix.to(self.device), \
+                                                      labels.to(self.device)
+            current_batch_size = self._get_current_batch_size(labels)
             self.optimizer.zero_grad()
-            outputs = self.model.forward(features, adjacency_matrix=labels, batch_size=current_batch_size)
+            outputs = self.model.forward(node_features, adjacency_matrix=adjacency_matrix,
+                                         batch_size=current_batch_size)
             loss = self.loss_function(outputs, labels)
             training_loss += self._do_backpropagate(loss, training_loss)
         training_loss /= len(training_data)
@@ -52,9 +56,12 @@ class ModelTrainer:
         with to.no_grad():
             evaluation_loss = 0.0
             for features_validation, labels_validation in evaluation_data:
-                features_validation, labels_validation = features_validation.to(self.device), labels_validation.to(self.device)
-                current_batch_size = self._get_current_batch_size(features_validation)
-                outputs = self.model.forward(features_validation, labels_validation, current_batch_size)
+                node_features, adjacency_matrix = features_validation
+                node_features, adjacency_matrix, labels_validation = node_features.to(self.device), \
+                                                                     adjacency_matrix.to(self.device), \
+                                                                     labels_validation.to(self.device)
+                current_batch_size = self._get_current_batch_size(labels_validation)
+                outputs = self.model.forward(node_features, adjacency_matrix, current_batch_size)
                 loss = self.loss_function(outputs, labels_validation)
                 evaluation_loss += float(loss)
             evaluation_loss /= len(evaluation_data)
