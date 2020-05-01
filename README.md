@@ -180,8 +180,8 @@ dataset_size = 10
 # To load your own data please uncomment the following part:
 # dataset_name = 'the-name-of-the-directory-containing-your-data'
 # data_directory = 'the-path-to-the-directory-containing-all-your-datasets'
-# training_data_repository = TrainingDataRepository(data_directory, dataset_name)
-# raw_dataset = training_data_repository.get_all_features_and_labels_from_separate_files()
+# file_system_repository = FileSystemRepository(data_directory, dataset_name)
+# raw_dataset = file_system_repository.get_all_features_and_labels_from_separate_files()
 # initialization_graph = DataPreprocessor.extract_initialization_graph(raw_dataset)
 
 # This is just an example to make the code runnable 
