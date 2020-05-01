@@ -4,7 +4,7 @@ from unittest import TestCase
 
 import torch as to
 
-from message_passing.repository.file_system_repository import FileSystemRepository
+from message_passing_nn.repository.file_system_repository import FileSystemRepository
 from tests.fixtures.matrices_and_vectors import BASE_GRAPH, BASE_GRAPH_NODE_FEATURES
 
 

@@ -1,11 +1,11 @@
 import torch as to
 import torch.nn as nn
 
-from message_passing.data.data_preprocessor import DataPreprocessor
-from message_passing.model.edge import Edge
-from message_passing.model.graph import Graph
-from message_passing.model.message_gru import MessageGRU
-from message_passing.model.node import Node
+from message_passing_nn.data.data_preprocessor import DataPreprocessor
+from message_passing_nn.model.edge import Edge
+from message_passing_nn.model.graph import Graph
+from message_passing_nn.model.message_gru import MessageGRU
+from message_passing_nn.model.node import Node
 
 
 class GraphEncoder(nn.Module):

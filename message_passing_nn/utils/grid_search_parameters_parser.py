@@ -3,7 +3,7 @@ from typing import List, Dict
 
 import numpy as np
 
-from message_passing.fixtures.characters import GRID_SEARCH_SEPARATION_CHARACTER
+from message_passing_nn.fixtures.characters import GRID_SEARCH_SEPARATION_CHARACTER
 
 
 class GridSearchParametersParser:

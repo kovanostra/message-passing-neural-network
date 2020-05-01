@@ -2,7 +2,7 @@ import logging
 
 from torch.optim.optimizer import Optimizer
 
-from message_passing.utils.optimizers import optimizers
+from message_passing_nn.utils.optimizers import optimizers
 
 
 class OptimizerSelector:

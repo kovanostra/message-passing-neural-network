@@ -2,8 +2,8 @@ from unittest import TestCase
 
 import torch as to
 
-from message_passing.data.data_preprocessor import DataPreprocessor
-from message_passing.model.graph import Graph
+from message_passing_nn.data.data_preprocessor import DataPreprocessor
+from message_passing_nn.model.graph import Graph
 from tests.fixtures.matrices_and_vectors import BASE_GRAPH, BASE_GRAPH_NODE_FEATURES
 
 

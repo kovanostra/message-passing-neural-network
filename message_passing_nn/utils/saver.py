@@ -6,7 +6,7 @@ from typing import Dict, List
 import torch as to
 from pandas import pandas as pd
 
-from message_passing.fixtures.filenames import *
+from message_passing_nn.fixtures.filenames import *
 
 
 class Saver:

@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='message-passing-nn',
-    version='1.1.0',
+    version='1.1.1',
     packages=find_packages(exclude=["tests"]),
     url='',
     license='MIT',
@@ -16,7 +16,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'message-passing-nn = message_passing.cli:main'
+            'message-passing-nn = message_passing_nn.cli:main'
         ],
     },
 )

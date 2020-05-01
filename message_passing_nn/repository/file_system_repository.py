@@ -5,7 +5,7 @@ from typing import List, Tuple
 
 import torch as to
 
-from message_passing.repository.repository import Repository
+from message_passing_nn.repository.repository import Repository
 
 
 class FileSystemRepository(Repository):
