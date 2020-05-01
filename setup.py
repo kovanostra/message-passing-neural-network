@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='message-passing-nn',
-    version='1.1.1',
+    version='1.1.2',
     packages=find_packages(exclude=["tests"]),
     url='https://github.com/kovanostra/message-passing-nn',
     download_url='https://github.com/kovanostra/message-passing-nn/archive/1.1.1.tar.gz',
