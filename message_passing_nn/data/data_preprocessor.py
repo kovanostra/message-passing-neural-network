@@ -14,7 +14,7 @@ class DataPreprocessor(Preprocessor):
         super().__init__()
 
     @staticmethod
-    def train_validation_test_split(raw_dataset: List[Tuple[to.tensor, to.tensor]],
+    def train_validation_test_split(raw_dataset: List[Tuple[to.Tensor, to.Tensor]],
                                     batch_size: int,
                                     validation_split: float = 0.2,
                                     test_split: float = 0.1) -> Tuple[DataLoader, DataLoader, DataLoader]:
@@ -32,24 +32,24 @@ class DataPreprocessor(Preprocessor):
         return training_data, validation_data, test_data
 
     @staticmethod
-    def extract_initialization_graph(raw_dataset: List[Tuple[to.tensor, to.tensor]]) -> Graph:
+    def extract_initialization_graph(raw_dataset: List[Tuple[to.Tensor, to.Tensor]]) -> Graph:
         return Graph(raw_dataset[0][1], raw_dataset[0][0])
 
     @staticmethod
-    def flatten(tensors: to.tensor, desired_size: int = 0) -> to.tensor:
+    def flatten(tensors: to.Tensor, desired_size: int = 0) -> to.Tensor:
         flattened_tensor = tensors.view(-1)
         if 0 < desired_size != len(flattened_tensor):
             flattened_tensor = DataPreprocessor._pad_zeros(flattened_tensor, desired_size)
         return flattened_tensor
 
     @staticmethod
-    def _pad_zeros(flattened_tensor: to.tensor, desired_size: int) -> to.tensor:
+    def _pad_zeros(flattened_tensor: to.Tensor, desired_size: int) -> to.Tensor:
         size_difference = abs(len(flattened_tensor) - desired_size)
         flattened_tensor = to.cat((flattened_tensor, to.zeros(size_difference)))
         return flattened_tensor
 
     @staticmethod
-    def _get_validation_and_test_indexes(raw_dataset: List[Tuple[to.tensor, to.tensor]],
+    def _get_validation_and_test_indexes(raw_dataset: List[Tuple[to.Tensor, to.Tensor]],
                                          test_split: float,
                                          validation_split: float) -> Tuple[int, int]:
         validation_index = int((1 - validation_split - test_split) * len(raw_dataset))
