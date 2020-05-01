@@ -176,6 +176,8 @@ time_steps = 5
 validation_period = 5
 
 dataset_size = 10
+number_of_nodes = 10
+number_of_node_features = 2
 
 # Set up the dataset. 
 
