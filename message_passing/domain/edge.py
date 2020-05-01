@@ -2,7 +2,7 @@ from typing import Tuple, Any
 
 import torch as to
 
-from src.domain.node import Node
+from message_passing.domain.node import Node
 
 
 class Edge:

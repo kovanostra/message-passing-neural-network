@@ -3,7 +3,7 @@ from unittest import TestCase
 import torch as to
 from torch import nn
 
-from src.domain.graph_encoder import GraphEncoder
+from message_passing.domain.graph_encoder import GraphEncoder
 from tests.fixtures.matrices_and_vectors import BASE_GRAPH, BASE_GRAPH_NODE_FEATURES, \
     BASE_U_MATRIX, BASE_W_MATRIX, MULTIPLICATION_FACTOR, BASE_B_VECTOR
 

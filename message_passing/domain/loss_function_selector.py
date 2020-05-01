@@ -2,7 +2,7 @@ import logging
 
 from torch.nn.modules.module import Module
 
-from src.fixtures.loss_functions import loss_functions
+from message_passing.fixtures.loss_functions import loss_functions
 
 
 class LossFunctionSelector:

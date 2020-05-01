@@ -5,7 +5,7 @@ from typing import List, Tuple
 
 import torch as to
 
-from src.repository.interface.repository import Repository
+from message_passing.repository.interface.repository import Repository
 
 
 class TrainingDataRepository(Repository):

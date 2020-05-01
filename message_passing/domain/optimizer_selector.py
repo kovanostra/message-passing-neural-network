@@ -2,7 +2,7 @@ import logging
 
 from torch.optim.optimizer import Optimizer
 
-from src.fixtures.optimizers import optimizers
+from message_passing.fixtures.optimizers import optimizers
 
 
 class OptimizerSelector:

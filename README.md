@@ -156,11 +156,11 @@ The code can be used to either just train a configuration of the message passing
 To train one configuration of the model please execute the following (I use example values):
 ```
 import torch
-from src.domain.model_trainer import ModelTrainer
-from src.domain.graph_encoder import GraphEncoder
-from src.domain.graph import Graph
-from src.domain.data_preprocessor import DataPreprocessor
-from src.repository.training_data_repository import TrainingDataRepository
+from message_passing.domain.model_trainer import ModelTrainer
+from message_passing.domain.graph_encoder import GraphEncoder
+from message_passing.domain.graph import Graph
+from message_passing.domain.data_preprocessor import DataPreprocessor
+from message_passing.repository.training_data_repository import TrainingDataRepository
 
 # Set up the variables 
 device = 'cpu'
@@ -213,7 +213,7 @@ print("Test loss:", validation_loss)
 ##### Perform a grid search
 To perform a grid search please execute the following (I use example values for a grid search of 24 combinations):
 ```
-from src.message_passing_nn import create
+from message_passing.message_passing_nn import create
 
 message_passing_nn = create(dataset_name='the-name-of-the-directory-containing-your-dataset',
                             data_directory='the-path-to-the-directory-containing-all-your-datasets',

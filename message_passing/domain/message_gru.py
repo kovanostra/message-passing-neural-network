@@ -1,6 +1,6 @@
 import torch as to
 
-from src.domain.interface.message import Message
+from message_passing.domain.interface.message import Message
 
 
 class MessageGRU(Message):

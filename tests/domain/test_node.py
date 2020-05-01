@@ -2,7 +2,7 @@ from unittest import TestCase
 
 import numpy as np
 
-from src.domain.node import Node
+from message_passing.domain.node import Node
 from tests.fixtures.matrices_and_vectors import BASE_GRAPH_NODE_FEATURES, BASE_GRAPH
 
 

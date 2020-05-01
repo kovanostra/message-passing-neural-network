@@ -1,11 +1,11 @@
 import logging
 
-from src.domain.graph_encoder import GraphEncoder
-from src.domain.grid_search_parameters_parser import GridSearchParametersParser
-from src.domain.model_trainer import ModelTrainer
-from src.domain.saver import Saver
-from src.repository.training_data_repository import TrainingDataRepository
-from src.usecase.grid_search import GridSearch
+from message_passing.domain.graph_encoder import GraphEncoder
+from message_passing.domain.grid_search_parameters_parser import GridSearchParametersParser
+from message_passing.domain.model_trainer import ModelTrainer
+from message_passing.domain.saver import Saver
+from message_passing.repository.training_data_repository import TrainingDataRepository
+from message_passing.usecase.grid_search import GridSearch
 
 
 class MessagePassingNN:

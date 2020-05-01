@@ -2,7 +2,7 @@ from unittest import TestCase
 
 import torch as to
 
-from src.domain.message_gru import MessageGRU
+from message_passing.domain.message_gru import MessageGRU
 
 
 class TestMessage(TestCase):

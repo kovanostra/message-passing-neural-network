@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from src.domain.grid_search_parameters_parser import GridSearchParametersParser
+from message_passing.domain.grid_search_parameters_parser import GridSearchParametersParser
 
 
 class TestGridSearchParametersParser(TestCase):
