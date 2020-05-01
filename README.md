@@ -71,7 +71,7 @@ The model and grid search can be set up using a set of environment variables con
 
 - Your data folder is defined by: 
 
-DATASET_NAME='sample-data'
+DATASET_NAME='sample-dataset'
 
 - Your data directory is defined by: 
 
@@ -79,11 +79,11 @@ DATA_DIRECTORY='data/'
 
 - The directory to save the model checkpoints is defined by: 
 
-MODEL_DIRECTORY='model'
+MODEL_DIRECTORY='model_checkpoints'
 
 - The directory to save the grid search results per configuration is defined by: 
 
-RESULTS_DIRECTORY='results'
+RESULTS_DIRECTORY='grid_search_results'
 
 - The option to run the model on 'cpu' or 'cuda' can be controlled by: 
 
@@ -217,7 +217,7 @@ from message_passing.message_passing_nn import create
 
 message_passing_nn = create(dataset_name='the-name-of-the-directory-containing-your-data',
                             data_directory='the-path-to-the-directory-containing-all-your-datasets',
-                            model_directory='model_checckpoints',
+                            model_directory='model_checkpoints',
                             results_directory='grid_search_results',
                             device='cpu',
                             epochs='10&15&2',
