@@ -217,8 +217,8 @@ from message_passing.message_passing_nn import create
 
 message_passing_nn = create(dataset_name='the-name-of-the-directory-containing-your-data',
                             data_directory='the-path-to-the-directory-containing-all-your-datasets',
-                            model_directory='model',
-                            results_directory='results',
+                            model_directory='model_checckpoints',
+                            results_directory='grid_search_results',
                             device='cpu',
                             epochs='10&15&2',
                             loss_function_selection='MSE',
