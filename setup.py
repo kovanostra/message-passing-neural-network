@@ -16,7 +16,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'message-passing-nn = src.cli:main'
+            'message-passing-nn = message_passing.cli:main'
         ],
     },
 )
