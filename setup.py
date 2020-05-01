@@ -21,10 +21,12 @@ setup(
         ],
     },
     classifiers=[
-        'Development Status :: 3 - Beta',
-        'Intended Audience :: Data-scientists',
-        'Topic :: Data Science :: AI Model',
+        'Development Status :: 4 - Beta',
+        'Intended Audience :: Science/Research',
+        'Intended Audience :: Developers',
+        'Topic :: Scientific/Engineering :: Artificial Intelligence',
+        'Topic :: Software Development :: Libraries :: Python Modules',
         'License :: OSI Approved :: MIT License',
-        'Programming Language :: Python :: 3.7.6',
+        'Programming Language :: Python :: 3.7',
     ],
 )
