@@ -3,7 +3,7 @@ from typing import Any, Tuple, List
 
 from torch.utils.data import DataLoader
 
-from message_passing.model.graph import Graph
+from message_passing_nn.model.graph import Graph
 
 
 class Preprocessor(metaclass=ABCMeta):

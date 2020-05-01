@@ -4,9 +4,9 @@ from typing import Tuple, List
 import torch as to
 from torch.utils.data import DataLoader
 
-from message_passing.data.graph_dataset import GraphDataset
-from message_passing.data.preprocessor import Preprocessor
-from message_passing.model.graph import Graph
+from message_passing_nn.data.graph_dataset import GraphDataset
+from message_passing_nn.data.preprocessor import Preprocessor
+from message_passing_nn.model.graph import Graph
 
 
 class DataPreprocessor(Preprocessor):

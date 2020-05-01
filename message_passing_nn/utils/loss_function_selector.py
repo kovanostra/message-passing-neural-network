@@ -2,7 +2,7 @@ import logging
 
 from torch.nn.modules.module import Module
 
-from message_passing.utils.loss_functions import loss_functions
+from message_passing_nn.utils.loss_functions import loss_functions
 
 
 class LossFunctionSelector:

@@ -3,7 +3,7 @@ import logging
 import click
 import sys
 
-from message_passing.message_passing_nn import create
+from message_passing_nn.create_message_passing_nn import create
 
 
 @click.group("message-passing-nn")

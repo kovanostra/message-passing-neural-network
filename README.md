@@ -158,11 +158,11 @@ The code can be used to either just train a configuration of the message passing
 To train one configuration of the model please execute the following (I use example values):
 ```
 import torch
-from message_passing.trainer.model_trainer import ModelTrainer
-from message_passing.model.graph_encoder import GraphEncoder
-from message_passing.model.graph import Graph
-from message_passing.data.data_preprocessor import DataPreprocessor
-from message_passing.repository.file_system_repository import FileSystemRepository
+from message_passing_nn.trainer.model_trainer import ModelTrainer
+from message_passing_nn.model.graph_encoder import GraphEncoder
+from message_passing_nn.model.graph import Graph
+from message_passing_nn.data.data_preprocessor import DataPreprocessor
+from message_passing_nn.repository.file_system_repository import FileSystemRepository
 
 # Set up the variables 
 device = 'cpu'
@@ -217,10 +217,10 @@ print("Test loss:", validation_loss)
 ##### Perform a grid search
 To perform a grid search please execute the following (I use example values for a grid search of 24 combinations):
 ```
-from message_passing.message_passing_nn import create
+from message_passing_nn.create_message_passing_nn import create
 
-message_passing_nn = create(dataset_name='the-name-of-the-directory-containing-your-data',
-                            data_directory='the-path-to-the-directory-containing-all-your-datasets',
+message_passing_nn = create(dataset_name='the-name-of-the-directory-containing-your-data',  #e.g. 'sample-dataset/'
+                            data_directory='the-path-to-the-directory-containing-all-your-datasets', #e.g. '~/message-passing-nn/data/'
                             model_directory='model_checkpoints',
                             results_directory='grid_search_results',
                             device='cpu',

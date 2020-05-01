@@ -2,8 +2,8 @@ from unittest import TestCase
 
 import numpy as np
 
-from message_passing.model.edge import Edge
-from message_passing.model.node import Node
+from message_passing_nn.model.edge import Edge
+from message_passing_nn.model.node import Node
 from tests.fixtures.matrices_and_vectors import BASE_GRAPH, BASE_GRAPH_NODE_FEATURES
 
 
