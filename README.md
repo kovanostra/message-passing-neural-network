@@ -48,7 +48,7 @@ conda env create -f environment.yml
 
 This repository contains two data folders with examples of data to run the code:
 
-    - sample-data (CPU compatible): Contains just one pair of features/labels with some default values. This data lets you run the code in demo mode.
+    - sample-dataset (CPU compatible): Contains just one pair of features/labels with some default values. This data lets you run the code in demo mode.
     - protein-folding (Needs GPU): Contains pairs of features/labels for various proteins (prepared using https://github.com/simonholmes001/structure_prediction). The features represent protein characteristics, and the labels the distance between all aminoacids.
 
 The repository expects the data to be in the following format:
