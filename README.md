@@ -148,7 +148,7 @@ This script will:
 To install the project using pip please run:
 
 ```
-pip install git+https://github.com/kovanostra/message-passing-nn/
+pip install message-passing-nn
 ```
 
 The code can be used to either just train a configuration of the message passing neural network or to perform a whole grid search.
