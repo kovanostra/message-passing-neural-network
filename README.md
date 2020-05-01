@@ -48,7 +48,7 @@ conda env create -f environment.yml
 
 This repository contains two dataset folders with examples of data to run the code:
 
-    - sample-dataset (CPU compatible): Contains just one pair of features/labels with some default values. This dataset lets you run the code in demo mode.
+    - sample-dataset (CPU compatible): Contains just one pair of features/labels with some default values. This data lets you run the code in demo mode.
     - protein-folding (Needs GPU): Contains pairs of features/labels for various proteins (prepared using https://github.com/simonholmes001/structure_prediction). The features represent protein characteristics, and the labels the distance between all aminoacids.
 
 The repository expects the data to be in the following format:
@@ -79,11 +79,11 @@ DATA_DIRECTORY='data/'
 
 - The directory to save the model checkpoints is defined by: 
 
-MODEL_DIRECTORY='model'
+MODEL_DIRECTORY='model_checkpoints'
 
 - The directory to save the grid search results per configuration is defined by: 
 
-RESULTS_DIRECTORY='results'
+RESULTS_DIRECTORY='grid_search_results'
 
 - The option to run the model on 'cpu' or 'cuda' can be controlled by: 
 
@@ -129,6 +129,8 @@ VALIDATION_PERIOD='5'
 
 ### 6. Execute a grid search
 
+Before executing a grid-search please go to the grid-search.sh to add your PYTHONPATH=path/to/message-passing-nn/.
+
 The grid search can be executed by executing a shell script:
 ```
 . grid-search.sh
@@ -138,7 +140,7 @@ This script will:
 
 1. Create the conda environment from the environment.yml (if not created already)
 2. Activate it
-3. If necessary export the PYTHONPATH=path/to/message-passing-nn/ (line needs to be uncommented first)
+3. It exports the PYTHONPATH=path/to/message-passing-nn/ (line needs to be uncommented first)
 4. Export the environment variables to be used for the Grid Search
 5. Run the grid search
 
@@ -156,11 +158,11 @@ The code can be used to either just train a configuration of the message passing
 To train one configuration of the model please execute the following (I use example values):
 ```
 import torch
-from src.domain.model_trainer import ModelTrainer
-from src.domain.graph_encoder import GraphEncoder
-from src.domain.graph import Graph
-from src.domain.data_preprocessor import DataPreprocessor
-from src.repository.training_data_repository import TrainingDataRepository
+from message_passing.trainer.model_trainer import ModelTrainer
+from message_passing.model.graph_encoder import GraphEncoder
+from message_passing.model.graph import Graph
+from message_passing.data.data_preprocessor import DataPreprocessor
+from message_passing.repository.file_system_repository import FileSystemRepository
 
 # Set up the variables 
 device = 'cpu'
@@ -174,14 +176,16 @@ time_steps = 5
 validation_period = 5
 
 dataset_size = 10
+number_of_nodes = 10
+number_of_node_features = 2
 
 # Set up the dataset. 
 
 # To load your own dataset please uncomment the following part:
 # dataset_name = 'the-name-of-the-directory-containing-your-dataset'
 # data_directory = 'the-path-to-the-directory-containing-all-your-datasets'
-# training_data_repository = TrainingDataRepository(data_directory, dataset_name)
-# raw_dataset = training_data_repository.get_all_features_and_labels_from_separate_files()
+# file_system_repository = FileSystemRepository(data_directory, dataset_name)
+# raw_dataset = file_system_repository.get_all_features_and_labels_from_separate_files()
 # initialization_graph = DataPreprocessor.extract_initialization_graph(raw_dataset)
 
 # This is just an example to make the code runnable 
@@ -213,12 +217,12 @@ print("Test loss:", validation_loss)
 ##### Perform a grid search
 To perform a grid search please execute the following (I use example values for a grid search of 24 combinations):
 ```
-from src.message_passing_nn import create
+from message_passing.message_passing_nn import create
 
-message_passing_nn = create(dataset_name='the-name-of-the-directory-containing-your-dataset',
+message_passing_nn = create(dataset_name='the-name-of-the-directory-containing-your-data',
                             data_directory='the-path-to-the-directory-containing-all-your-datasets',
-                            model_directory='model',
-                            results_directory='results',
+                            model_directory='model_checkpoints',
+                            results_directory='grid_search_results',
                             device='cpu',
                             epochs='10&15&2',
                             loss_function_selection='MSE',
@@ -252,7 +256,7 @@ tox
 ```
 
 ### 9. Run the code using docker
-The model can be run from inside a docker container. To do so please execute the following shell script:
+The model can be run from inside a docker container (currently cpu only). To do so please execute the following shell script:
 ```
 . grid-search-docker.sh
 ```
