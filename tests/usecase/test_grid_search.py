@@ -93,7 +93,7 @@ class TestTraining(TestCase):
 
     def test_start_a_grid_search(self):
         # Given
-        dataset_size = 5
+        dataset_size = 6
         grid_search_dictionary = {
             "epochs": [10, 15],
             "batch_size": [3, 4],

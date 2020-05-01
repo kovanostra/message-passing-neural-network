@@ -75,17 +75,17 @@ class GraphEncoder(nn.Module):
                                 graph.number_of_node_features,
                                 graph.number_of_node_features]
         base_2d_tensor_shape = [graph.number_of_node_features]
-        self.w_gru_update_gate_features = nn.Parameter(to.rand(base_4d_tensor_shape), requires_grad=True).to(self.device)
-        self.w_gru_forget_gate_features = nn.Parameter(to.rand(base_4d_tensor_shape), requires_grad=True).to(self.device)
-        self.w_gru_current_memory_message_features = nn.Parameter(to.rand(base_4d_tensor_shape), requires_grad=True).to(self.device)
-        self.u_gru_update_gate = nn.Parameter(to.rand(base_4d_tensor_shape), requires_grad=True).to(self.device)
-        self.u_gru_forget_gate = nn.Parameter(to.rand(base_4d_tensor_shape), requires_grad=True).to(self.device)
-        self.u_gru_current_memory_message = nn.Parameter(to.rand(base_4d_tensor_shape), requires_grad=True).to(self.device)
-        self.b_gru_update_gate = nn.Parameter(to.rand(base_2d_tensor_shape), requires_grad=True).to(self.device)
-        self.b_gru_forget_gate = nn.Parameter(to.rand(base_2d_tensor_shape), requires_grad=True).to(self.device)
-        self.b_gru_current_memory_message = nn.Parameter(to.rand(base_2d_tensor_shape), requires_grad=True).to(self.device)
-        self.u_graph_node_features = nn.Parameter(to.rand(base_3d_tensor_shape), requires_grad=True).to(self.device)
-        self.u_graph_neighbor_messages = nn.Parameter(to.rand(base_3d_tensor_shape), requires_grad=True).to(self.device)
+        self.w_gru_update_gate_features = nn.Parameter(to.randn(base_4d_tensor_shape), requires_grad=True).to(self.device)
+        self.w_gru_forget_gate_features = nn.Parameter(to.randn(base_4d_tensor_shape), requires_grad=True).to(self.device)
+        self.w_gru_current_memory_message_features = nn.Parameter(to.randn(base_4d_tensor_shape), requires_grad=True).to(self.device)
+        self.u_gru_update_gate = nn.Parameter(to.randn(base_4d_tensor_shape), requires_grad=True).to(self.device)
+        self.u_gru_forget_gate = nn.Parameter(to.randn(base_4d_tensor_shape), requires_grad=True).to(self.device)
+        self.u_gru_current_memory_message = nn.Parameter(to.randn(base_4d_tensor_shape), requires_grad=True).to(self.device)
+        self.b_gru_update_gate = nn.Parameter(to.randn(base_2d_tensor_shape), requires_grad=True).to(self.device)
+        self.b_gru_forget_gate = nn.Parameter(to.randn(base_2d_tensor_shape), requires_grad=True).to(self.device)
+        self.b_gru_current_memory_message = nn.Parameter(to.randn(base_2d_tensor_shape), requires_grad=True).to(self.device)
+        self.u_graph_node_features = nn.Parameter(to.randn(base_3d_tensor_shape), requires_grad=True).to(self.device)
+        self.u_graph_neighbor_messages = nn.Parameter(to.randn(base_3d_tensor_shape), requires_grad=True).to(self.device)
 
     def _send_messages(self, node_features: to.Tensor, adjacency_matrix: to.Tensor) -> to.Tensor:
         messages = to.zeros((self.number_of_nodes, self.number_of_nodes, self.number_of_node_features)).to(self.device)

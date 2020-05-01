@@ -2,10 +2,10 @@ from setuptools import setup, find_packages
 
 setup(
     name='message-passing-nn',
-    version='1.1.4',
+    version='1.1.5',
     packages=find_packages(exclude=["tests"]),
     url='https://github.com/kovanostra/message-passing-nn',
-    download_url='https://github.com/kovanostra/message-passing-nn/archive/1.1.4.tar.gz',
+    download_url='https://github.com/kovanostra/message-passing-nn/archive/1.1.5.tar.gz',
     keywords=['MESSAGE PASSING', 'NEURAL NETWORK', 'GRU'],
     license='MIT',
     author='Michail Kovanis',
