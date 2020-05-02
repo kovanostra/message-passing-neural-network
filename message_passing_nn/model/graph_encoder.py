@@ -1,3 +1,5 @@
+import math
+
 import torch as to
 import torch.nn as nn
 
@@ -113,12 +115,17 @@ class GraphEncoder(nn.Module):
                                                 adjacency_matrix: to.Tensor,
                                                 messages: to.Tensor) -> to.Tensor:
         new_messages = to.zeros(messages.shape).to(self.device)
+        number_of_nodes = int(math.sqrt(adjacency_matrix.size()[-1]))
+        is_adjacency_matrix_symmetric = to.allclose(adjacency_matrix.view(number_of_nodes, number_of_nodes),
+                                                    adjacency_matrix.view(number_of_nodes, number_of_nodes).t())
         for node_id in range(self.number_of_nodes):
             node = self._create_node(node_features, adjacency_matrix, node_id)
-            greater_neighbors = [neighbor for neighbor in node.neighbors if neighbor > node_id]
-            for end_node_id in greater_neighbors:
-                end_node = self._create_node(node_features, adjacency_matrix, end_node_id)
-                edge = self._create_edge(node, end_node)
+            if is_adjacency_matrix_symmetric:
+                node_neighbors = [neighbor for neighbor in node.neighbors if neighbor > node_id]
+            else:
+                node_neighbors = node.neighbors
+            for end_node_id in node_neighbors:
+                edge = self._create_edge(node, end_node_id)
                 message = self._get_message_inputs(messages, node, edge, node_features, adjacency_matrix)
                 message.compose()
                 new_messages[node_id, end_node_id], new_messages[end_node_id, node_id] = message.value, message.value
@@ -214,12 +221,12 @@ class GraphEncoder(nn.Module):
                 self.b_gru_update_gate)).long()
 
     @staticmethod
-    def _create_node(node_features: to.Tensor, adjacency_matrix: to.Tensor, node_id: to.Tensor) -> Node:
+    def _create_node(node_features: to.Tensor, adjacency_matrix: to.Tensor, node_id: int) -> Node:
         return Node(node_features, adjacency_matrix, node_id)
 
     @staticmethod
-    def _create_edge(start_node: Node, end_node: Node) -> Edge:
-        return Edge(start_node, end_node)
+    def _create_edge(start_node: Node, end_node_id: int) -> Edge:
+        return Edge(start_node, end_node_id)
 
     @staticmethod
     def _create_message(device: str) -> MessageGRU:

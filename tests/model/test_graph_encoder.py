@@ -61,7 +61,6 @@ class TestGraphEncoder(TestCase):
 
         # Then
         to.set_printoptions(precision=5)
-        print(outputs)
         self.assertTrue(to.allclose(outputs_expected, outputs))
 
     def test_encode_graph_returns_the_expected_encoding_for_a_node_after_one_time_step(self):
