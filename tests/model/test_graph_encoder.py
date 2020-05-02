@@ -52,14 +52,16 @@ class TestGraphEncoder(TestCase):
         batch_size = 1
         features = BASE_GRAPH_NODE_FEATURES.view(1, BASE_GRAPH.size()[0], BASE_GRAPH_NODE_FEATURES.size()[1])
         adjacency_matrix = BASE_GRAPH.view(1, -1).float()
-        outputs_expected = to.tensor([[0.98656, 0.98656, 0.98656, 0.98656, 0.98656, 0.98656, 0.98656, 0.98656,
-                                       0.98656, 0.98656, 0.98656, 0.98656, 0.98656, 0.98656, 0.98656, 0.98656]])
+        outputs_expected = to.tensor([[0.98733, 0.98733, 0.98733, 0.98733, 0.98733, 0.98733, 0.98733, 0.98733,
+                                    0.98733, 0.98733, 0.98733, 0.98733, 0.98733, 0.98733, 0.98733, 0.98733]])
 
         # When
         with to.no_grad():
             outputs = self.graph_encoder.forward(features, adjacency_matrix, batch_size)
 
         # Then
+        to.set_printoptions(precision=5)
+        print(outputs)
         self.assertTrue(to.allclose(outputs_expected, outputs))
 
     def test_encode_graph_returns_the_expected_encoding_for_a_node_after_one_time_step(self):

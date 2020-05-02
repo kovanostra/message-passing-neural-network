@@ -115,13 +115,13 @@ class GraphEncoder(nn.Module):
         new_messages = to.zeros(messages.shape).to(self.device)
         for node_id in range(self.number_of_nodes):
             node = self._create_node(node_features, adjacency_matrix, node_id)
-            for end_node_id in node.neighbors:
+            greater_neighbors = [neighbor for neighbor in node.neighbors if neighbor > node_id]
+            for end_node_id in greater_neighbors:
                 end_node = self._create_node(node_features, adjacency_matrix, end_node_id)
                 edge = self._create_edge(node, end_node)
-                edge_slice = edge.get_edge_slice()
                 message = self._get_message_inputs(messages, node, edge, node_features, adjacency_matrix)
                 message.compose()
-                new_messages[edge_slice] = message.value
+                new_messages[node_id, end_node_id], new_messages[end_node_id, node_id] = message.value, message.value
         return new_messages
 
     def _get_message_inputs(self,
