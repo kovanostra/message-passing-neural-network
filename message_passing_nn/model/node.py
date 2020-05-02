@@ -1,5 +1,6 @@
 import numpy as np
 import torch as to
+from typing import Tuple
 
 
 class Node:
@@ -16,3 +17,11 @@ class Node:
         number_of_nodes = int(np.sqrt(adjacency_matrix.size()[-1]))
         adjacency_matrix = adjacency_matrix.view(number_of_nodes, number_of_nodes)
         return to.nonzero(adjacency_matrix[self.node_id], as_tuple=True)[0]
+
+    def get_start_node_neighbors_without_end_node(self, end_node_id: int) -> Tuple:
+        return self._remove_end_node_from_start_node_neighbors(end_node_id), [self.node_id]
+
+    def _remove_end_node_from_start_node_neighbors(self, end_node_id: int) -> to.tensor:
+        end_node_index = (self.neighbors == end_node_id).nonzero()[0][0].item()
+        return to.cat((self.neighbors[:end_node_index],
+                       self.neighbors[end_node_index + 1:])).tolist()

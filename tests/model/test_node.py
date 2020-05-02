@@ -21,3 +21,14 @@ class TestNode(TestCase):
 
         # Then
         self.assertTrue(np.array_equal(neighbors_expected, neighbors))
+
+    def test_get_start_node_neighbors_without_end_node(self):
+        # Given
+        start_node_neighbors_expected = np.array([1, 3])
+        end_node_id = 0
+
+        # When
+        start_node_neighbors = self.node.get_start_node_neighbors_without_end_node(end_node_id)[0]
+
+        # Then
+        self.assertTrue(np.array_equal(start_node_neighbors_expected, start_node_neighbors))
