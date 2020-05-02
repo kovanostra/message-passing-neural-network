@@ -77,17 +77,23 @@ class GraphEncoder(nn.Module):
                                 graph.number_of_node_features,
                                 graph.number_of_node_features]
         base_2d_tensor_shape = [graph.number_of_node_features]
-        self.w_gru_update_gate_features = nn.Parameter(to.randn(base_4d_tensor_shape), requires_grad=True).to(self.device)
-        self.w_gru_forget_gate_features = nn.Parameter(to.randn(base_4d_tensor_shape), requires_grad=True).to(self.device)
-        self.w_gru_current_memory_message_features = nn.Parameter(to.randn(base_4d_tensor_shape), requires_grad=True).to(self.device)
+        self.w_gru_update_gate_features = nn.Parameter(to.randn(base_4d_tensor_shape), requires_grad=True).to(
+            self.device)
+        self.w_gru_forget_gate_features = nn.Parameter(to.randn(base_4d_tensor_shape), requires_grad=True).to(
+            self.device)
+        self.w_gru_current_memory_message_features = nn.Parameter(to.randn(base_4d_tensor_shape),
+                                                                  requires_grad=True).to(self.device)
         self.u_gru_update_gate = nn.Parameter(to.randn(base_4d_tensor_shape), requires_grad=True).to(self.device)
         self.u_gru_forget_gate = nn.Parameter(to.randn(base_4d_tensor_shape), requires_grad=True).to(self.device)
-        self.u_gru_current_memory_message = nn.Parameter(to.randn(base_4d_tensor_shape), requires_grad=True).to(self.device)
+        self.u_gru_current_memory_message = nn.Parameter(to.randn(base_4d_tensor_shape), requires_grad=True).to(
+            self.device)
         self.b_gru_update_gate = nn.Parameter(to.randn(base_2d_tensor_shape), requires_grad=True).to(self.device)
         self.b_gru_forget_gate = nn.Parameter(to.randn(base_2d_tensor_shape), requires_grad=True).to(self.device)
-        self.b_gru_current_memory_message = nn.Parameter(to.randn(base_2d_tensor_shape), requires_grad=True).to(self.device)
+        self.b_gru_current_memory_message = nn.Parameter(to.randn(base_2d_tensor_shape), requires_grad=True).to(
+            self.device)
         self.u_graph_node_features = nn.Parameter(to.randn(base_3d_tensor_shape), requires_grad=True).to(self.device)
-        self.u_graph_neighbor_messages = nn.Parameter(to.randn(base_3d_tensor_shape), requires_grad=True).to(self.device)
+        self.u_graph_neighbor_messages = nn.Parameter(to.randn(base_3d_tensor_shape), requires_grad=True).to(
+            self.device)
 
     def _send_messages(self, node_features: to.Tensor, adjacency_matrix: to.Tensor) -> to.Tensor:
         messages = to.zeros((self.number_of_nodes, self.number_of_nodes, self.number_of_node_features)).to(self.device)
@@ -181,8 +187,7 @@ class GraphEncoder(nn.Module):
         messages_passed_through_reset_gate = self._keep_or_reset_messages(messages,
                                                                           node,
                                                                           edge,
-                                                                          node_features,
-                                                                          adjacency_matrix)
+                                                                          node_features)
         edge_slice = edge.get_edge_slice()
         current_memory_message = to.add(
             to.add(self.w_gru_current_memory_message_features[edge_slice].matmul(node_features[node.node_id]),
@@ -194,18 +199,15 @@ class GraphEncoder(nn.Module):
                                 messages: to.Tensor,
                                 node: Node,
                                 edge: Edge,
-                                node_features: to.Tensor,
-                                adjacency_matrix: to.Tensor) -> to.Tensor:
+                                node_features: to.Tensor) -> to.Tensor:
         edge_slice = edge.get_edge_slice()
         neighbors_slice = edge.get_start_node_neighbors_without_end_node()[0]
-        messages_from_the_other_neighbors = to.zeros(node.features.shape[0]).to(self.device)
-        for reset_node_index in neighbors_slice:
-            reset_node = self._create_node(node_features, adjacency_matrix, reset_node_index)
-            reset_edge = self._create_edge(node, reset_node)
-            reset_edge_slice = reset_edge.get_edge_slice()
-            reset_gate_output = self._pass_through_reset_gate(messages, node, reset_edge, node_features)
-            messages_from_the_other_neighbors += to.mul(reset_gate_output, messages[reset_edge_slice])
-        return self.u_gru_current_memory_message[edge_slice].matmul(messages_from_the_other_neighbors)
+        return self.u_gru_current_memory_message[edge_slice].matmul(sum([to.mul(to.sigmoid(
+            to.add(
+                to.add(self.w_gru_update_gate_features[edge_slice].matmul(node_features[node.node_id]),
+                       self.u_gru_update_gate[edge_slice].matmul(messages[node.node_id, reset_node_index])),
+                self.b_gru_update_gate)).long(), messages[node.node_id, reset_node_index])
+                                                                         for reset_node_index in neighbors_slice]))
 
     def _pass_through_reset_gate(self,
                                  messages: to.Tensor,

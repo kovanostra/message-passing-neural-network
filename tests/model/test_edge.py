@@ -12,8 +12,8 @@ class TestEdge(TestCase):
         node_features = BASE_GRAPH_NODE_FEATURES
         labels = BASE_GRAPH.view(-1)
         start_node = Node(node_features, labels, 2)
-        end_node = Node(node_features, labels, 0)
-        self.edge = Edge(start_node, end_node)
+        end_node_id = 0
+        self.edge = Edge(start_node, end_node_id)
 
     def test_get_edge_slice(self):
         # Given
