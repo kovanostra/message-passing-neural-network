@@ -19,14 +19,17 @@ class ModelTrainer:
         self.optimizer = None
         self.device = device
 
-    def instantiate_attributes(self, initialization_graph: Graph, configuration_dictionary: Dict) -> None:
+    def instantiate_attributes(self,
+                               initialization_graph: Graph,
+                               labels: to.Tensor,
+                               configuration_dictionary: Dict) -> None:
         number_of_nodes = initialization_graph.number_of_nodes
         number_of_node_features = initialization_graph.number_of_node_features
         self.model = self.model.of(time_steps=configuration_dictionary['time_steps'],
                                    number_of_nodes=number_of_nodes,
                                    number_of_node_features=number_of_node_features,
                                    fully_connected_layer_input_size=number_of_nodes * number_of_node_features,
-                                   fully_connected_layer_output_size=sum(range(number_of_nodes)),
+                                   fully_connected_layer_output_size=len(labels),
                                    device=self.device)
         self.model.to(self.device)
         self.model.initialize_tensors(initialization_graph)

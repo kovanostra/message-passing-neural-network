@@ -14,8 +14,6 @@ class Node:
         return all_node_features[self.node_id]
 
     def _get_neighbors(self, adjacency_matrix: to.Tensor) -> to.Tensor:
-        number_of_nodes = int(np.sqrt(adjacency_matrix.size()[-1]))
-        adjacency_matrix = adjacency_matrix.view(number_of_nodes, number_of_nodes)
         return to.nonzero(adjacency_matrix[self.node_id], as_tuple=True)[0]
 
     def get_start_node_neighbors_without_end_node(self, end_node_id: int) -> Tuple:

@@ -15,8 +15,9 @@ class TestGraphPreprocessor(TestCase):
         # Given
         dataset_length = 10
         features = BASE_GRAPH_NODE_FEATURES
-        labels = BASE_GRAPH
-        raw_dataset = [(features, labels) for i in range(dataset_length)]
+        adjacency_matrix = BASE_GRAPH
+        labels = BASE_GRAPH.view(-1)
+        raw_dataset = [(features, adjacency_matrix, labels) for i in range(dataset_length)]
         train_validation_test_split_expected = [7, 2, 1]
 
         # When
@@ -33,9 +34,10 @@ class TestGraphPreprocessor(TestCase):
         # Given
         dataset_length = 1
         features = BASE_GRAPH_NODE_FEATURES
-        labels = BASE_GRAPH
-        raw_dataset = [(features, labels) for i in range(dataset_length)]
-        initialization_graph_expected = Graph(labels, features)
+        adjacency_matrix = BASE_GRAPH
+        labels = BASE_GRAPH.view(-1)
+        raw_dataset = [(features, adjacency_matrix, labels) for i in range(dataset_length)]
+        initialization_graph_expected = Graph(adjacency_matrix, features)
 
         # When
         initialization_graph = self.data_preprocessor.extract_initialization_graph(raw_dataset)

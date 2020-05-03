@@ -11,5 +11,5 @@ class Repository(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def get_all_features_and_labels_from_separate_files(self) -> List[Tuple[Any, Any]]:
+    def get_all_data(self) -> List[Tuple[Any, Any, Any]]:
         pass

@@ -9,7 +9,7 @@ from tests.fixtures.matrices_and_vectors import BASE_GRAPH_NODE_FEATURES, BASE_G
 class TestNode(TestCase):
     def setUp(self) -> None:
         all_node_features = BASE_GRAPH_NODE_FEATURES
-        labels = BASE_GRAPH.view(-1)
+        labels = BASE_GRAPH
         self.node = Node(all_node_features, labels, node_id=2)
 
     def test_node_neighbors(self):

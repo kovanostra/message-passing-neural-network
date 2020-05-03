@@ -120,9 +120,8 @@ class GraphEncoder(nn.Module):
                                                 adjacency_matrix: to.Tensor,
                                                 messages: to.Tensor) -> to.Tensor:
         new_messages = to.zeros(messages.shape).to(self.device)
-        number_of_nodes = int(math.sqrt(adjacency_matrix.size()[-1]))
-        is_adjacency_matrix_symmetric = to.allclose(adjacency_matrix.view(number_of_nodes, number_of_nodes),
-                                                    adjacency_matrix.view(number_of_nodes, number_of_nodes).t())
+        is_adjacency_matrix_symmetric = to.allclose(adjacency_matrix,
+                                                    adjacency_matrix.t())
         for node_id in range(self.number_of_nodes):
             node = self._create_node(node_features, adjacency_matrix, node_id)
             if is_adjacency_matrix_symmetric:

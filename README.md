@@ -28,6 +28,7 @@ Run
 ```
 click
 pytorch=1.4.0
+numpy==1.17.4
 pandas=1.03
 ```
 

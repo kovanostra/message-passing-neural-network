@@ -14,7 +14,7 @@ class DataPreprocessor(Preprocessor):
         super().__init__()
 
     @staticmethod
-    def train_validation_test_split(raw_dataset: List[Tuple[to.Tensor, to.Tensor]],
+    def train_validation_test_split(raw_dataset: List[Tuple[to.Tensor, to.Tensor, to.Tensor]],
                                     batch_size: int,
                                     validation_split: float = 0.2,
                                     test_split: float = 0.1) -> Tuple[DataLoader, DataLoader, DataLoader]:
@@ -32,8 +32,10 @@ class DataPreprocessor(Preprocessor):
         return training_data, validation_data, test_data
 
     @staticmethod
-    def extract_initialization_graph(raw_dataset: List[Tuple[to.Tensor, to.Tensor]]) -> Graph:
-        return Graph(raw_dataset[0][1], raw_dataset[0][0])
+    def extract_initialization_graph(raw_dataset: List[Tuple[to.Tensor, to.Tensor, to.Tensor]]) -> Graph:
+        adjacency_matrix = raw_dataset[0][1]
+        node_features = raw_dataset[0][0]
+        return Graph(adjacency_matrix, node_features)
 
     @staticmethod
     def flatten(tensors: to.Tensor, desired_size: int = 0) -> to.Tensor:
@@ -49,7 +51,7 @@ class DataPreprocessor(Preprocessor):
         return flattened_tensor
 
     @staticmethod
-    def _get_validation_and_test_indexes(raw_dataset: List[Tuple[to.Tensor, to.Tensor]],
+    def _get_validation_and_test_indexes(raw_dataset: List[Tuple[to.Tensor, to.Tensor, to.Tensor]],
                                          test_split: float,
                                          validation_split: float) -> Tuple[int, int]:
         validation_index = int((1 - validation_split - test_split) * len(raw_dataset))
