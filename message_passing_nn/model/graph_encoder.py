@@ -1,11 +1,8 @@
-import math
-
 import torch as to
 import torch.nn as nn
 
 from message_passing_nn.data.data_preprocessor import DataPreprocessor
 from message_passing_nn.model.graph import Graph
-from message_passing_nn.model.message_gru import MessageGRU
 from message_passing_nn.model.node import Node
 
 
@@ -129,23 +126,27 @@ class GraphEncoder(nn.Module):
             else:
                 node_neighbors = node.neighbors
             for end_node_id in node_neighbors:
-                message = self._get_message_inputs(messages, node, end_node_id, node_features)
-                message.compose()
-                new_messages[node_id, end_node_id], new_messages[end_node_id, node_id] = message.value, message.value
+                message = self._get_message_value(messages, node, end_node_id, node_features)
+                new_messages[node_id, end_node_id], new_messages[end_node_id, node_id] = message, message
         return new_messages
 
-    def _get_message_inputs(self,
-                            messages: to.Tensor,
-                            node: Node,
-                            end_node_id: int,
-                            node_features: to.Tensor) -> MessageGRU:
-        message = self._create_message(self.device)
-        message.previous_messages = self._get_messages_from_all_node_neighbors_except_target_summed(messages,
-                                                                                                    node,
-                                                                                                    end_node_id)
-        message.update_gate = self._pass_through_update_gate(messages, node, end_node_id, node_features)
-        message.current_memory = self._get_current_memory_message(messages, node, end_node_id, node_features)
-        return message
+    def _get_message_value(self,
+                           messages: to.Tensor,
+                           node: Node,
+                           end_node_id: int,
+                           node_features: to.Tensor) -> to.Tensor:
+        previous_messages = self._get_messages_from_all_node_neighbors_except_target_summed(messages,
+                                                                                            node,
+                                                                                            end_node_id)
+        update_gate = self._pass_through_update_gate(messages, node, end_node_id, node_features)
+        current_memory = self._get_current_memory_message(messages, node, end_node_id, node_features)
+        return to.add(
+                    to.mul(
+                        to.sub(to.ones(update_gate.shape).to(self.device),
+                               update_gate),
+                        previous_messages),
+                    to.mul(update_gate,
+                           current_memory))
 
     def _get_messages_from_all_node_neighbors_except_target_summed(self,
                                                                    messages: to.Tensor,
@@ -215,7 +216,3 @@ class GraphEncoder(nn.Module):
     @staticmethod
     def _create_node(node_features: to.Tensor, adjacency_matrix: to.Tensor, node_id: int) -> Node:
         return Node(node_features, adjacency_matrix, node_id)
-
-    @staticmethod
-    def _create_message(device: str) -> MessageGRU:
-        return MessageGRU(device)
