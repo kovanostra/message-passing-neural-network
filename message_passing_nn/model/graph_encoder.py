@@ -51,13 +51,17 @@ class GraphEncoder(nn.Module):
                    fully_connected_layer_output_size,
                    device)
 
-    def forward(self, node_features: to.Tensor, adjacency_matrix: to.Tensor, batch_size: int) -> to.Tensor:
+    def forward(self,
+                node_features: to.Tensor,
+                adjacency_matrix: to.Tensor,
+                batch_size: int) -> to.Tensor:
         outputs = to.zeros(batch_size, self.fully_connected_layer_output_size, device=self.device)
         for batch in range(batch_size):
             outputs[batch] = self.sigmoid(
                 self.linear(
                     DataPreprocessor.flatten(
-                        self.encode(node_features[batch], adjacency_matrix[batch]))))
+                        self.encode(node_features[batch], adjacency_matrix[batch]),
+                        self.fully_connected_layer_output_size)))
         return outputs
 
     def encode(self, node_features: to.Tensor, adjacency_matrix: to.Tensor) -> to.Tensor:
