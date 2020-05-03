@@ -16,8 +16,8 @@ class DataPreprocessor(Preprocessor):
     @staticmethod
     def train_validation_test_split(raw_dataset: List[Tuple[to.Tensor, to.Tensor, to.Tensor]],
                                     batch_size: int,
-                                    maximum_number_of_nodes: int = 200,
-                                    maximum_number_of_features: int = 5,
+                                    maximum_number_of_nodes: int,
+                                    maximum_number_of_features: int,
                                     validation_split: float = 0.2,
                                     test_split: float = 0.1) -> Tuple[DataLoader, DataLoader, DataLoader]:
         test_index, validation_index = DataPreprocessor._get_validation_and_test_indexes(raw_dataset, test_split,
@@ -76,14 +76,17 @@ class DataPreprocessor(Preprocessor):
         adjacency_matrix_max_size, features_max_size, labels_max_size = DataPreprocessor._get_maximum_dataset_sizes(
             maximum_number_of_nodes, raw_dataset)
 
-        preprocessed_dataset = DataPreprocessor._equalize_sizes(adjacency_matrix_max_size, features_max_size,
-                                                                labels_max_size, maximum_number_of_features,
-                                                                maximum_number_of_nodes, raw_dataset)
+        preprocessed_dataset = DataPreprocessor._equalize_sizes(adjacency_matrix_max_size,
+                                                                features_max_size,
+                                                                labels_max_size,
+                                                                maximum_number_of_features,
+                                                                maximum_number_of_nodes,
+                                                                raw_dataset)
         return preprocessed_dataset
 
     @staticmethod
-    def _equalize_sizes(adjacency_matrix_max_size: List[int, int],
-                        features_max_size: List[int, int],
+    def _equalize_sizes(adjacency_matrix_max_size: List[int],
+                        features_max_size: List[int],
                         labels_max_size: List[int],
                         maximum_number_of_features: int,
                         maximum_number_of_nodes: int,
@@ -93,6 +96,8 @@ class DataPreprocessor(Preprocessor):
         for features, adjacency_matrix, labels in raw_dataset:
             if -1 < maximum_number_of_nodes < adjacency_matrix.size()[0]:
                 continue
+            if maximum_number_of_features < 0:
+                maximum_number_of_features = features.size()[1]
             features_preprocessed = to.zeros((features_max_size[0], maximum_number_of_features))
             adjacency_matrix_preprocessed = to.zeros((adjacency_matrix_max_size[0], adjacency_matrix_max_size[1]))
             labels_preprocessed = to.zeros((labels_max_size[0]))

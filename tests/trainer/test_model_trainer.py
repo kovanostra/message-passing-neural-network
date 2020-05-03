@@ -38,7 +38,7 @@ class TestModelTrainer(TestCase):
                                                   BASE_GRAPH.view(-1),
                                                   self.configuration_dictionary)
         raw_dataset = [(BASE_GRAPH_NODE_FEATURES, BASE_GRAPH, BASE_GRAPH.view(-1))]
-        training_data, _, _ = DataPreprocessor.train_validation_test_split(raw_dataset, 1, 0.0, 0.0)
+        training_data, _, _ = DataPreprocessor.train_validation_test_split(raw_dataset, 1, -1, -1, 0.0, 0.0)
 
         # When
         training_loss = self.model_trainer.do_train(training_data=training_data, epoch=1)
@@ -52,7 +52,7 @@ class TestModelTrainer(TestCase):
                                                   BASE_GRAPH.view(-1),
                                                   self.configuration_dictionary)
         raw_dataset = [(BASE_GRAPH_NODE_FEATURES, BASE_GRAPH, BASE_GRAPH.view(-1))]
-        training_data, _, _ = DataPreprocessor.train_validation_test_split(raw_dataset, 1, 0.0, 0.0)
+        training_data, _, _ = DataPreprocessor.train_validation_test_split(raw_dataset, 1, -1, -1, 0.0, 0.0)
 
         # When
         validation_loss = self.model_trainer.do_evaluate(evaluation_data=training_data, epoch=1)

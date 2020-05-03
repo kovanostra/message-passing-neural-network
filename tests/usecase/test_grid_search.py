@@ -30,6 +30,8 @@ class TestTraining(TestCase):
         grid_search_dictionary = {
             "epochs": [10],
             "batch_size": [3],
+            "maximum_number_of_nodes": [-1],
+            "maximum_number_of_features": [-1],
             "validation_split": [0.2],
             "test_split": [0.1],
             "loss_function": ["MSE"],
@@ -66,6 +68,8 @@ class TestTraining(TestCase):
         grid_search_dictionary = {
             "epochs": [10],
             "batch_size": [3],
+            "maximum_number_of_nodes": [-1],
+            "maximum_number_of_features": [-1],
             "validation_split": [0.2],
             "test_split": [0.1],
             "loss_function": ["MSE"],
@@ -102,6 +106,8 @@ class TestTraining(TestCase):
         grid_search_dictionary = {
             "epochs": [10, 15],
             "batch_size": [3, 4],
+            "maximum_number_of_nodes": [-1],
+            "maximum_number_of_features": [-1],
             "validation_split": [0.2],
             "test_split": [0.1],
             "loss_function": ["MSE"],

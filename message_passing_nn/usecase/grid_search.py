@@ -88,6 +88,8 @@ class GridSearch:
         training_data, validation_data, test_data = DataPreprocessor \
             .train_validation_test_split(raw_dataset,
                                          configuration_dictionary['batch_size'],
+                                         configuration_dictionary['maximum_number_of_nodes'],
+                                         configuration_dictionary['maximum_number_of_features'],
                                          configuration_dictionary['validation_split'],
                                          configuration_dictionary['test_split'])
         initialization_graph = DataPreprocessor.extract_initialization_graph(raw_dataset)
