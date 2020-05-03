@@ -21,8 +21,8 @@ class FileSystemRepository(Repository):
         self.get_logger().info("Loading dataset")
         files_in_path = self._extract_name_prefixes_from_filenames()
         dataset = []
-        for file in files_in_path:
-            dataset.append((self._get_features(file), self._get_adjacency_matrix(file), self._get_labels(file)))
+        for filename in files_in_path:
+            dataset.append((self._get_features(filename), self._get_adjacency_matrix(filename), self._get_labels(filename)))
         self.get_logger().info("Finished loading dataset")
         return dataset
 
