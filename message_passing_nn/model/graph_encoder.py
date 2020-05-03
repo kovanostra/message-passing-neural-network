@@ -61,7 +61,7 @@ class GraphEncoder(nn.Module):
                 self.linear(
                     DataPreprocessor.flatten(
                         self.encode(node_features[batch], adjacency_matrix[batch]),
-                        self.fully_connected_layer_output_size)))
+                        self.fully_connected_layer_input_size)))
         return outputs
 
     def encode(self, node_features: to.Tensor, adjacency_matrix: to.Tensor) -> to.Tensor:
