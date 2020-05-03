@@ -3,6 +3,7 @@ from typing import Dict, List, Tuple
 
 import itertools
 import numpy as np
+import torch as to
 from torch.utils.data.dataloader import DataLoader
 
 from message_passing_nn.data.data_preprocessor import DataPreprocessor
@@ -44,9 +45,11 @@ class GridSearch:
                               configuration_id: str,
                               grid_search_configuration_dictionary: Dict,
                               losses: Dict) -> Dict:
-        training_data, validation_data, test_data, initialization_graph = self._prepare_dataset(
+        training_data, validation_data, test_data, initialization_graph, example_labels = self._prepare_dataset(
             grid_search_configuration_dictionary)
-        self.model_trainer.instantiate_attributes(initialization_graph, grid_search_configuration_dictionary)
+        self.model_trainer.instantiate_attributes(initialization_graph,
+                                                  example_labels,
+                                                  grid_search_configuration_dictionary)
         losses = self._update_losses_with_configuration_id(grid_search_configuration_dictionary, losses)
         validation_loss_max = np.inf
         for epoch in range(1, grid_search_configuration_dictionary['epochs'] + 1):
@@ -80,15 +83,18 @@ class GridSearch:
         grid_search_configuration_dictionary.update({"configuration_id": configuration_id})
         return configuration_id, grid_search_configuration_dictionary
 
-    def _prepare_dataset(self, configuration_dictionary: Dict) -> Tuple[DataLoader, DataLoader, DataLoader, Graph]:
-        raw_dataset = self.repository.get_all_features_and_labels_from_separate_files()
+    def _prepare_dataset(self, configuration_dictionary: Dict) -> Tuple[DataLoader, DataLoader, DataLoader, Graph, to.Tensor]:
+        raw_dataset = self.repository.get_all_data()
         training_data, validation_data, test_data = DataPreprocessor \
             .train_validation_test_split(raw_dataset,
                                          configuration_dictionary['batch_size'],
+                                         configuration_dictionary['maximum_number_of_nodes'],
+                                         configuration_dictionary['maximum_number_of_features'],
                                          configuration_dictionary['validation_split'],
                                          configuration_dictionary['test_split'])
         initialization_graph = DataPreprocessor.extract_initialization_graph(raw_dataset)
-        return training_data, validation_data, test_data, initialization_graph
+        initialization_labels = raw_dataset[0][2]
+        return training_data, validation_data, test_data, initialization_graph, initialization_labels
 
     def _get_all_grid_search_configurations(self) -> List[Tuple[Tuple]]:
         all_grid_search_configurations = []

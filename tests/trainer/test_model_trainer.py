@@ -21,9 +21,10 @@ class TestModelTrainer(TestCase):
     def test_instantiate_attributes(self):
         # Given
         initialization_graph = Graph(BASE_GRAPH, BASE_GRAPH_NODE_FEATURES)
+        labels = BASE_GRAPH.view(-1)
 
         # When
-        self.model_trainer.instantiate_attributes(initialization_graph, self.configuration_dictionary)
+        self.model_trainer.instantiate_attributes(initialization_graph, labels, self.configuration_dictionary)
 
         # Then
         self.assertTrue(self.model_trainer.model.number_of_nodes == initialization_graph.number_of_nodes)
@@ -34,9 +35,10 @@ class TestModelTrainer(TestCase):
     def test_do_train(self):
         # Given
         self.model_trainer.instantiate_attributes(Graph(BASE_GRAPH, BASE_GRAPH_NODE_FEATURES),
+                                                  BASE_GRAPH.view(-1),
                                                   self.configuration_dictionary)
-        raw_dataset = [(BASE_GRAPH_NODE_FEATURES, BASE_GRAPH)]
-        training_data, _, _ = DataPreprocessor.train_validation_test_split(raw_dataset, 1, 0.0, 0.0)
+        raw_dataset = [(BASE_GRAPH_NODE_FEATURES, BASE_GRAPH, BASE_GRAPH.view(-1))]
+        training_data, _, _ = DataPreprocessor.train_validation_test_split(raw_dataset, 1, -1, -1, 0.0, 0.0)
 
         # When
         training_loss = self.model_trainer.do_train(training_data=training_data, epoch=1)
@@ -47,9 +49,10 @@ class TestModelTrainer(TestCase):
     def test_do_evaluate(self):
         # Given
         self.model_trainer.instantiate_attributes(Graph(BASE_GRAPH, BASE_GRAPH_NODE_FEATURES),
+                                                  BASE_GRAPH.view(-1),
                                                   self.configuration_dictionary)
-        raw_dataset = [(BASE_GRAPH_NODE_FEATURES, BASE_GRAPH)]
-        training_data, _, _ = DataPreprocessor.train_validation_test_split(raw_dataset, 1, 0.0, 0.0)
+        raw_dataset = [(BASE_GRAPH_NODE_FEATURES, BASE_GRAPH, BASE_GRAPH.view(-1))]
+        training_data, _, _ = DataPreprocessor.train_validation_test_split(raw_dataset, 1, -1, -1, 0.0, 0.0)
 
         # When
         validation_loss = self.model_trainer.do_evaluate(evaluation_data=training_data, epoch=1)

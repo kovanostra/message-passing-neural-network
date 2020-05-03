@@ -1,6 +1,11 @@
 import numpy as np
 import torch as to
 
+NOT_SYMMETRIC_GRAPH = to.tensor([[0, 1, 1, 1],
+                                 [1, 0, 1, 0],
+                                 [1, 1, 0, 1],
+                                 [0, 0, 1, 0]]).float()
+
 BASE_GRAPH = to.tensor([[0, 1, 1, 0],
                         [1, 0, 1, 0],
                         [1, 1, 0, 1],

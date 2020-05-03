@@ -14,6 +14,8 @@ class Preprocessor(metaclass=ABCMeta):
     @abstractmethod
     def train_validation_test_split(raw_dataset: Any,
                                     batch_size: int,
+                                    maximum_number_of_nodes: int,
+                                    maximum_number_of_features: int,
                                     validation_split: float = 0.2,
                                     test_split: float = 0.1) -> Tuple[DataLoader, DataLoader, DataLoader]:
         pass

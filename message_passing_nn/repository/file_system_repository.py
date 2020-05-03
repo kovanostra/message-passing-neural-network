@@ -13,16 +13,16 @@ class FileSystemRepository(Repository):
         super().__init__()
         self.data_directory = data_directory + dataset + '/'
 
-    def save(self, filename: str, dataset_name: str) -> None:
+    def save(self, filename: str, data_to_save: to.Tensor) -> None:
         with open(self.data_directory + filename, 'wb') as file:
-            pickle.dump(dataset_name, file)
+            pickle.dump(data_to_save, file)
 
-    def get_all_features_and_labels_from_separate_files(self) -> List[Tuple[to.Tensor, to.Tensor]]:
+    def get_all_data(self) -> List[Tuple[to.Tensor, to.Tensor, to.Tensor]]:
         self.get_logger().info("Loading dataset")
         files_in_path = self._extract_name_prefixes_from_filenames()
         dataset = []
-        for file in files_in_path:
-            dataset.append((self._get_features(file), self._get_labels(file)))
+        for filename in files_in_path:
+            dataset.append((self._get_features(filename), self._get_adjacency_matrix(filename), self._get_labels(filename)))
         self.get_logger().info("Finished loading dataset")
         return dataset
 
@@ -34,6 +34,11 @@ class FileSystemRepository(Repository):
     def _get_features(self, filename: str) -> to.Tensor:
         with open(self.data_directory + filename + 'features.pickle', 'rb') as features_file:
             features = pickle.load(features_file).float()
+        return features
+
+    def _get_adjacency_matrix(self, filename: str) -> to.Tensor:
+        with open(self.data_directory + filename + 'adjacency-matrix.pickle', 'rb') as adjacency_matrix_file:
+            features = pickle.load(adjacency_matrix_file).float()
         return features
 
     def _extract_name_prefixes_from_filenames(self):

@@ -13,7 +13,8 @@ from tests.fixtures.matrices_and_vectors import BASE_GRAPH, BASE_GRAPH_NODE_FEAT
 class TestTraining(TestCase):
     def setUp(self) -> None:
         self.features = BASE_GRAPH_NODE_FEATURES
-        self.labels = BASE_GRAPH
+        self.adjacency_matrix = BASE_GRAPH
+        self.labels = BASE_GRAPH.view(-1)
         self.dataset = 'training-test-data'
         self.tests_data_directory = 'tests/test_data/'
         tests_model_directory = 'tests/model_checkpoints'
@@ -29,6 +30,8 @@ class TestTraining(TestCase):
         grid_search_dictionary = {
             "epochs": [10],
             "batch_size": [3],
+            "maximum_number_of_nodes": [-1],
+            "maximum_number_of_features": [-1],
             "validation_split": [0.2],
             "test_split": [0.1],
             "loss_function": ["MSE"],
@@ -39,9 +42,11 @@ class TestTraining(TestCase):
         grid_search = GridSearch(self.repository, self.model_trainer, grid_search_dictionary, self.saver)
 
         features_filenames = [str(i) + '_training_features' + '.pickle' for i in range(dataset_size)]
+        adjacency_matrix_filenames = [str(i) + '_training_adjacency-matrix' '.pickle' for i in range(dataset_size)]
         labels_filenames = [str(i) + '_training_labels' '.pickle' for i in range(dataset_size)]
         for i in range(dataset_size):
             self.repository.save(features_filenames[i], self.features)
+            self.repository.save(adjacency_matrix_filenames[i], self.adjacency_matrix)
             self.repository.save(labels_filenames[i], self.labels)
 
         # When
@@ -55,7 +60,7 @@ class TestTraining(TestCase):
         self.assertTrue(losses["test_loss"][configuration_id]["final_epoch"] > 0.0)
 
         # Tear down
-        self._remove_files(dataset_size, features_filenames, labels_filenames)
+        self._remove_files(dataset_size, features_filenames, adjacency_matrix_filenames, labels_filenames)
 
     def test_start_for_multiple_batches_of_differing_size(self):
         # Given
@@ -63,6 +68,8 @@ class TestTraining(TestCase):
         grid_search_dictionary = {
             "epochs": [10],
             "batch_size": [3],
+            "maximum_number_of_nodes": [-1],
+            "maximum_number_of_features": [-1],
             "validation_split": [0.2],
             "test_split": [0.1],
             "loss_function": ["MSE"],
@@ -73,9 +80,11 @@ class TestTraining(TestCase):
         grid_search = GridSearch(self.repository, self.model_trainer, grid_search_dictionary, self.saver)
 
         features_filenames = [str(i) + '_training_features' + '.pickle' for i in range(dataset_size)]
+        adjacency_matrix_filenames = [str(i) + '_training_adjacency-matrix' '.pickle' for i in range(dataset_size)]
         labels_filenames = [str(i) + '_training_labels' '.pickle' for i in range(dataset_size)]
         for i in range(dataset_size):
             self.repository.save(features_filenames[i], self.features)
+            self.repository.save(adjacency_matrix_filenames[i], self.adjacency_matrix)
             self.repository.save(labels_filenames[i], self.labels)
 
         # When
@@ -89,7 +98,7 @@ class TestTraining(TestCase):
         self.assertTrue(losses["test_loss"][configuration_id]["final_epoch"] > 0.0)
 
         # Tear down
-        self._remove_files(dataset_size, features_filenames, labels_filenames)
+        self._remove_files(dataset_size, features_filenames, adjacency_matrix_filenames, labels_filenames)
 
     def test_start_a_grid_search(self):
         # Given
@@ -97,6 +106,8 @@ class TestTraining(TestCase):
         grid_search_dictionary = {
             "epochs": [10, 15],
             "batch_size": [3, 4],
+            "maximum_number_of_nodes": [-1],
+            "maximum_number_of_features": [-1],
             "validation_split": [0.2],
             "test_split": [0.1],
             "loss_function": ["MSE"],
@@ -107,9 +118,11 @@ class TestTraining(TestCase):
         grid_search = GridSearch(self.repository, self.model_trainer, grid_search_dictionary, self.saver)
 
         features_filenames = [str(i) + '_training_features' + '.pickle' for i in range(dataset_size)]
+        adjacency_matrix_filenames = [str(i) + '_training_adjacency-matrix' '.pickle' for i in range(dataset_size)]
         labels_filenames = [str(i) + '_training_labels' '.pickle' for i in range(dataset_size)]
         for i in range(dataset_size):
             self.repository.save(features_filenames[i], self.features)
+            self.repository.save(adjacency_matrix_filenames[i], self.adjacency_matrix)
             self.repository.save(labels_filenames[i], self.labels)
 
         # When
@@ -123,9 +136,14 @@ class TestTraining(TestCase):
         self.assertTrue(losses["test_loss"][configuration_id]["final_epoch"] > 0.0)
 
         # Tear down
-        self._remove_files(dataset_size, features_filenames, labels_filenames)
+        self._remove_files(dataset_size, features_filenames, adjacency_matrix_filenames, labels_filenames)
 
-    def _remove_files(self, dataset_size: int, features_filenames: List[str], labels_filenames: List[str]) -> None:
+    def _remove_files(self,
+                      dataset_size: int,
+                      features_filenames: List[str],
+                      adjacency_matrix_filenames: List[str],
+                      labels_filenames: List[str]) -> None:
         for i in range(dataset_size):
             os.remove(self.tests_data_directory + self.dataset + "/" + features_filenames[i])
+            os.remove(self.tests_data_directory + self.dataset + "/" + adjacency_matrix_filenames[i])
             os.remove(self.tests_data_directory + self.dataset + "/" + labels_filenames[i])

@@ -51,13 +51,12 @@ class TestGraphEncoder(TestCase):
         # Given
         batch_size = 1
         features = BASE_GRAPH_NODE_FEATURES.view(1, BASE_GRAPH.size()[0], BASE_GRAPH_NODE_FEATURES.size()[1])
-        adjacency_matrix = BASE_GRAPH.view(1, -1).float()
-        outputs_expected = to.tensor([[0.98656, 0.98656, 0.98656, 0.98656, 0.98656, 0.98656, 0.98656, 0.98656,
-                                       0.98656, 0.98656, 0.98656, 0.98656, 0.98656, 0.98656, 0.98656, 0.98656]])
+        adjacency_matrix = BASE_GRAPH.view(1, BASE_GRAPH.size()[0], BASE_GRAPH.size()[1],)
+        outputs_expected = to.tensor([[0.98733, 0.98733, 0.98733, 0.98733, 0.98733, 0.98733, 0.98733, 0.98733, 0.98733,
+                                       0.98733, 0.98733, 0.98733, 0.98733, 0.98733, 0.98733, 0.98733]])
 
         # When
-        with to.no_grad():
-            outputs = self.graph_encoder.forward(features, adjacency_matrix, batch_size)
+        outputs = self.graph_encoder.forward(features, adjacency_matrix, batch_size)
 
         # Then
         self.assertTrue(to.allclose(outputs_expected, outputs))
@@ -68,7 +67,7 @@ class TestGraphEncoder(TestCase):
         node_encoding_expected = to.tensor([[0.3909883, 0.3909883]])
 
         # When
-        node_encoding = self.graph_encoder.encode(BASE_GRAPH_NODE_FEATURES, BASE_GRAPH.view(-1).float())[node]
+        node_encoding = self.graph_encoder.encode(BASE_GRAPH_NODE_FEATURES, BASE_GRAPH)[node]
 
         # Then
         self.assertTrue(to.allclose(node_encoding_expected, node_encoding))
@@ -78,7 +77,7 @@ class TestGraphEncoder(TestCase):
         encoded_graph_shape_expected = list(BASE_GRAPH_NODE_FEATURES.shape)
 
         # When
-        encoded_graph_shape = self.graph_encoder.encode(BASE_GRAPH_NODE_FEATURES, BASE_GRAPH.view(-1).float()).shape
+        encoded_graph_shape = self.graph_encoder.encode(BASE_GRAPH_NODE_FEATURES, BASE_GRAPH).shape
 
         # Then
         self.assertEqual(encoded_graph_shape_expected, list(encoded_graph_shape))

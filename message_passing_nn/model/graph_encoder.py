@@ -1,10 +1,9 @@
 import torch as to
 import torch.nn as nn
+from typing import List
 
 from message_passing_nn.data.data_preprocessor import DataPreprocessor
-from message_passing_nn.model.edge import Edge
 from message_passing_nn.model.graph import Graph
-from message_passing_nn.model.message_gru import MessageGRU
 from message_passing_nn.model.node import Node
 
 
@@ -52,13 +51,17 @@ class GraphEncoder(nn.Module):
                    fully_connected_layer_output_size,
                    device)
 
-    def forward(self, node_features: to.Tensor, adjacency_matrix: to.Tensor, batch_size: int) -> to.Tensor:
-        outputs = to.zeros(batch_size, self.fully_connected_layer_output_size).to(self.device)
+    def forward(self,
+                node_features: to.Tensor,
+                adjacency_matrix: to.Tensor,
+                batch_size: int) -> to.Tensor:
+        outputs = to.zeros(batch_size, self.fully_connected_layer_output_size, device=self.device)
         for batch in range(batch_size):
             outputs[batch] = self.sigmoid(
                 self.linear(
                     DataPreprocessor.flatten(
-                        self.encode(node_features[batch], adjacency_matrix[batch]))))
+                        self.encode(node_features[batch], adjacency_matrix[batch]),
+                        self.fully_connected_layer_input_size)))
         return outputs
 
     def encode(self, node_features: to.Tensor, adjacency_matrix: to.Tensor) -> to.Tensor:
@@ -75,152 +78,131 @@ class GraphEncoder(nn.Module):
                                 graph.number_of_node_features,
                                 graph.number_of_node_features]
         base_2d_tensor_shape = [graph.number_of_node_features]
-        self.w_gru_update_gate_features = nn.Parameter(to.randn(base_4d_tensor_shape), requires_grad=True).to(self.device)
-        self.w_gru_forget_gate_features = nn.Parameter(to.randn(base_4d_tensor_shape), requires_grad=True).to(self.device)
-        self.w_gru_current_memory_message_features = nn.Parameter(to.randn(base_4d_tensor_shape), requires_grad=True).to(self.device)
-        self.u_gru_update_gate = nn.Parameter(to.randn(base_4d_tensor_shape), requires_grad=True).to(self.device)
-        self.u_gru_forget_gate = nn.Parameter(to.randn(base_4d_tensor_shape), requires_grad=True).to(self.device)
-        self.u_gru_current_memory_message = nn.Parameter(to.randn(base_4d_tensor_shape), requires_grad=True).to(self.device)
-        self.b_gru_update_gate = nn.Parameter(to.randn(base_2d_tensor_shape), requires_grad=True).to(self.device)
-        self.b_gru_forget_gate = nn.Parameter(to.randn(base_2d_tensor_shape), requires_grad=True).to(self.device)
-        self.b_gru_current_memory_message = nn.Parameter(to.randn(base_2d_tensor_shape), requires_grad=True).to(self.device)
-        self.u_graph_node_features = nn.Parameter(to.randn(base_3d_tensor_shape), requires_grad=True).to(self.device)
-        self.u_graph_neighbor_messages = nn.Parameter(to.randn(base_3d_tensor_shape), requires_grad=True).to(self.device)
+        self.w_gru_update_gate_features = nn.Parameter(to.randn(base_4d_tensor_shape, device=self.device), requires_grad=True)
+        self.w_gru_forget_gate_features = nn.Parameter(to.randn(base_4d_tensor_shape, device=self.device), requires_grad=True)
+        self.w_gru_current_memory_message_features = nn.Parameter(to.randn(base_4d_tensor_shape, device=self.device), requires_grad=True)
+        self.u_gru_update_gate = nn.Parameter(to.randn(base_4d_tensor_shape, device=self.device), requires_grad=True)
+        self.u_gru_forget_gate = nn.Parameter(to.randn(base_4d_tensor_shape, device=self.device), requires_grad=True)
+        self.u_gru_current_memory_message = nn.Parameter(to.randn(base_4d_tensor_shape, device=self.device), requires_grad=True)
+        self.b_gru_update_gate = nn.Parameter(to.randn(base_2d_tensor_shape, device=self.device), requires_grad=True)
+        self.b_gru_forget_gate = nn.Parameter(to.randn(base_2d_tensor_shape, device=self.device), requires_grad=True)
+        self.b_gru_current_memory_message = nn.Parameter(to.randn(base_2d_tensor_shape, device=self.device), requires_grad=True)
+        self.u_graph_node_features = nn.Parameter(to.randn(base_3d_tensor_shape, device=self.device), requires_grad=True)
+        self.u_graph_neighbor_messages = nn.Parameter(to.randn(base_3d_tensor_shape, device=self.device), requires_grad=True)
 
     def _send_messages(self, node_features: to.Tensor, adjacency_matrix: to.Tensor) -> to.Tensor:
-        messages = to.zeros((self.number_of_nodes, self.number_of_nodes, self.number_of_node_features)).to(self.device)
+        messages = to.zeros((self.number_of_nodes, self.number_of_nodes, self.number_of_node_features), device=self.device)
         for step in range(self.time_steps):
-            messages = self._compose_messages_from_nodes_to_targets(node_features,
-                                                                    adjacency_matrix,
-                                                                    messages)
+            messages = self._compose_messages(node_features, adjacency_matrix, messages)
         return messages
 
     def _encode_nodes(self, node_features: to.Tensor, messages: to.Tensor) -> to.Tensor:
-        encoded_node = to.zeros(self.number_of_nodes, self.number_of_node_features).to(self.device)
+        encoded_node = to.zeros(self.number_of_nodes, self.number_of_node_features, device=self.device)
         for node_id in range(self.number_of_nodes):
-            encoded_node[node_id] += self._apply_recurrent_layer_for_node(node_features,
-                                                                          messages,
-                                                                          node_id)
+            encoded_node[node_id] = self._apply_recurrent_layer(node_features, messages, node_id)
         return encoded_node
 
-    def _apply_recurrent_layer_for_node(self, node_features: to.Tensor, messages: to.Tensor, node_id: int) -> to.Tensor:
+    def _apply_recurrent_layer(self, node_features: to.Tensor, messages: to.Tensor, node_id: int) -> to.Tensor:
         node_encoding_features = self.u_graph_node_features[node_id].matmul(node_features[node_id])
         node_encoding_messages = self.u_graph_neighbor_messages[node_id].matmul(to.sum(messages[node_id], dim=0))
         return to.relu(node_encoding_features + node_encoding_messages)
 
-    def _compose_messages_from_nodes_to_targets(self,
-                                                node_features: to.Tensor,
-                                                adjacency_matrix: to.Tensor,
-                                                messages: to.Tensor) -> to.Tensor:
-        new_messages = to.zeros(messages.shape).to(self.device)
+    def _compose_messages(self,
+                          node_features: to.Tensor,
+                          adjacency_matrix: to.Tensor,
+                          messages: to.Tensor) -> to.Tensor:
+        new_messages = to.zeros(messages.shape, device=self.device)
         for node_id in range(self.number_of_nodes):
             node = self._create_node(node_features, adjacency_matrix, node_id)
             for end_node_id in node.neighbors:
-                end_node = self._create_node(node_features, adjacency_matrix, end_node_id)
-                edge = self._create_edge(node, end_node)
-                edge_slice = edge.get_edge_slice()
-                message = self._get_message_inputs(messages, node, edge, node_features, adjacency_matrix)
-                message.compose()
-                new_messages[edge_slice] = message.value
+                message = self._get_message_value(messages, node, end_node_id, node_features)
+                new_messages[node_id, end_node_id] = message
+                if Node.is_adjacency_matrix_symmetric(adjacency_matrix):
+                    new_messages[end_node_id, node_id] = message
         return new_messages
 
-    def _get_message_inputs(self,
-                            messages: to.Tensor,
-                            node: Node,
-                            edge: Edge,
-                            node_features: to.Tensor,
-                            adjacency_matrix: to.Tensor) -> MessageGRU:
-        message = self._create_message(self.device)
-        message.previous_messages = self._get_messages_from_all_node_neighbors_except_target_summed(messages,
-                                                                                                    node,
-                                                                                                    edge)
-        message.update_gate = self._pass_through_update_gate(messages, node, edge, node_features)
-        message.current_memory = self._get_current_memory_message(messages, node, edge, node_features, adjacency_matrix)
-        return message
+    def _get_message_value(self,
+                           messages: to.Tensor,
+                           node: Node,
+                           end_node_id: int,
+                           node_features: to.Tensor) -> to.Tensor:
+        previous_messages = self._sum_messages_from_neighbors_except_target(messages,
+                                                                            node,
+                                                                            end_node_id)
+        update_gate = self._pass_through_update_gate(messages, node, end_node_id, node_features)
+        current_memory = self._get_current_memory_message(messages, node, end_node_id, node_features)
+        return to.add(
+                    to.mul(
+                        to.sub(to.ones(update_gate.shape, device=self.device),
+                               update_gate),
+                        previous_messages),
+                    to.mul(update_gate,
+                           current_memory))
 
-    def _get_messages_from_all_node_neighbors_except_target_summed(self,
-                                                                   messages: to.Tensor,
-                                                                   node: Node,
-                                                                   edge: Edge) -> to.Tensor:
-        messages_from_the_other_neighbors = to.zeros(node.features.shape[0]).to(self.device)
+    def _sum_messages_from_neighbors_except_target(self,
+                                                   messages: to.Tensor,
+                                                   node: Node,
+                                                   end_node_id: int) -> to.Tensor:
+        messages_from_the_other_neighbors = to.zeros(node.features.shape[0], device=self.device)
         if node.neighbors_count > 1:
-            neighbors_slice = edge.get_start_node_neighbors_without_end_node()
+            neighbors_slice = node.get_start_node_neighbors_without_end_node(end_node_id)
             messages_from_the_other_neighbors = to.sum(messages[neighbors_slice], dim=0)
         return messages_from_the_other_neighbors
 
     def _pass_through_update_gate(self,
                                   messages: to.Tensor,
                                   node: Node,
-                                  edge: Edge,
+                                  end_node_id: int,
                                   node_features: to.Tensor) -> to.Tensor:
-        message_from_a_neighbor_other_than_target = self._get_messages_from_all_node_neighbors_except_target_summed(
+        message_from_a_neighbor_other_than_target = self._sum_messages_from_neighbors_except_target(
             messages,
             node,
-            edge)
-        edge_slice = edge.get_edge_slice()
+            end_node_id)
         update_gate_output = to.sigmoid(
             to.add(
-                to.add(self.w_gru_update_gate_features[edge_slice].matmul(node_features[node.node_id]),
-                       self.u_gru_update_gate[edge_slice].matmul(message_from_a_neighbor_other_than_target)),
+                to.add(self.w_gru_update_gate_features[node.node_id, end_node_id].matmul(node_features[node.node_id]),
+                       self.u_gru_update_gate[node.node_id, end_node_id].matmul(message_from_a_neighbor_other_than_target)),
                 self.b_gru_update_gate))
         return update_gate_output
 
     def _get_current_memory_message(self,
                                     messages: to.Tensor,
                                     node: Node,
-                                    edge: Edge,
-                                    node_features: to.Tensor,
-                                    adjacency_matrix: to.Tensor) -> to.Tensor:
+                                    end_node_id: int,
+                                    node_features: to.Tensor) -> to.Tensor:
         messages_passed_through_reset_gate = self._keep_or_reset_messages(messages,
                                                                           node,
-                                                                          edge,
-                                                                          node_features,
-                                                                          adjacency_matrix)
-        edge_slice = edge.get_edge_slice()
+                                                                          end_node_id,
+                                                                          node_features)
         current_memory_message = to.add(
-            to.add(self.w_gru_current_memory_message_features[edge_slice].matmul(node_features[node.node_id]),
-                   self.u_gru_current_memory_message[edge_slice].matmul(messages_passed_through_reset_gate)),
+            to.add(self.w_gru_current_memory_message_features[node.node_id, end_node_id].matmul(node_features[node.node_id]),
+                   self.u_gru_current_memory_message[node.node_id, end_node_id].matmul(messages_passed_through_reset_gate)),
             self.b_gru_current_memory_message)
         return to.tanh(current_memory_message)
 
     def _keep_or_reset_messages(self,
                                 messages: to.Tensor,
                                 node: Node,
-                                edge: Edge,
-                                node_features: to.Tensor,
-                                adjacency_matrix: to.Tensor) -> to.Tensor:
-        edge_slice = edge.get_edge_slice()
-        neighbors_slice = edge.get_start_node_neighbors_without_end_node()[0]
-        messages_from_the_other_neighbors = to.zeros(node.features.shape[0]).to(self.device)
-        for reset_node_index in neighbors_slice:
-            reset_node = self._create_node(node_features, adjacency_matrix, reset_node_index)
-            reset_edge = self._create_edge(node, reset_node)
-            reset_edge_slice = reset_edge.get_edge_slice()
-            reset_gate_output = self._pass_through_reset_gate(messages, node, reset_edge, node_features)
-            messages_from_the_other_neighbors += to.mul(reset_gate_output, messages[reset_edge_slice])
-        return self.u_gru_current_memory_message[edge_slice].matmul(messages_from_the_other_neighbors)
+                                end_node_id: int,
+                                node_features: to.Tensor) -> to.Tensor:
+        return self.u_gru_current_memory_message[node.node_id, end_node_id].matmul(sum([to.mul(to.sigmoid(
+            to.add(
+                to.add(self.w_gru_update_gate_features[node.node_id, end_node_id].matmul(node_features[node.node_id]),
+                       self.u_gru_update_gate[node.node_id, end_node_id].matmul(messages[node.node_id, reset_node_index])),
+                self.b_gru_update_gate)).long(), messages[node.node_id, reset_node_index])
+                                                                         for reset_node_index in node.get_start_node_neighbors_without_end_node(end_node_id)[0]]))
 
     def _pass_through_reset_gate(self,
                                  messages: to.Tensor,
                                  node: Node,
-                                 edge: Edge,
+                                 end_node_id: int,
                                  node_features: to.Tensor) -> to.Tensor:
-        edge_slice = edge.get_edge_slice()
-        message_from_a_neighbor_other_than_target = messages[edge_slice]
         return to.sigmoid(
             to.add(
-                to.add(self.w_gru_update_gate_features[edge_slice].matmul(node_features[node.node_id]),
-                       self.u_gru_update_gate[edge_slice].matmul(message_from_a_neighbor_other_than_target)),
+                to.add(self.w_gru_update_gate_features[node.node_id, end_node_id].matmul(node_features[node.node_id]),
+                       self.u_gru_update_gate[node.node_id, end_node_id].matmul(messages[node.node_id, end_node_id])),
                 self.b_gru_update_gate)).long()
 
     @staticmethod
-    def _create_node(node_features: to.Tensor, adjacency_matrix: to.Tensor, node_id: to.Tensor) -> Node:
+    def _create_node(node_features: to.Tensor, adjacency_matrix: to.Tensor, node_id: int) -> Node:
         return Node(node_features, adjacency_matrix, node_id)
-
-    @staticmethod
-    def _create_edge(start_node: Node, end_node: Node) -> Edge:
-        return Edge(start_node, end_node)
-
-    @staticmethod
-    def _create_message(device: str) -> MessageGRU:
-        return MessageGRU(device)
