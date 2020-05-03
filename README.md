@@ -65,8 +65,11 @@ number_of_node_features = 2
 # data_directory = 'the-path-to-the-directory-containing-all-your-datasets'
 # file_system_repository = FileSystemRepository(data_directory, dataset_name)
 # raw_dataset = file_system_repository.get_all_data()
-# initialization_graph = DataPreprocessor.extract_initialization_graph(raw_dataset)
-# labels_example = raw_dataset[0][2]
+# preprocessed_dataset = DataPreprocessor._preprocess_dataset_dimensions(raw_dataset,
+#                                                                       maximum_number_of_nodes,
+#                                                                       maximum_number_of_features)
+# initialization_graph = DataPreprocessor.extract_initialization_graph(preprocessed_dataset)
+# labels_example = preprocessed_dataset[0][2]
 
 # This is just an example to make the code runnable 
 node_features_example = torch.tensor([[1, 2], 
