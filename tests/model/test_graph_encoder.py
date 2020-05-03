@@ -51,13 +51,12 @@ class TestGraphEncoder(TestCase):
         # Given
         batch_size = 1
         features = BASE_GRAPH_NODE_FEATURES.view(1, BASE_GRAPH.size()[0], BASE_GRAPH_NODE_FEATURES.size()[1])
-        adjacency_matrix = BASE_GRAPH
-        outputs_expected = to.tensor([[0.97587, 0.97587, 0.97587, 0.97587, 0.97587, 0.97587, 0.97587, 0.97587,
-                                       0.97587, 0.97587, 0.97587, 0.97587, 0.97587, 0.97587, 0.97587, 0.97587]])
+        adjacency_matrix = BASE_GRAPH.view(1, BASE_GRAPH.size()[0], BASE_GRAPH.size()[1],)
+        outputs_expected = to.tensor([[0.98733, 0.98733, 0.98733, 0.98733, 0.98733, 0.98733, 0.98733, 0.98733, 0.98733,
+                                       0.98733, 0.98733, 0.98733, 0.98733, 0.98733, 0.98733, 0.98733]])
 
         # When
-        with to.no_grad():
-            outputs = self.graph_encoder.forward(features, adjacency_matrix, batch_size)
+        outputs = self.graph_encoder.forward(features, adjacency_matrix, batch_size)
 
         # Then
         self.assertTrue(to.allclose(outputs_expected, outputs))

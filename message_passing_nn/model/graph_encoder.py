@@ -1,5 +1,6 @@
 import torch as to
 import torch.nn as nn
+from typing import List
 
 from message_passing_nn.data.data_preprocessor import DataPreprocessor
 from message_passing_nn.model.graph import Graph
@@ -117,17 +118,13 @@ class GraphEncoder(nn.Module):
                                                 adjacency_matrix: to.Tensor,
                                                 messages: to.Tensor) -> to.Tensor:
         new_messages = to.zeros(messages.shape).to(self.device)
-        is_adjacency_matrix_symmetric = to.allclose(adjacency_matrix,
-                                                    adjacency_matrix.t())
         for node_id in range(self.number_of_nodes):
             node = self._create_node(node_features, adjacency_matrix, node_id)
-            if is_adjacency_matrix_symmetric:
-                node_neighbors = [neighbor for neighbor in node.neighbors if neighbor > node_id]
-            else:
-                node_neighbors = node.neighbors
-            for end_node_id in node_neighbors:
+            for end_node_id in node.neighbors:
                 message = self._get_message_value(messages, node, end_node_id, node_features)
-                new_messages[node_id, end_node_id], new_messages[end_node_id, node_id] = message, message
+                new_messages[node_id, end_node_id] = message
+                if Node.is_adjacency_matrix_symmetric(adjacency_matrix):
+                    new_messages[end_node_id, node_id] = message
         return new_messages
 
     def _get_message_value(self,
