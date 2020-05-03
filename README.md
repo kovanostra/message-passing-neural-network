@@ -46,6 +46,8 @@ epochs = 10
 loss_function = 'MSE'
 optimizer = 'SGD'
 batch_size = 1
+maximum_number_of_features=-1
+maximum_number_of_nodes=-1
 validation_split = 0.2
 test_split = 0.1
 time_steps = 5
@@ -79,6 +81,8 @@ labels_example = torch.tensor([2, 0.5, 0.5, 0.5]).float()
 raw_dataset = [(node_features_example, adjacency_matrix_example, labels_example) for i in range(dataset_size)]
 training_data, validation_data, test_data = DataPreprocessor.train_validation_test_split(raw_dataset, 
                                                                                         batch_size, 
+                                                                                        maximum_number_of_features,
+                                                                                        maximum_number_of_nodes,
                                                                                         validation_split, 
                                                                                         test_split)
 initialization_graph = Graph(adjacency_matrix_example, node_features_example)
@@ -113,6 +117,8 @@ message_passing_nn = create(dataset_name='the-name-of-the-directory-containing-y
                            loss_function_selection='MSE',
                            optimizer_selection='SGD',
                            batch_size='1',
+                           maximum_number_of_features='-1',
+                           maximum_number_of_nodes='-1',
                            validation_split='0.2&0.3&2',
                            test_split='0.1',
                            time_steps='2&5&2',
@@ -214,6 +220,14 @@ OPTIMIZER='SGD'
 - The batch size can be controlled by:
 
 BATCH_SIZE='1'
+
+- If the number of features in your dataset is too large please change the following value (-1 will use all of them)
+
+MAXIMUM_NUMBER_OF_FEATURES='-1'
+
+- If the number of nodes in your dataset is too large please change the following value (-1 will use all of them)
+
+MAXIMUM_NUMBER_OF_NODES='-1'
 
 - The validation split can be controlled by:
 
