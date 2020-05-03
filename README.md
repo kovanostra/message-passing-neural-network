@@ -54,15 +54,17 @@ This repository contains two dataset folders with examples of data to run the co
 
 The repository expects the data to be in the following format:
 
-    - filenames: something_features.pickle & something_labels.pickle
-    - features: torch.tensor.Size(M,N)
-    - labels: torch.tensor.Size(M,M)
+    - filenames: something_features.pickle, something_adjacency-matrix.pickle & something_labels.pickle
+    - features: torch.tensor.Size([M,N])
+    - adjacency-matrix: torch.tensor.Size([M,M])
+    - labels: torch.tensor.Size([L])
     * All features and labels should be preprocessed to be of the same size
     
 For example, in the protein-folding dataset:
 
     - M: represents the number of aminoacids
     - N: represents the number of protein features
+    - L: represents the number of values to predict
 
 ### 5. Environment variables
 
@@ -163,7 +165,6 @@ from message_passing_nn.trainer.model_trainer import ModelTrainer
 from message_passing_nn.model.graph_encoder import GraphEncoder
 from message_passing_nn.model.graph import Graph
 from message_passing_nn.data.data_preprocessor import DataPreprocessor
-from message_passing_nn.repository.file_system_repository import FileSystemRepository
 
 # Set up the variables 
 device = 'cpu'
@@ -183,16 +184,25 @@ number_of_node_features = 2
 # Set up the dataset. 
 
 # To load your own dataset please uncomment the following part:
+# from message_passing_nn.repository.file_system_repository import FileSystemRepository
 # dataset_name = 'the-name-of-the-directory-containing-your-dataset'
 # data_directory = 'the-path-to-the-directory-containing-all-your-datasets'
 # file_system_repository = FileSystemRepository(data_directory, dataset_name)
-# raw_dataset = file_system_repository.get_all_features_and_labels_from_separate_files()
+# raw_dataset = file_system_repository.get_all_data()
 # initialization_graph = DataPreprocessor.extract_initialization_graph(raw_dataset)
+# labels_example = raw_dataset[0][2]
 
 # This is just an example to make the code runnable 
-node_features_example = torch.ones(number_of_nodes, number_of_node_features) 
-adjacency_matrix_example = torch.ones(number_of_nodes, number_of_nodes)
-raw_dataset = [(node_features_example, adjacency_matrix_example) for i in range(dataset_size)]
+node_features_example = torch.tensor([[1, 2], 
+                                      [1, 1], 
+                                      [2, 0.5], 
+                                      [0.5, 0.5]]).float()
+adjacency_matrix_example = torch..tensor([[0, 1, 1, 0],
+                                          [1, 0, 1, 0],
+                                          [1, 1, 0, 1],
+                                          [0, 0, 1, 0]]).float()
+labels_example = torch.tensor([2, 0.5, 0.5, 0.5]).float()
+raw_dataset = [(node_features_example, adjacency_matrix_example, labels_example) for i in range(dataset_size)]
 training_data, validation_data, test_data = DataPreprocessor.train_validation_test_split(raw_dataset, 
                                                                                          batch_size, 
                                                                                          validation_split, 
@@ -203,7 +213,7 @@ configuration_dictionary = {'time_steps': time_steps,
                             'loss_function': loss_function,
                             'optimizer': optimizer}
 model_trainer = ModelTrainer(GraphEncoder, device)
-model_trainer.instantiate_attributes(initialization_graph, configuration_dictionary)
+model_trainer.instantiate_attributes(initialization_graph, labels_example, configuration_dictionary)
 
 for epoch in range(epochs):
     training_loss = model_trainer.do_train(training_data, epoch)
