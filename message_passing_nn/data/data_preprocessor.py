@@ -20,11 +20,12 @@ class DataPreprocessor(Preprocessor):
                                     maximum_number_of_features: int,
                                     validation_split: float = 0.2,
                                     test_split: float = 0.1) -> Tuple[DataLoader, DataLoader, DataLoader]:
-        test_index, validation_index = DataPreprocessor._get_validation_and_test_indexes(raw_dataset, test_split,
-                                                                                         validation_split)
         preprocessed_dataset = DataPreprocessor._preprocess_dataset_dimensions(raw_dataset,
                                                                                maximum_number_of_nodes,
                                                                                maximum_number_of_features)
+        test_index, validation_index = DataPreprocessor._get_validation_and_test_indexes(raw_dataset,
+                                                                                         test_split,
+                                                                                         validation_split)
         training_data = DataLoader(GraphDataset(preprocessed_dataset[:validation_index]), batch_size)
         if validation_split:
             validation_data = DataLoader(GraphDataset(preprocessed_dataset[validation_index:test_index]), batch_size)
