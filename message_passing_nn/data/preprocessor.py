@@ -1,6 +1,7 @@
 from abc import ABCMeta, abstractmethod
 from typing import Any, Tuple, List
 
+import torch as to
 from torch.utils.data import DataLoader
 
 
@@ -25,5 +26,10 @@ class Preprocessor(metaclass=ABCMeta):
 
     @staticmethod
     @abstractmethod
-    def flatten(tensors: List[Any], desired_size: Any = 0) -> Any:
+    def flatten(tensors: to.Tensor, desired_size: Any = 0) -> to.Tensor:
+        pass
+
+    @staticmethod
+    @abstractmethod
+    def normalize(tensors: to.Tensor) -> to.Tensor:
         pass

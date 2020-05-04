@@ -23,7 +23,7 @@ class TestTraining(TestCase):
         device = "cpu"
         self.repository = FileSystemRepository(self.tests_data_directory, self.dataset)
         self.data_preprocessor = DataPreprocessor()
-        self.model_trainer = ModelTrainer(GraphEncoder, device)
+        self.model_trainer = ModelTrainer(GraphEncoder, self.data_preprocessor, device)
         self.saver = Saver(tests_model_directory, tests_results_directory)
 
     def test_start_for_multiple_batches_of_the_same_size(self):
