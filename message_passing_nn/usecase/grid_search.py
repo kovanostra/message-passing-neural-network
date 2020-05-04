@@ -85,14 +85,14 @@ class GridSearch:
 
     def _prepare_dataset(self, configuration_dictionary: Dict) -> Tuple[DataLoader, DataLoader, DataLoader, Graph, to.Tensor]:
         raw_dataset = self.repository.get_all_data()
-        training_data, validation_data, test_data = DataPreprocessor \
+        training_data, validation_data, test_data = DataPreprocessor() \
             .train_validation_test_split(raw_dataset,
                                          configuration_dictionary['batch_size'],
                                          configuration_dictionary['maximum_number_of_nodes'],
                                          configuration_dictionary['maximum_number_of_features'],
                                          configuration_dictionary['validation_split'],
                                          configuration_dictionary['test_split'])
-        initialization_graph = DataPreprocessor.extract_initialization_graph(raw_dataset)
+        initialization_graph = DataPreprocessor().extract_initialization_graph(raw_dataset)
         initialization_labels = raw_dataset[0][2]
         return training_data, validation_data, test_data, initialization_graph, initialization_labels
 
