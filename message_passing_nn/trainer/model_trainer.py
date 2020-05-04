@@ -57,20 +57,23 @@ class ModelTrainer:
     def do_evaluate(self, evaluation_data: DataLoader, epoch: int = None) -> float:
         with to.no_grad():
             evaluation_loss = 0.0
-            for features_validation, labels_validation in evaluation_data:
-                node_features, adjacency_matrix = features_validation
-                node_features, adjacency_matrix, labels_validation = node_features.to(self.device), \
-                                                                     adjacency_matrix.to(self.device), \
-                                                                     labels_validation.to(self.device)
-                current_batch_size = self._get_current_batch_size(labels_validation)
-                outputs = self.model.forward(node_features, adjacency_matrix, current_batch_size)
-                loss = self.loss_function(outputs, labels_validation)
-                evaluation_loss += float(loss)
-            evaluation_loss /= len(evaluation_data)
-            if epoch is not None:
-                self.get_logger().info('[Iteration %d] validation loss: %.3f' % (epoch, evaluation_loss))
+            if len(evaluation_data):
+                for features_validation, labels_validation in evaluation_data:
+                    node_features, adjacency_matrix = features_validation
+                    node_features, adjacency_matrix, labels_validation = node_features.to(self.device), \
+                                                                         adjacency_matrix.to(self.device), \
+                                                                         labels_validation.to(self.device)
+                    current_batch_size = self._get_current_batch_size(labels_validation)
+                    outputs = self.model.forward(node_features, adjacency_matrix, current_batch_size)
+                    loss = self.loss_function(outputs, labels_validation)
+                    evaluation_loss += float(loss)
+                evaluation_loss /= len(evaluation_data)
+                if epoch is not None:
+                    self.get_logger().info('[Iteration %d] validation loss: %.3f' % (epoch, evaluation_loss))
+                else:
+                    self.get_logger().info('Test loss: %.3f' % evaluation_loss)
             else:
-                self.get_logger().info('Test loss: %.3f' % evaluation_loss)
+                self.get_logger().warning('No evaluation data found!')
         return evaluation_loss
 
     def _do_backpropagate(self, loss: to.Tensor, training_loss: float) -> float:
