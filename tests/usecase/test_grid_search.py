@@ -2,6 +2,7 @@ import os
 from typing import List
 from unittest import TestCase
 
+from message_passing_nn.data.data_preprocessor import DataPreprocessor
 from message_passing_nn.model.graph_encoder import GraphEncoder
 from message_passing_nn.repository.file_system_repository import FileSystemRepository
 from message_passing_nn.trainer.model_trainer import ModelTrainer
@@ -21,6 +22,7 @@ class TestTraining(TestCase):
         tests_results_directory = 'tests/grid_search_results'
         device = "cpu"
         self.repository = FileSystemRepository(self.tests_data_directory, self.dataset)
+        self.data_preprocessor = DataPreprocessor()
         self.model_trainer = ModelTrainer(GraphEncoder, device)
         self.saver = Saver(tests_model_directory, tests_results_directory)
 
@@ -39,7 +41,11 @@ class TestTraining(TestCase):
             "time_steps": [1],
             "validation_period": [5]
         }
-        grid_search = GridSearch(self.repository, self.model_trainer, grid_search_dictionary, self.saver)
+        grid_search = GridSearch(self.repository,
+                                 self.data_preprocessor,
+                                 self.model_trainer,
+                                 grid_search_dictionary,
+                                 self.saver)
 
         features_filenames = [str(i) + '_training_features' + '.pickle' for i in range(dataset_size)]
         adjacency_matrix_filenames = [str(i) + '_training_adjacency-matrix' '.pickle' for i in range(dataset_size)]
@@ -77,7 +83,11 @@ class TestTraining(TestCase):
             "time_steps": [1],
             "validation_period": [5]
         }
-        grid_search = GridSearch(self.repository, self.model_trainer, grid_search_dictionary, self.saver)
+        grid_search = GridSearch(self.repository,
+                                 self.data_preprocessor,
+                                 self.model_trainer,
+                                 grid_search_dictionary,
+                                 self.saver)
 
         features_filenames = [str(i) + '_training_features' + '.pickle' for i in range(dataset_size)]
         adjacency_matrix_filenames = [str(i) + '_training_adjacency-matrix' '.pickle' for i in range(dataset_size)]
@@ -115,7 +125,11 @@ class TestTraining(TestCase):
             "time_steps": [1],
             "validation_period": [5]
         }
-        grid_search = GridSearch(self.repository, self.model_trainer, grid_search_dictionary, self.saver)
+        grid_search = GridSearch(self.repository,
+                                 self.data_preprocessor,
+                                 self.model_trainer,
+                                 grid_search_dictionary,
+                                 self.saver)
 
         features_filenames = [str(i) + '_training_features' + '.pickle' for i in range(dataset_size)]
         adjacency_matrix_filenames = [str(i) + '_training_adjacency-matrix' '.pickle' for i in range(dataset_size)]

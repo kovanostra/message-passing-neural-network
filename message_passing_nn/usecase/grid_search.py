@@ -14,10 +14,12 @@ from message_passing_nn.utils.saver import Saver
 class GridSearch:
     def __init__(self,
                  training_data_repository: Repository,
+                 data_preprocessor: DataPreprocessor,
                  model_trainer: ModelTrainer,
                  grid_search_dictionary: Dict,
                  saver: Saver) -> None:
         self.repository = training_data_repository
+        self.data_preprocessor = data_preprocessor
         self.model_trainer = model_trainer
         self.grid_search_dictionary = grid_search_dictionary
         self.saver = saver
@@ -81,14 +83,17 @@ class GridSearch:
 
     def _prepare_dataset(self, configuration_dictionary: Dict) -> Tuple[DataLoader, DataLoader, DataLoader, Tuple]:
         raw_dataset = self.repository.get_all_data()
-        training_data, validation_data, test_data = DataPreprocessor() \
-            .train_validation_test_split(raw_dataset,
+        equalized_dataset = self.data_preprocessor.equalize_dataset_dimensions(raw_dataset,
+                                                                               configuration_dictionary['maximum_number_of_nodes'],
+                                                                               configuration_dictionary['maximum_number_of_features'])
+        training_data, validation_data, test_data = self.data_preprocessor \
+            .train_validation_test_split(equalized_dataset,
                                          configuration_dictionary['batch_size'],
                                          configuration_dictionary['maximum_number_of_nodes'],
                                          configuration_dictionary['maximum_number_of_features'],
                                          configuration_dictionary['validation_split'],
                                          configuration_dictionary['test_split'])
-        data_dimensions = DataPreprocessor().extract_data_dimensions(raw_dataset)
+        data_dimensions = self.data_preprocessor.extract_data_dimensions(raw_dataset)
         return training_data, validation_data, test_data, data_dimensions
 
     def _get_all_grid_search_configurations(self) -> List[Tuple[Tuple]]:

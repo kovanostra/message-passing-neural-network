@@ -19,22 +19,36 @@ class DataPreprocessor(Preprocessor):
                                     maximum_number_of_features: int,
                                     validation_split: float = 0.2,
                                     test_split: float = 0.1) -> Tuple[DataLoader, DataLoader, DataLoader]:
-        preprocessed_dataset = self._preprocess_dataset_dimensions(dataset,
-                                                                   maximum_number_of_nodes,
-                                                                   maximum_number_of_features)
-        test_index, validation_index = DataPreprocessor._get_validation_and_test_indexes(preprocessed_dataset,
-                                                                                         test_split,
-                                                                                         validation_split)
-        training_data = DataLoader(GraphDataset(preprocessed_dataset[:validation_index]), batch_size)
+        test_index, validation_index = self._get_validation_and_test_indexes(dataset,
+                                                                             test_split,
+                                                                             validation_split)
+        training_data = DataLoader(GraphDataset(dataset[:validation_index]), batch_size)
         if validation_split:
-            validation_data = DataLoader(GraphDataset(preprocessed_dataset[validation_index:test_index]), batch_size)
+            validation_data = DataLoader(GraphDataset(dataset[validation_index:test_index]), batch_size)
         else:
             validation_data = DataLoader(GraphDataset([]))
         if test_split:
-            test_data = DataLoader(GraphDataset(preprocessed_dataset[test_index:]), batch_size)
+            test_data = DataLoader(GraphDataset(dataset[test_index:]), batch_size)
         else:
             test_data = DataLoader(GraphDataset([]))
         return training_data, validation_data, test_data
+
+    def equalize_dataset_dimensions(self,
+                                    dataset: List[Tuple[to.Tensor, to.Tensor, to.Tensor]],
+                                    maximum_number_of_nodes: int,
+                                    maximum_number_of_features: int) \
+            -> List[Tuple[to.Tensor, to.Tensor, to.Tensor]]:
+
+        adjacency_matrix_max_size, features_max_size, labels_max_size = self._get_maximum_data_size(
+            maximum_number_of_nodes, dataset)
+
+        preprocessed_dataset = self._equalize_sizes(adjacency_matrix_max_size,
+                                                    features_max_size,
+                                                    labels_max_size,
+                                                    maximum_number_of_features,
+                                                    maximum_number_of_nodes,
+                                                    dataset)
+        return preprocessed_dataset
 
     @staticmethod
     def extract_data_dimensions(dataset: List[Tuple[to.Tensor, to.Tensor, to.Tensor]]) -> Tuple:
@@ -63,23 +77,6 @@ class DataPreprocessor(Preprocessor):
         validation_index = int((1 - validation_split - test_split) * len(dataset))
         test_index = int((1 - test_split) * len(dataset))
         return test_index, validation_index
-
-    def _preprocess_dataset_dimensions(self,
-                                       dataset: List[Tuple[to.Tensor, to.Tensor, to.Tensor]],
-                                       maximum_number_of_nodes: int,
-                                       maximum_number_of_features: int) \
-            -> List[Tuple[to.Tensor, to.Tensor, to.Tensor]]:
-
-        adjacency_matrix_max_size, features_max_size, labels_max_size = self._get_maximum_data_size(
-            maximum_number_of_nodes, dataset)
-
-        preprocessed_dataset = self._equalize_sizes(adjacency_matrix_max_size,
-                                                    features_max_size,
-                                                    labels_max_size,
-                                                    maximum_number_of_features,
-                                                    maximum_number_of_nodes,
-                                                    dataset)
-        return preprocessed_dataset
 
     def _equalize_sizes(self,
                         adjacency_matrix_max_size: List[int],
