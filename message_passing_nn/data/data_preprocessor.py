@@ -20,8 +20,8 @@ class DataPreprocessor(Preprocessor):
                                     validation_split: float = 0.2,
                                     test_split: float = 0.1) -> Tuple[DataLoader, DataLoader, DataLoader]:
         test_index, validation_index = self._get_validation_and_test_indexes(dataset,
-                                                                             test_split,
-                                                                             validation_split)
+                                                                             validation_split,
+                                                                             test_split)
         training_data = DataLoader(GraphDataset(dataset[:validation_index]), batch_size)
         if validation_split:
             validation_data = DataLoader(GraphDataset(dataset[validation_index:test_index]), batch_size)
@@ -39,15 +39,15 @@ class DataPreprocessor(Preprocessor):
                                     maximum_number_of_features: int) \
             -> List[Tuple[to.Tensor, to.Tensor, to.Tensor]]:
 
-        adjacency_matrix_max_size, features_max_size, labels_max_size = self._get_maximum_data_size(
-            maximum_number_of_nodes, dataset)
+        adjacency_matrix_max_size, features_max_size, labels_max_size = self._get_maximum_data_size(dataset,
+                                                                                                    maximum_number_of_nodes)
 
-        preprocessed_dataset = self._equalize_sizes(adjacency_matrix_max_size,
+        preprocessed_dataset = self._equalize_sizes(dataset,
+                                                    adjacency_matrix_max_size,
                                                     features_max_size,
                                                     labels_max_size,
-                                                    maximum_number_of_features,
                                                     maximum_number_of_nodes,
-                                                    dataset)
+                                                    maximum_number_of_features)
         return preprocessed_dataset
 
     @staticmethod
@@ -72,22 +72,21 @@ class DataPreprocessor(Preprocessor):
 
     @staticmethod
     def _get_validation_and_test_indexes(dataset: List[Tuple[to.Tensor, to.Tensor, to.Tensor]],
-                                         test_split: float,
-                                         validation_split: float) -> Tuple[int, int]:
+                                         validation_split: float,
+                                         test_split: float) -> Tuple[int, int]:
         validation_index = int((1 - validation_split - test_split) * len(dataset))
         test_index = int((1 - test_split) * len(dataset))
         return test_index, validation_index
 
     def _equalize_sizes(self,
+                        dataset: List[Tuple[to.Tensor, to.Tensor, to.Tensor]],
                         adjacency_matrix_max_size: List[int],
                         features_max_size: List[int],
                         labels_max_size: List[int],
-                        maximum_number_of_features: int,
                         maximum_number_of_nodes: int,
-                        raw_dataset: List[Tuple[to.Tensor, to.Tensor, to.Tensor]]) \
-            -> List[Tuple[to.Tensor, to.Tensor, to.Tensor]]:
+                        maximum_number_of_features: int) -> List[Tuple[to.Tensor, to.Tensor, to.Tensor]]:
         preprocessed_dataset = []
-        for features, adjacency_matrix, labels in raw_dataset:
+        for features, adjacency_matrix, labels in dataset:
             if self._is_graph_size_less_than_maximum_allowed(maximum_number_of_nodes, adjacency_matrix):
                 continue
             if maximum_number_of_features < 0:
@@ -104,13 +103,13 @@ class DataPreprocessor(Preprocessor):
         return preprocessed_dataset
 
     def _get_maximum_data_size(self,
-                               maximum_number_of_nodes: int,
-                               raw_dataset: List[Tuple[to.Tensor, to.Tensor, to.Tensor]]) \
+                               dataset: List[Tuple[to.Tensor, to.Tensor, to.Tensor]],
+                               maximum_number_of_nodes: int) \
             -> Tuple[List, List, List]:
         features_max_size = [0, 0]
         adjacency_matrix_max_size = [0, 0]
         labels_max_size = [0]
-        for features, adjacency_matrix, labels in raw_dataset:
+        for features, adjacency_matrix, labels in dataset:
             if self._is_graph_size_less_than_maximum_allowed(maximum_number_of_nodes, adjacency_matrix):
                 continue
             if features.size()[0] > features_max_size[0]:
