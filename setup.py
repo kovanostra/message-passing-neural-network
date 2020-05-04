@@ -2,16 +2,17 @@ from setuptools import setup, find_packages
 
 setup(
     name='message-passing-nn',
-    version='1.2.4',
+    version='1.2.5',
     packages=find_packages(exclude=["tests"]),
     url='https://github.com/kovanostra/message-passing-nn',
-    download_url='https://github.com/kovanostra/message-passing-nn/archive/1.2.4.tar.gz',
+    download_url='https://github.com/kovanostra/message-passing-nn/archive/1.2.5.tar.gz',
     keywords=['MESSAGE PASSING', 'NEURAL NETWORK', 'GRU'],
     license='MIT',
     author='Michail Kovanis',
     description='A message passing neural network with GRU units',
     install_requires=[
         'click',
+        'numpy==1.17.4',
         'pandas==1.0.3',
         'torch==1.4.0'
     ],
