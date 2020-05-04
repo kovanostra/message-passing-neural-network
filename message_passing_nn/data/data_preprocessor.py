@@ -67,8 +67,8 @@ class DataPreprocessor(Preprocessor):
 
     @staticmethod
     def normalize(tensor: to.Tensor) -> to.Tensor:
-        batch_size = tensor.size()[0]
-        normalizer = nn.BatchNorm1d(batch_size, affine=False)
+        size = tensor.size()[-1]
+        normalizer = nn.BatchNorm1d(size, affine=False)
         return normalizer(tensor)
 
     @staticmethod
