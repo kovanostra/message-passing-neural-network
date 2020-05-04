@@ -1,5 +1,5 @@
 import logging
-from typing import Dict, Any
+from typing import Dict, Any, Tuple
 
 import torch as to
 from torch import nn
@@ -7,7 +7,6 @@ from torch.nn.modules.module import Module
 from torch.optim.optimizer import Optimizer
 from torch.utils.data.dataloader import DataLoader
 
-from message_passing_nn.model.graph import Graph
 from message_passing_nn.utils.loss_function_selector import LossFunctionSelector
 from message_passing_nn.utils.optimizer_selector import OptimizerSelector
 
@@ -20,19 +19,18 @@ class ModelTrainer:
         self.device = device
 
     def instantiate_attributes(self,
-                               initialization_graph: Graph,
-                               labels: to.Tensor,
+                               data_dimensions: Tuple,
                                configuration_dictionary: Dict) -> None:
-        number_of_nodes = initialization_graph.number_of_nodes
-        number_of_node_features = initialization_graph.number_of_node_features
+        node_features_size, adjacency_matrix_size, labels_size = data_dimensions
+        number_of_nodes = adjacency_matrix_size[0]
+        number_of_node_features = node_features_size[1]
         self.model = self.model.of(time_steps=configuration_dictionary['time_steps'],
                                    number_of_nodes=number_of_nodes,
                                    number_of_node_features=number_of_node_features,
                                    fully_connected_layer_input_size=number_of_nodes * number_of_node_features,
-                                   fully_connected_layer_output_size=len(labels),
+                                   fully_connected_layer_output_size=len(labels_size),
                                    device=self.device)
         self.model.to(self.device)
-        self.model.initialize_tensors(initialization_graph)
         self.loss_function = self._instantiate_the_loss_function(
             LossFunctionSelector.load_loss_function(configuration_dictionary['loss_function']))
         self.optimizer = self._instantiate_the_optimizer(

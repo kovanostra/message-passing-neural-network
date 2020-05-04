@@ -6,7 +6,6 @@ from torch.utils.data import DataLoader
 
 from message_passing_nn.data.graph_dataset import GraphDataset
 from message_passing_nn.data.preprocessor import Preprocessor
-from message_passing_nn.model.graph import Graph
 
 
 class DataPreprocessor(Preprocessor):
@@ -14,13 +13,13 @@ class DataPreprocessor(Preprocessor):
         super().__init__()
 
     def train_validation_test_split(self,
-                                    raw_dataset: List[Tuple[to.Tensor, to.Tensor, to.Tensor]],
+                                    dataset: List[Tuple[to.Tensor, to.Tensor, to.Tensor]],
                                     batch_size: int,
                                     maximum_number_of_nodes: int,
                                     maximum_number_of_features: int,
                                     validation_split: float = 0.2,
                                     test_split: float = 0.1) -> Tuple[DataLoader, DataLoader, DataLoader]:
-        preprocessed_dataset = self._preprocess_dataset_dimensions(raw_dataset,
+        preprocessed_dataset = self._preprocess_dataset_dimensions(dataset,
                                                                    maximum_number_of_nodes,
                                                                    maximum_number_of_features)
         test_index, validation_index = DataPreprocessor._get_validation_and_test_indexes(preprocessed_dataset,
@@ -38,10 +37,11 @@ class DataPreprocessor(Preprocessor):
         return training_data, validation_data, test_data
 
     @staticmethod
-    def extract_initialization_graph(dataset: List[Tuple[to.Tensor, to.Tensor, to.Tensor]]) -> Graph:
-        adjacency_matrix = dataset[0][1]
-        node_features = dataset[0][0]
-        return Graph(adjacency_matrix, node_features)
+    def extract_data_dimensions(dataset: List[Tuple[to.Tensor, to.Tensor, to.Tensor]]) -> Tuple:
+        node_features_size = dataset[0][0].size()
+        adjacency_matrix_size = dataset[0][1].size()
+        labels_size = dataset[0][2].size()
+        return node_features_size, adjacency_matrix_size, labels_size
 
     @staticmethod
     def flatten(tensors: to.Tensor, desired_size: int = 0) -> to.Tensor:

@@ -3,7 +3,6 @@ from unittest import TestCase
 import torch as to
 
 from message_passing_nn.data.data_preprocessor import DataPreprocessor
-from message_passing_nn.model.graph import Graph
 from tests.fixtures.matrices_and_vectors import BASE_GRAPH, BASE_GRAPH_NODE_FEATURES
 
 
@@ -32,20 +31,20 @@ class TestGraphPreprocessor(TestCase):
         # Then
         self.assertEqual(train_validation_test_split_expected, train_validation_test_split)
 
-    def test_extract_initialization_graph(self):
+    def test_extract_data_dimensions(self):
         # Given
         dataset_length = 1
         features = BASE_GRAPH_NODE_FEATURES
         adjacency_matrix = BASE_GRAPH
         labels = BASE_GRAPH.view(-1)
         raw_dataset = [(features, adjacency_matrix, labels) for i in range(dataset_length)]
-        initialization_graph_expected = Graph(adjacency_matrix, features)
+        data_dimensions_expected = (features.size(), adjacency_matrix.size(), labels.size())
 
         # When
-        initialization_graph = self.data_preprocessor.extract_initialization_graph(raw_dataset)
+        data_dimensions = self.data_preprocessor.extract_data_dimensions(raw_dataset)
 
         # Then
-        self.assertEqual(initialization_graph_expected, initialization_graph)
+        self.assertEqual(data_dimensions_expected, data_dimensions)
 
     def test_flatten_when_sizes_match(self):
         # Given
