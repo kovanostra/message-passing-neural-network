@@ -1,7 +1,7 @@
 [![Build Status](https://dev.azure.com/kovamos/message-passing-nn/_apis/build/status/kovanostra.message-passing-nn?branchName=master)](https://dev.azure.com/kovamos/message-passing-nn/_build/latest?definitionId=2&branchName=master)
 ### Table of contents
 - [1. Description](#1-description)
-- [2. Import and use](#2-import-and-use)
+- [2. Import and use](#2-import-and-use-package)
 - [3. Requirements](#3-requirements)
 - [4. Environment](#4-environment)
 - [5. Dataset](#5-dataset)
@@ -21,7 +21,7 @@ This repository contains:
 Google colab notebook containing examples of using the code from this repository:
 https://colab.research.google.com/drive/1jFJ7l7jIv22BhvvzlmXOWFtgBE15ea2X
 
-### 2. Import and use
+### 2. Import and use package
 To install the project using pip please run:
 
 ```
@@ -148,7 +148,7 @@ numpy==1.17.4
 pytorch=1.4.0
 ```
 
-### 4.Environment
+### 4. Environment
 To create the "message-passing-nn" conda environment please run:
 
 ```
