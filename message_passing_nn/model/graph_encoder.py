@@ -1,9 +1,7 @@
 import torch as to
 import torch.nn as nn
-from typing import List
 
 from message_passing_nn.data.data_preprocessor import DataPreprocessor
-from message_passing_nn.model.graph import Graph
 from message_passing_nn.model.node import Node
 
 
@@ -16,23 +14,28 @@ class GraphEncoder(nn.Module):
                  fully_connected_layer_output_size: int,
                  device: str) -> None:
         super(GraphEncoder, self).__init__()
+        base_4d_tensor_shape = [number_of_nodes, number_of_nodes, number_of_node_features, number_of_node_features]
+        base_3d_tensor_shape = [number_of_nodes, number_of_node_features, number_of_node_features]
+        base_2d_tensor_shape = [number_of_node_features]
+
         self.time_steps = time_steps
         self.number_of_nodes = number_of_nodes
         self.number_of_node_features = number_of_node_features
         self.fully_connected_layer_input_size = fully_connected_layer_input_size
         self.fully_connected_layer_output_size = fully_connected_layer_output_size
-        self.w_gru_update_gate_features = None
-        self.w_gru_forget_gate_features = None
-        self.w_gru_current_memory_message_features = None
-        self.u_gru_update_gate = None
-        self.u_gru_forget_gate = None
-        self.u_gru_current_memory_message = None
-        self.b_gru_update_gate = None
-        self.b_gru_forget_gate = None
-        self.b_gru_current_memory_message = None
-        self.u_graph_node_features = None
-        self.u_graph_neighbor_messages = None
         self.device = device
+
+        self.w_gru_update_gate_features = nn.Parameter(to.randn(base_4d_tensor_shape, device=self.device), requires_grad=True)
+        self.w_gru_forget_gate_features = nn.Parameter(to.randn(base_4d_tensor_shape, device=self.device), requires_grad=True)
+        self.w_gru_current_memory_message_features = nn.Parameter(to.randn(base_4d_tensor_shape, device=self.device), requires_grad=True)
+        self.u_gru_update_gate = nn.Parameter(to.randn(base_4d_tensor_shape, device=self.device), requires_grad=True)
+        self.u_gru_forget_gate = nn.Parameter(to.randn(base_4d_tensor_shape, device=self.device), requires_grad=True)
+        self.u_gru_current_memory_message = nn.Parameter(to.randn(base_4d_tensor_shape, device=self.device), requires_grad=True)
+        self.b_gru_update_gate = nn.Parameter(to.randn(base_2d_tensor_shape, device=self.device), requires_grad=True)
+        self.b_gru_forget_gate = nn.Parameter(to.randn(base_2d_tensor_shape, device=self.device), requires_grad=True)
+        self.b_gru_current_memory_message = nn.Parameter(to.randn(base_2d_tensor_shape, device=self.device), requires_grad=True)
+        self.u_graph_node_features = nn.Parameter(to.randn(base_3d_tensor_shape, device=self.device), requires_grad=True)
+        self.u_graph_neighbor_messages = nn.Parameter(to.randn(base_3d_tensor_shape, device=self.device), requires_grad=True)
         self.linear = to.nn.Linear(self.fully_connected_layer_input_size, self.fully_connected_layer_output_size)
         self.sigmoid = to.nn.Sigmoid()
 
@@ -68,27 +71,6 @@ class GraphEncoder(nn.Module):
         messages = self._send_messages(node_features, adjacency_matrix)
         encodings = self._encode_nodes(node_features, messages)
         return encodings
-
-    def initialize_tensors(self, graph: Graph) -> None:
-        base_4d_tensor_shape = [graph.number_of_nodes,
-                                graph.number_of_nodes,
-                                graph.number_of_node_features,
-                                graph.number_of_node_features]
-        base_3d_tensor_shape = [graph.number_of_nodes,
-                                graph.number_of_node_features,
-                                graph.number_of_node_features]
-        base_2d_tensor_shape = [graph.number_of_node_features]
-        self.w_gru_update_gate_features = nn.Parameter(to.randn(base_4d_tensor_shape, device=self.device), requires_grad=True)
-        self.w_gru_forget_gate_features = nn.Parameter(to.randn(base_4d_tensor_shape, device=self.device), requires_grad=True)
-        self.w_gru_current_memory_message_features = nn.Parameter(to.randn(base_4d_tensor_shape, device=self.device), requires_grad=True)
-        self.u_gru_update_gate = nn.Parameter(to.randn(base_4d_tensor_shape, device=self.device), requires_grad=True)
-        self.u_gru_forget_gate = nn.Parameter(to.randn(base_4d_tensor_shape, device=self.device), requires_grad=True)
-        self.u_gru_current_memory_message = nn.Parameter(to.randn(base_4d_tensor_shape, device=self.device), requires_grad=True)
-        self.b_gru_update_gate = nn.Parameter(to.randn(base_2d_tensor_shape, device=self.device), requires_grad=True)
-        self.b_gru_forget_gate = nn.Parameter(to.randn(base_2d_tensor_shape, device=self.device), requires_grad=True)
-        self.b_gru_current_memory_message = nn.Parameter(to.randn(base_2d_tensor_shape, device=self.device), requires_grad=True)
-        self.u_graph_node_features = nn.Parameter(to.randn(base_3d_tensor_shape, device=self.device), requires_grad=True)
-        self.u_graph_neighbor_messages = nn.Parameter(to.randn(base_3d_tensor_shape, device=self.device), requires_grad=True)
 
     def _send_messages(self, node_features: to.Tensor, adjacency_matrix: to.Tensor) -> to.Tensor:
         messages = to.zeros((self.number_of_nodes, self.number_of_nodes, self.number_of_node_features), device=self.device)

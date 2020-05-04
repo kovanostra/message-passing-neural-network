@@ -3,8 +3,6 @@ from typing import Any, Tuple, List
 
 from torch.utils.data import DataLoader
 
-from message_passing_nn.model.graph import Graph
-
 
 class Preprocessor(metaclass=ABCMeta):
     def __init__(self):
@@ -12,7 +10,7 @@ class Preprocessor(metaclass=ABCMeta):
 
     @staticmethod
     @abstractmethod
-    def train_validation_test_split(raw_dataset: Any,
+    def train_validation_test_split(dataset: Any,
                                     batch_size: int,
                                     maximum_number_of_nodes: int,
                                     maximum_number_of_features: int,
@@ -22,7 +20,7 @@ class Preprocessor(metaclass=ABCMeta):
 
     @staticmethod
     @abstractmethod
-    def extract_initialization_graph(raw_dataset: Any) -> Graph:
+    def extract_data_dimensions(dataset: Any) -> Tuple:
         pass
 
     @staticmethod

@@ -3,11 +3,9 @@ from typing import Dict, List, Tuple
 
 import itertools
 import numpy as np
-import torch as to
 from torch.utils.data.dataloader import DataLoader
 
 from message_passing_nn.data.data_preprocessor import DataPreprocessor
-from message_passing_nn.model.graph import Graph
 from message_passing_nn.repository.repository import Repository
 from message_passing_nn.trainer.model_trainer import ModelTrainer
 from message_passing_nn.utils.saver import Saver
@@ -16,10 +14,12 @@ from message_passing_nn.utils.saver import Saver
 class GridSearch:
     def __init__(self,
                  training_data_repository: Repository,
+                 data_preprocessor: DataPreprocessor,
                  model_trainer: ModelTrainer,
                  grid_search_dictionary: Dict,
                  saver: Saver) -> None:
         self.repository = training_data_repository
+        self.data_preprocessor = data_preprocessor
         self.model_trainer = model_trainer
         self.grid_search_dictionary = grid_search_dictionary
         self.saver = saver
@@ -45,11 +45,9 @@ class GridSearch:
                               configuration_id: str,
                               grid_search_configuration_dictionary: Dict,
                               losses: Dict) -> Dict:
-        training_data, validation_data, test_data, initialization_graph, example_labels = self._prepare_dataset(
+        training_data, validation_data, test_data, data_dimensions = self._prepare_dataset(
             grid_search_configuration_dictionary)
-        self.model_trainer.instantiate_attributes(initialization_graph,
-                                                  example_labels,
-                                                  grid_search_configuration_dictionary)
+        self.model_trainer.instantiate_attributes(data_dimensions, grid_search_configuration_dictionary)
         losses = self._update_losses_with_configuration_id(grid_search_configuration_dictionary, losses)
         validation_loss_max = np.inf
         for epoch in range(1, grid_search_configuration_dictionary['epochs'] + 1):
@@ -83,18 +81,20 @@ class GridSearch:
         grid_search_configuration_dictionary.update({"configuration_id": configuration_id})
         return configuration_id, grid_search_configuration_dictionary
 
-    def _prepare_dataset(self, configuration_dictionary: Dict) -> Tuple[DataLoader, DataLoader, DataLoader, Graph, to.Tensor]:
+    def _prepare_dataset(self, configuration_dictionary: Dict) -> Tuple[DataLoader, DataLoader, DataLoader, Tuple]:
         raw_dataset = self.repository.get_all_data()
-        training_data, validation_data, test_data = DataPreprocessor \
-            .train_validation_test_split(raw_dataset,
+        equalized_dataset = self.data_preprocessor.equalize_dataset_dimensions(raw_dataset,
+                                                                               configuration_dictionary['maximum_number_of_nodes'],
+                                                                               configuration_dictionary['maximum_number_of_features'])
+        training_data, validation_data, test_data = self.data_preprocessor \
+            .train_validation_test_split(equalized_dataset,
                                          configuration_dictionary['batch_size'],
                                          configuration_dictionary['maximum_number_of_nodes'],
                                          configuration_dictionary['maximum_number_of_features'],
                                          configuration_dictionary['validation_split'],
                                          configuration_dictionary['test_split'])
-        initialization_graph = DataPreprocessor.extract_initialization_graph(raw_dataset)
-        initialization_labels = raw_dataset[0][2]
-        return training_data, validation_data, test_data, initialization_graph, initialization_labels
+        data_dimensions = self.data_preprocessor.extract_data_dimensions(raw_dataset)
+        return training_data, validation_data, test_data, data_dimensions
 
     def _get_all_grid_search_configurations(self) -> List[Tuple[Tuple]]:
         all_grid_search_configurations = []
