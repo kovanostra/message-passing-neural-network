@@ -16,7 +16,7 @@ class TestModelTrainer(TestCase):
                                          "optimizer": optimizer,
                                          "time_steps": time_steps}
         data_preprocessor = DataPreprocessor()
-        self.model_trainer = ModelTrainer(GraphEncoder, data_preprocessor, device)
+        self.model_trainer = ModelTrainer(GraphEncoder, data_preprocessor, device, normalize=True)
 
     def test_instantiate_attributes(self):
         # Given

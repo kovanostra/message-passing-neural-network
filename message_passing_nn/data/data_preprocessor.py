@@ -67,9 +67,11 @@ class DataPreprocessor(Preprocessor):
 
     @staticmethod
     def normalize(tensor: to.Tensor) -> to.Tensor:
-        size = tensor.size()[-1]
-        normalizer = nn.BatchNorm1d(size, affine=False)
-        return normalizer(tensor)
+        if tensor.size()[0] > 1:
+            normalizer = nn.BatchNorm1d(tensor.size()[1], affine=False)
+            return normalizer(tensor)
+        else:
+            return tensor
 
     @staticmethod
     def _pad_zeros(flattened_tensor: to.Tensor, desired_size: int) -> to.Tensor:
