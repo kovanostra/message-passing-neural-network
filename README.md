@@ -37,7 +37,6 @@ To train one configuration of the model please execute the following (I use exam
 import torch
 from message_passing_nn.trainer.model_trainer import ModelTrainer
 from message_passing_nn.model.graph_encoder import GraphEncoder
-from message_passing_nn.model.graph import Graph
 from message_passing_nn.data.data_preprocessor import DataPreprocessor
 
 # Set up the variables 
@@ -65,11 +64,6 @@ number_of_node_features = 2
 # data_directory = 'the-path-to-the-directory-containing-all-your-datasets'
 # file_system_repository = FileSystemRepository(data_directory, dataset_name)
 # raw_dataset = file_system_repository.get_all_data()
-# preprocessed_dataset = DataPreprocessor._preprocess_dataset_dimensions(raw_dataset,
-#                                                                       maximum_number_of_nodes,
-#                                                                       maximum_number_of_features)
-# initialization_graph = DataPreprocessor.extract_initialization_graph(preprocessed_dataset)
-# labels_example = preprocessed_dataset[0][2]
 
 # This is just an example to make the code runnable 
 node_features_example = torch.tensor([[1, 2], 
@@ -82,19 +76,24 @@ adjacency_matrix_example = torch..tensor([[0, 1, 1, 0],
                                          [0, 0, 1, 0]]).float()
 labels_example = torch.tensor([2, 0.5, 0.5, 0.5]).float()
 raw_dataset = [(node_features_example, adjacency_matrix_example, labels_example) for i in range(dataset_size)]
-training_data, validation_data, test_data = DataPreprocessor.train_validation_test_split(raw_dataset, 
-                                                                                        batch_size, 
-                                                                                        maximum_number_of_features,
-                                                                                        maximum_number_of_nodes,
-                                                                                        validation_split, 
-                                                                                        test_split)
-initialization_graph = Graph(adjacency_matrix_example, node_features_example)
+data_preprocessor = DataPreprocessor()
+equalized_dataset = data_preprocessor.equalize_dataset_dimensions(raw_dataset,
+                                                                  maximum_number_of_nodes,
+                                                                  maximum_number_of_features)
+training_data, validation_data, test_data = data_preprocessor.train_validation_test_split(equalized_dataset, 
+                                                                                          batch_size, 
+                                                                                          maximum_number_of_nodes,
+                                                                                          maximum_number_of_features,
+                                                                                          validation_split, 
+                                                                                          test_split)
+data_dimensions = data_preprocessor.extract_data_dimensions(equalized_dataset)
+
 
 configuration_dictionary = {'time_steps': time_steps,
                            'loss_function': loss_function,
                            'optimizer': optimizer}
-model_trainer = ModelTrainer(GraphEncoder, device)
-model_trainer.instantiate_attributes(initialization_graph, labels_example, configuration_dictionary)
+model_trainer = ModelTrainer(GraphEncoder, data_preprocessor, device)
+model_trainer.instantiate_attributes(data_dimensions, configuration_dictionary)
 
 for epoch in range(epochs):
    training_loss = model_trainer.do_train(training_data, epoch)
