@@ -2,6 +2,7 @@ import logging
 from typing import Tuple, List
 
 import torch as to
+from torch import nn
 from torch.utils.data import DataLoader
 
 from message_passing_nn.data.graph_dataset import GraphDataset
@@ -63,6 +64,12 @@ class DataPreprocessor(Preprocessor):
         if 0 < desired_size != len(flattened_tensor):
             flattened_tensor = DataPreprocessor._pad_zeros(flattened_tensor, desired_size)
         return flattened_tensor
+
+    @staticmethod
+    def normalize(tensor: to.Tensor) -> to.Tensor:
+        batch_size = tensor.size()[0]
+        normalizer = nn.BatchNorm1d(batch_size, affine=False)
+        return normalizer(tensor)
 
     @staticmethod
     def _pad_zeros(flattened_tensor: to.Tensor, desired_size: int) -> to.Tensor:

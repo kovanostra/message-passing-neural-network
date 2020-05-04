@@ -15,7 +15,8 @@ class TestModelTrainer(TestCase):
         self.configuration_dictionary = {"loss_function": loss_function,
                                          "optimizer": optimizer,
                                          "time_steps": time_steps}
-        self.model_trainer = ModelTrainer(GraphEncoder, device)
+        data_preprocessor = DataPreprocessor()
+        self.model_trainer = ModelTrainer(GraphEncoder, data_preprocessor, device)
 
     def test_instantiate_attributes(self):
         # Given

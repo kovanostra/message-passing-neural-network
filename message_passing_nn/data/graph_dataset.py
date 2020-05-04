@@ -1,7 +1,6 @@
 from typing import List, Tuple
 
 import torch as to
-import torchvision as tv
 from torch.utils.data import Dataset
 
 
@@ -19,13 +18,7 @@ class GraphDataset(Dataset):
         return len(self.features)
 
     def __getitem__(self, index: int) -> Tuple:
-        node_features, adjacency_matrix = self.features[index]
-        labels = self.labels[index]
-        if self.normalize_features:
-            node_features = self._normalize(node_features)
-        if self.normalize_labels:
-            labels = self._normalize(labels)
-        return (node_features, adjacency_matrix), labels
+        return self.features[index], self.labels[index]
 
     @staticmethod
     def _to_list(dataset: List[Tuple[to.Tensor, to.Tensor, to.Tensor]]) -> List[Tuple[to.Tensor, to.Tensor]]:
@@ -35,6 +28,3 @@ class GraphDataset(Dataset):
     def _extract_labels(dataset: List[Tuple[to.Tensor, to.Tensor, to.Tensor]]) -> List[to.Tensor]:
         return [dataset[index][2] for index in range(len(dataset))]
 
-    @staticmethod
-    def _normalize(tensor: to.Tensor) -> to.Tensor:
-        return to.div(tensor, to.max(tensor))

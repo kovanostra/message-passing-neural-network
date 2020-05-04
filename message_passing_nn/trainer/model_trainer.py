@@ -7,16 +7,19 @@ from torch.nn.modules.module import Module
 from torch.optim.optimizer import Optimizer
 from torch.utils.data.dataloader import DataLoader
 
+from message_passing_nn.data.preprocessor import Preprocessor
 from message_passing_nn.utils.loss_function_selector import LossFunctionSelector
 from message_passing_nn.utils.optimizer_selector import OptimizerSelector
 
 
 class ModelTrainer:
-    def __init__(self, model: nn.Module, device: str) -> None:
+    def __init__(self, model: nn.Module, preprocessor: Preprocessor, device: str, normalize: bool = False) -> None:
         self.model = model
+        self.preprocessor = preprocessor
         self.loss_function = None
         self.optimizer = None
         self.device = device
+        self.normalize = normalize
 
     def instantiate_attributes(self,
                                data_dimensions: Tuple,
@@ -45,8 +48,12 @@ class ModelTrainer:
                                                       adjacency_matrix.to(self.device), \
                                                       labels.to(self.device)
             current_batch_size = self._get_current_batch_size(labels)
+            if self.normalize:
+                node_features = self.preprocessor.normalize(node_features)
+                labels = self.preprocessor.normalize(labels)
             self.optimizer.zero_grad()
-            outputs = self.model.forward(node_features, adjacency_matrix=adjacency_matrix,
+            outputs = self.model.forward(node_features,
+                                         adjacency_matrix=adjacency_matrix,
                                          batch_size=current_batch_size)
             loss = self.loss_function(outputs, labels)
             training_loss += self._do_backpropagate(loss, training_loss)
@@ -63,6 +70,9 @@ class ModelTrainer:
                     node_features, adjacency_matrix, labels_validation = node_features.to(self.device), \
                                                                          adjacency_matrix.to(self.device), \
                                                                          labels_validation.to(self.device)
+                    if self.normalize:
+                        node_features = self.preprocessor.normalize(node_features)
+                        labels_validation = self.preprocessor.normalize(labels_validation)
                     current_batch_size = self._get_current_batch_size(labels_validation)
                     outputs = self.model.forward(node_features, adjacency_matrix, current_batch_size)
                     loss = self.loss_function(outputs, labels_validation)
