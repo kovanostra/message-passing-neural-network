@@ -3,7 +3,7 @@ from typing import List
 from unittest import TestCase
 
 from message_passing_nn.data.data_preprocessor import DataPreprocessor
-from message_passing_nn.model.graph_gru_encoder import GraphGRUEncoder
+from message_passing_nn.model.graph_encoder import GraphEncoder
 from message_passing_nn.repository.file_system_repository import FileSystemRepository
 from message_passing_nn.trainer.model_trainer import ModelTrainer
 from message_passing_nn.usecase.grid_search import GridSearch
@@ -23,14 +23,13 @@ class TestTraining(TestCase):
         device = "cpu"
         self.repository = FileSystemRepository(self.tests_data_directory, self.dataset)
         self.data_preprocessor = DataPreprocessor()
-        self.model_trainer = ModelTrainer(self.data_preprocessor, device)
+        self.model_trainer = ModelTrainer(GraphEncoder, self.data_preprocessor, device)
         self.saver = Saver(tests_model_directory, tests_results_directory)
 
     def test_start_for_multiple_batches_of_the_same_size(self):
         # Given
         dataset_size = 6
         grid_search_dictionary = {
-            "model": ["GRU"],
             "epochs": [10],
             "batch_size": [3],
             "maximum_number_of_nodes": [-1],
@@ -73,7 +72,6 @@ class TestTraining(TestCase):
         # Given
         dataset_size = 5
         grid_search_dictionary = {
-            "model": ["RNN"],
             "epochs": [10],
             "batch_size": [3],
             "maximum_number_of_nodes": [-1],
@@ -116,7 +114,6 @@ class TestTraining(TestCase):
         # Given
         dataset_size = 6
         grid_search_dictionary = {
-            "model": ["RNN", "GRU"],
             "epochs": [10, 15],
             "batch_size": [3, 4],
             "maximum_number_of_nodes": [-1],

@@ -13,8 +13,10 @@ class Preprocessor(metaclass=ABCMeta):
     @abstractmethod
     def train_validation_test_split(dataset: Any,
                                     batch_size: int,
-                                    validation_split: float,
-                                    test_split: float) -> Tuple[DataLoader, DataLoader, DataLoader]:
+                                    maximum_number_of_nodes: int,
+                                    maximum_number_of_features: int,
+                                    validation_split: float = 0.2,
+                                    test_split: float = 0.1) -> Tuple[DataLoader, DataLoader, DataLoader]:
         pass
 
     @staticmethod
@@ -29,5 +31,5 @@ class Preprocessor(metaclass=ABCMeta):
 
     @staticmethod
     @abstractmethod
-    def normalize(tensors: to.Tensor, device: str) -> to.Tensor:
+    def normalize(tensors: to.Tensor) -> to.Tensor:
         pass

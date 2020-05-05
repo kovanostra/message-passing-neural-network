@@ -16,6 +16,8 @@ class DataPreprocessor(Preprocessor):
     def train_validation_test_split(self,
                                     dataset: List[Tuple[to.Tensor, to.Tensor, to.Tensor]],
                                     batch_size: int,
+                                    maximum_number_of_nodes: int,
+                                    maximum_number_of_features: int,
                                     validation_split: float = 0.2,
                                     test_split: float = 0.1) -> Tuple[DataLoader, DataLoader, DataLoader]:
         test_index, validation_index = self._get_validation_and_test_indexes(dataset,
@@ -64,9 +66,9 @@ class DataPreprocessor(Preprocessor):
         return flattened_tensor
 
     @staticmethod
-    def normalize(tensor: to.Tensor, device: str) -> to.Tensor:
+    def normalize(tensor: to.Tensor) -> to.Tensor:
         if tensor.size()[0] > 1:
-            normalizer = nn.BatchNorm1d(tensor.size()[1], affine=False).to(device)
+            normalizer = nn.BatchNorm1d(tensor.size()[1], affine=False)
             return normalizer(tensor)
         else:
             return tensor

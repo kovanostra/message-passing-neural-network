@@ -3,23 +3,23 @@ from unittest import TestCase
 import torch as to
 from torch import nn
 
-from message_passing_nn.model.graph_gru_encoder import GraphGRUEncoder
+from message_passing_nn.model.graph_encoder import GraphEncoder
 from tests.fixtures.matrices_and_vectors import BASE_GRAPH, BASE_GRAPH_NODE_FEATURES, \
     BASE_U_MATRIX, BASE_W_MATRIX, MULTIPLICATION_FACTOR, BASE_B_VECTOR
 
 
-class TestGraphGRUEncoder(TestCase):
+class TestGraphEncoder(TestCase):
 
     def setUp(self) -> None:
         number_of_nodes = BASE_GRAPH.size()[0]
         number_of_node_features = BASE_GRAPH_NODE_FEATURES.size()[1]
         device = "cpu"
-        self.graph_encoder = GraphGRUEncoder.of(time_steps=1,
-                                                number_of_nodes=number_of_nodes,
-                                                number_of_node_features=number_of_node_features,
-                                                fully_connected_layer_input_size=number_of_nodes * number_of_node_features,
-                                                fully_connected_layer_output_size=number_of_nodes ** 2,
-                                                device=device)
+        self.graph_encoder = GraphEncoder.of(time_steps=1,
+                                             number_of_nodes=number_of_nodes,
+                                             number_of_node_features=number_of_node_features,
+                                             fully_connected_layer_input_size=number_of_nodes * number_of_node_features,
+                                             fully_connected_layer_output_size=number_of_nodes ** 2,
+                                             device=device)
         self.graph_encoder.w_gru_update_gate_features = nn.Parameter(MULTIPLICATION_FACTOR * BASE_W_MATRIX,
                                                                      requires_grad=False).float()
         self.graph_encoder.w_gru_forget_gate_features = nn.Parameter(MULTIPLICATION_FACTOR * BASE_W_MATRIX,

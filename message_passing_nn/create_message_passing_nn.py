@@ -1,7 +1,7 @@
 import logging
 
 from message_passing_nn.data.data_preprocessor import DataPreprocessor
-from message_passing_nn.model.graph_gru_encoder import GraphGRUEncoder
+from message_passing_nn.model.graph_encoder import GraphEncoder
 from message_passing_nn.repository.file_system_repository import FileSystemRepository
 from message_passing_nn.trainer.model_trainer import ModelTrainer
 from message_passing_nn.usecase.grid_search import GridSearch
@@ -24,7 +24,6 @@ def create(dataset_name: str,
            data_directory: str,
            model_directory: str,
            results_directory: str,
-           model: str,
            device: str,
            epochs: str,
            loss_function_selection: str,
@@ -36,8 +35,7 @@ def create(dataset_name: str,
            test_split: str,
            time_steps: str,
            validation_period: str) -> MessagePassingNN:
-    grid_search_dictionary = GridSearchParametersParser().get_grid_search_dictionary(model,
-                                                                                     epochs,
+    grid_search_dictionary = GridSearchParametersParser().get_grid_search_dictionary(epochs,
                                                                                      loss_function_selection,
                                                                                      optimizer_selection,
                                                                                      batch_size,
@@ -49,7 +47,7 @@ def create(dataset_name: str,
                                                                                      validation_period)
     file_system_repository = FileSystemRepository(data_directory, dataset_name)
     data_preprocessor = DataPreprocessor()
-    model_trainer = ModelTrainer(data_preprocessor, device)
+    model_trainer = ModelTrainer(GraphEncoder, data_preprocessor, device)
     saver = Saver(model_directory, results_directory)
     grid_search = GridSearch(file_system_repository, data_preprocessor, model_trainer, grid_search_dictionary, saver)
     return MessagePassingNN(grid_search)

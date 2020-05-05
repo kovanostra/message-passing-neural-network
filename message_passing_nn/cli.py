@@ -18,7 +18,6 @@ def main(debug):
 @click.argument('data_directory', envvar='DATA_DIRECTORY', type=str)
 @click.argument('model_directory', envvar='MODEL_DIRECTORY', type=str)
 @click.argument('results_directory', envvar='RESULTS_DIRECTORY', type=str)
-@click.argument('model', envvar='MODEL', type=str)
 @click.argument('device', envvar='DEVICE', type=str)
 @click.argument('epochs', envvar='EPOCHS', type=str)
 @click.argument('loss_function', envvar='LOSS_FUNCTION', type=str)
@@ -34,7 +33,6 @@ def start_training(dataset_name: str,
                    data_directory: str,
                    model_directory: str,
                    results_directory: str,
-                   model: str,
                    device: str,
                    epochs: str,
                    loss_function: str,
@@ -51,7 +49,6 @@ def start_training(dataset_name: str,
                                 data_directory,
                                 model_directory,
                                 results_directory,
-                                model,
                                 device,
                                 epochs,
                                 loss_function,

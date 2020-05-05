@@ -89,6 +89,8 @@ class GridSearch:
         training_data, validation_data, test_data = self.data_preprocessor \
             .train_validation_test_split(equalized_dataset,
                                          configuration_dictionary['batch_size'],
+                                         configuration_dictionary['maximum_number_of_nodes'],
+                                         configuration_dictionary['maximum_number_of_features'],
                                          configuration_dictionary['validation_split'],
                                          configuration_dictionary['test_split'])
         data_dimensions = self.data_preprocessor.extract_data_dimensions(raw_dataset)
