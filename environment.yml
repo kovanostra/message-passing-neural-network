@@ -10,5 +10,4 @@ dependencies:
   - pandas=1.0.3
   - pytorch=1.4.0
   - setuptools=46.0.0
-  - torchvision=0.5.0
   - click
