@@ -15,7 +15,7 @@
 ### 1. Description
 
 This repository contains:
-1. A pytorch implementation of a message passing neural network with GRU units (inspired from https://arxiv.org/abs/1812.01070). 
+1. A pytorch implementation of a message passing neural network with either RNN or GRU units (inspired from https://arxiv.org/abs/1812.01070). 
 2. A wrapper around the model to perform a grid search, and save model checkpoints when the validation error is best for each configuration.
 
 Google colab notebook containing examples of using the code from this repository:
@@ -36,11 +36,12 @@ To train one configuration of the model please execute the following (I use exam
 ```
 import torch
 from message_passing_nn.trainer.model_trainer import ModelTrainer
-from message_passing_nn.model.graph_encoder import GraphEncoder
+from message_passing_nn.model.graph_gru_encoder import GraphGRUEncoder
+from message_passing_nn.model.graph_rnn_encoder import GraphRNNEncoder
 from message_passing_nn.data.data_preprocessor import DataPreprocessor
 
 # Set up the variables 
-device = 'cpu'
+device = 'cpu' # You can use 'cuda' for GraphRNNEncoder, but it is not adviced for GraphGRUEncoder
 epochs = 10
 loss_function = 'MSE'
 optimizer = 'SGD'
@@ -70,7 +71,7 @@ node_features_example = torch.tensor([[1, 2],
                                      [1, 1], 
                                      [2, 0.5], 
                                      [0.5, 0.5]]).float()
-adjacency_matrix_example = torch..tensor([[0, 1, 1, 0],
+adjacency_matrix_example = torch.tensor([[0, 1, 1, 0],
                                          [1, 0, 1, 0],
                                          [1, 1, 0, 1],
                                          [0, 0, 1, 0]]).float()
@@ -82,8 +83,6 @@ equalized_dataset = data_preprocessor.equalize_dataset_dimensions(raw_dataset,
                                                                   maximum_number_of_features)
 training_data, validation_data, test_data = data_preprocessor.train_validation_test_split(equalized_dataset, 
                                                                                           batch_size, 
-                                                                                          maximum_number_of_nodes,
-                                                                                          maximum_number_of_features,
                                                                                           validation_split, 
                                                                                           test_split)
 data_dimensions = data_preprocessor.extract_data_dimensions(equalized_dataset)
@@ -92,7 +91,8 @@ data_dimensions = data_preprocessor.extract_data_dimensions(equalized_dataset)
 configuration_dictionary = {'time_steps': time_steps,
                            'loss_function': loss_function,
                            'optimizer': optimizer}
-model_trainer = ModelTrainer(GraphEncoder, data_preprocessor, device)
+#model_trainer = ModelTrainer(GraphGRUEncoder, data_preprocessor, device)
+model_trainer = ModelTrainer(GraphRNNEncoder, data_preprocessor, device)
 model_trainer.instantiate_attributes(data_dimensions, configuration_dictionary)
 
 for epoch in range(epochs):
@@ -114,6 +114,7 @@ message_passing_nn = create(dataset_name='the-name-of-the-directory-containing-y
                            data_directory='the-path-to-the-directory-containing-all-your-datasets', #e.g. '~/message-passing-nn/data/'
                            model_directory='model_checkpoints',
                            results_directory='grid_search_results',
+                           model='RNN',
                            device='cpu',
                            epochs='10&15&2',
                            loss_function_selection='MSE',
@@ -171,7 +172,7 @@ The repository expects the data to be in the following format:
   
 For example, in the protein-folding dataset:
 
-  - M: represents the number of aminoacids
+  - M: represents the number of amino acids
   - N: represents the number of protein features
   - L: represents the number of values to predict
 
@@ -197,7 +198,7 @@ MODEL_DIRECTORY='model_checkpoints'
 
 RESULTS_DIRECTORY='grid_search_results'
 
-- The option to run the model on 'cpu' or 'cuda' can be controlled by (CPU recommended at the moment): 
+- The option to run the model on 'cpu' or 'cuda' can be controlled by (*cuda recommended only for the 'RNN' model*): 
 
 DEVICE='cpu'
 
@@ -206,6 +207,10 @@ DEVICE='cpu'
 To define a range for the grid search please pass the values in the following format:
 1. For numeric ranges: ENVVAR='min_value&max_value&number_of_values' (e.g. '10&15&2')
 2. For string ranges: ENVVAR='selection_1&selection_2' (e.g. 'SGD&Adam')
+
+- The model to use ('RNN' or 'GRU') is defined by :
+
+MODEL='RNN'
 
 - The total number of epochs can be controlled by:
 
