@@ -103,13 +103,11 @@ class GraphRNNEncoder:
                            node: Node,
                            end_node_id: int,
                            node_features: to.Tensor) -> to.Tensor:
-        node_input = self.w_graph_node_features[node.node_id, end_node_id].dot(node_features)
-        messages_from_the_other_neighbors_summed = self._sum_messages_from_neighbors_except_target(messages,
-                                                                                                   node,
-                                                                                                   end_node_id)
-        return to.relu(to.add(node_input,
+        return to.relu(to.add(self.w_graph_node_features[node.node_id, end_node_id].matmul(node_features[node.node_id]),
                               self.w_graph_neighbor_messages[node.node_id, end_node_id].
-                              matmul(messages_from_the_other_neighbors_summed)))
+                              matmul(self._sum_messages_from_neighbors_except_target(messages,
+                                                                                     node,
+                                                                                     end_node_id))))
 
     def _sum_messages_from_neighbors_except_target(self,
                                                    messages: to.Tensor,
