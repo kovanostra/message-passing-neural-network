@@ -1,7 +1,7 @@
 import logging
 
 from message_passing_nn.data.data_preprocessor import DataPreprocessor
-from message_passing_nn.model.graph_encoder import GraphEncoder
+from message_passing_nn.model.graph_gru_encoder import GraphGRUEncoder
 from message_passing_nn.repository.file_system_repository import FileSystemRepository
 from message_passing_nn.trainer.model_trainer import ModelTrainer
 from message_passing_nn.usecase.grid_search import GridSearch
@@ -47,7 +47,7 @@ def create(dataset_name: str,
                                                                                      validation_period)
     file_system_repository = FileSystemRepository(data_directory, dataset_name)
     data_preprocessor = DataPreprocessor()
-    model_trainer = ModelTrainer(GraphEncoder, data_preprocessor, device)
+    model_trainer = ModelTrainer(GraphGRUEncoder, data_preprocessor, device)
     saver = Saver(model_directory, results_directory)
     grid_search = GridSearch(file_system_repository, data_preprocessor, model_trainer, grid_search_dictionary, saver)
     return MessagePassingNN(grid_search)

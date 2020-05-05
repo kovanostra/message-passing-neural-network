@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from message_passing_nn.data.data_preprocessor import DataPreprocessor
-from message_passing_nn.model.graph_encoder import GraphEncoder
+from message_passing_nn.model.graph_gru_encoder import GraphGRUEncoder
 from message_passing_nn.trainer.model_trainer import ModelTrainer
 from tests.fixtures.matrices_and_vectors import BASE_GRAPH, BASE_GRAPH_NODE_FEATURES
 
@@ -16,7 +16,7 @@ class TestModelTrainer(TestCase):
                                          "optimizer": optimizer,
                                          "time_steps": time_steps}
         data_preprocessor = DataPreprocessor()
-        self.model_trainer = ModelTrainer(GraphEncoder, data_preprocessor, device, normalize=True)
+        self.model_trainer = ModelTrainer(GraphGRUEncoder, data_preprocessor, device, normalize=True)
 
     def test_instantiate_attributes(self):
         # Given
@@ -39,7 +39,7 @@ class TestModelTrainer(TestCase):
         self.model_trainer.instantiate_attributes(data_dimensions,
                                                   self.configuration_dictionary)
         raw_dataset = [(BASE_GRAPH_NODE_FEATURES, BASE_GRAPH, BASE_GRAPH.view(-1))]
-        training_data, _, _ = DataPreprocessor().train_validation_test_split(raw_dataset, 1, -1, -1, 0.0, 0.0)
+        training_data, _, _ = DataPreprocessor().train_validation_test_split(raw_dataset, 1, 0.0, 0.0)
 
         # When
         training_loss = self.model_trainer.do_train(training_data=training_data, epoch=1)
@@ -53,7 +53,7 @@ class TestModelTrainer(TestCase):
         self.model_trainer.instantiate_attributes(data_dimensions,
                                                   self.configuration_dictionary)
         raw_dataset = [(BASE_GRAPH_NODE_FEATURES, BASE_GRAPH, BASE_GRAPH.view(-1))]
-        training_data, _, _ = DataPreprocessor().train_validation_test_split(raw_dataset, 1, -1, -1, 0.0, 0.0)
+        training_data, _, _ = DataPreprocessor().train_validation_test_split(raw_dataset, 1, 0.0, 0.0)
 
         # When
         validation_loss = self.model_trainer.do_evaluate(evaluation_data=training_data, epoch=1)

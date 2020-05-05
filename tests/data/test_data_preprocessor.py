@@ -22,8 +22,6 @@ class TestGraphPreprocessor(TestCase):
         # When
         train_validation_test_split = self.data_preprocessor.train_validation_test_split(raw_dataset,
                                                                                          batch_size=1,
-                                                                                         maximum_number_of_features=-1,
-                                                                                         maximum_number_of_nodes=-1,
                                                                                          validation_split=0.2,
                                                                                          test_split=0.1)
         train_validation_test_split = [len(dataset) for dataset in train_validation_test_split]

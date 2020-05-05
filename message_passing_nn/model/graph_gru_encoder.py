@@ -1,14 +1,13 @@
-import math
+from typing import List
 
 import torch as to
 import torch.nn as nn
-from typing import List
 
 from message_passing_nn.data.data_preprocessor import DataPreprocessor
 from message_passing_nn.model.node import Node
 
 
-class GraphEncoder(nn.Module):
+class GraphGRUEncoder(nn.Module):
     def __init__(self,
                  time_steps: int,
                  number_of_nodes: int,
@@ -16,7 +15,7 @@ class GraphEncoder(nn.Module):
                  fully_connected_layer_input_size: int,
                  fully_connected_layer_output_size: int,
                  device: str) -> None:
-        super(GraphEncoder, self).__init__()
+        super(GraphGRUEncoder, self).__init__()
         base_4d_tensor_shape = [number_of_nodes, number_of_nodes, number_of_node_features, number_of_node_features]
         base_3d_tensor_shape = [number_of_nodes, number_of_node_features, number_of_node_features]
         base_2d_tensor_shape = [number_of_node_features, 1]

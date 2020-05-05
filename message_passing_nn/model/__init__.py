@@ -1,1 +1,1 @@
-from message_passing_nn.model.graph_encoder import GraphEncoder
+from message_passing_nn.model.graph_gru_encoder import GraphGRUEncoder
