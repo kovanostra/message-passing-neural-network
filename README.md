@@ -182,7 +182,7 @@ The model and grid search can be set up using a set of environment variables con
 
 **NOT USED FOR GRID SEARCH**
 
-- The model to use ('RNN' or 'GRU') is defined by (*please note that 'RNN' is GPU compatible and a lot faster than GRU.*):
+- The model to use ('RNN' or 'GRU') is defined by (*please note that the 'RNN' model is GPU compatible and a lot faster than 'GRU'.*):
 
 MODEL='RNN'
 
