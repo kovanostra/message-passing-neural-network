@@ -49,7 +49,7 @@ def create(dataset_name: str,
                                                                                      validation_period)
     file_system_repository = FileSystemRepository(data_directory, dataset_name)
     data_preprocessor = DataPreprocessor()
-    model_trainer = ModelTrainer(GraphGRUEncoder, data_preprocessor, device)
+    model_trainer = ModelTrainer(data_preprocessor, device)
     saver = Saver(model_directory, results_directory)
     grid_search = GridSearch(file_system_repository, data_preprocessor, model_trainer, grid_search_dictionary, saver)
     return MessagePassingNN(grid_search)

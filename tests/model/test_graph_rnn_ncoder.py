@@ -1,9 +1,11 @@
 from unittest import TestCase
 
 import torch as to
+from torch import nn
 
 from message_passing_nn.model.graph_rnn_encoder import GraphRNNEncoder
-from tests.fixtures.matrices_and_vectors import BASE_GRAPH, BASE_GRAPH_NODE_FEATURES, BASE_W_MATRIX, BASE_U_MATRIX
+from tests.fixtures.matrices_and_vectors import BASE_GRAPH, BASE_GRAPH_NODE_FEATURES, BASE_W_MATRIX, BASE_U_MATRIX, \
+    MULTIPLICATION_FACTOR
 
 
 class TestGraphRNNEncoder(TestCase):
@@ -17,10 +19,14 @@ class TestGraphRNNEncoder(TestCase):
                                                 fully_connected_layer_input_size=self.number_of_nodes * self.number_of_node_features,
                                                 fully_connected_layer_output_size=self.number_of_nodes ** 2,
                                                 device=self.device)
-        self.graph_encoder.w_graph_node_features = 0.1 * BASE_W_MATRIX
-        self.graph_encoder.w_graph_neighbor_messages = 0.1 * BASE_W_MATRIX
-        self.graph_encoder.u_graph_node_features = 0.1 * BASE_U_MATRIX
-        self.graph_encoder.u_graph_neighbor_messages = 0.1 * BASE_U_MATRIX
+        self.graph_encoder.w_graph_node_features = nn.Parameter(MULTIPLICATION_FACTOR * BASE_W_MATRIX,
+                                                                requires_grad=False).float()
+        self.graph_encoder.w_graph_neighbor_messages = nn.Parameter(MULTIPLICATION_FACTOR * BASE_W_MATRIX,
+                                                                    requires_grad=False).float()
+        self.graph_encoder.u_graph_node_features = nn.Parameter(MULTIPLICATION_FACTOR * BASE_U_MATRIX,
+                                                                requires_grad=False).float()
+        self.graph_encoder.u_graph_neighbor_messages = nn.Parameter(MULTIPLICATION_FACTOR * BASE_U_MATRIX,
+                                                                    requires_grad=False).float()
         self.graph_encoder.linear.weight = to.nn.Parameter(to.ones(self.number_of_nodes ** 2,
                                                                    self.number_of_nodes * self.number_of_node_features),
                                                            requires_grad=False).float()

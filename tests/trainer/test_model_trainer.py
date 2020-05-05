@@ -11,12 +11,14 @@ class TestModelTrainer(TestCase):
         time_steps = 1
         loss_function = "MSE"
         optimizer = "SGD"
+        model = "RNN"
         device = "cpu"
-        self.configuration_dictionary = {"loss_function": loss_function,
+        self.configuration_dictionary = {"model": model,
+                                         "loss_function": loss_function,
                                          "optimizer": optimizer,
                                          "time_steps": time_steps}
         data_preprocessor = DataPreprocessor()
-        self.model_trainer = ModelTrainer(GraphGRUEncoder, data_preprocessor, device, normalize=True)
+        self.model_trainer = ModelTrainer(data_preprocessor, device, normalize=True)
 
     def test_instantiate_attributes(self):
         # Given

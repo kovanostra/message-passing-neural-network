@@ -6,6 +6,7 @@ from message_passing_nn.utils.grid_search_parameters_parser import GridSearchPar
 class TestGridSearchParametersParser(TestCase):
     def test_get_grid_search_dictionary(self):
         # Given
+        model = "RNN&GRU"
         epochs = "10&15&5"
         loss_function_selection = "MSE&CrossEntropy"
         optimizer_selection = "SGD&Adam"
@@ -17,6 +18,7 @@ class TestGridSearchParametersParser(TestCase):
         time_steps = "10"
         validation_period = "5"
         grid_search_dictionary_expected = {
+            "model": ["RNN", "GRU"],
             "epochs": [10, 11, 12, 13, 15],
             "loss_function": ["MSE", "CrossEntropy"],
             "optimizer": ["SGD", "Adam"],
@@ -31,6 +33,7 @@ class TestGridSearchParametersParser(TestCase):
 
         # When
         grid_search_dictionary = GridSearchParametersParser().get_grid_search_dictionary(
+            model,
             epochs,
             loss_function_selection,
             optimizer_selection,

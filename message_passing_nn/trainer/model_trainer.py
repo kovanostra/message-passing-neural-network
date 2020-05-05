@@ -2,7 +2,6 @@ import logging
 from typing import Dict, Any, Tuple
 
 import torch as to
-from torch import nn
 from torch.nn.modules.module import Module
 from torch.optim.optimizer import Optimizer
 from torch.utils.data.dataloader import DataLoader
@@ -10,16 +9,17 @@ from torch.utils.data.dataloader import DataLoader
 from message_passing_nn.data.preprocessor import Preprocessor
 from message_passing_nn.utils.loss_function_selector import LossFunctionSelector
 from message_passing_nn.utils.optimizer_selector import OptimizerSelector
+from message_passing_nn.utils.model_selector import ModelSelector
 
 
 class ModelTrainer:
-    def __init__(self, model: nn.Module, preprocessor: Preprocessor, device: str, normalize: bool = False) -> None:
-        self.model = model
+    def __init__(self, preprocessor: Preprocessor, device: str, normalize: bool = False) -> None:
         self.preprocessor = preprocessor
-        self.loss_function = None
-        self.optimizer = None
         self.device = device
         self.normalize = normalize
+        self.model = None
+        self.loss_function = None
+        self.optimizer = None
 
     def instantiate_attributes(self,
                                data_dimensions: Tuple,
@@ -28,6 +28,7 @@ class ModelTrainer:
         number_of_nodes = adjacency_matrix_size[0]
         number_of_node_features = node_features_size[1]
         fully_connected_layer_output_size = labels_size[0]
+        self.model = ModelSelector.load_model(configuration_dictionary['model'])
         self.model = self.model.of(time_steps=configuration_dictionary['time_steps'],
                                    number_of_nodes=number_of_nodes,
                                    number_of_node_features=number_of_node_features,
