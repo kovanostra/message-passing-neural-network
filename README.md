@@ -182,10 +182,6 @@ The model and grid search can be set up using a set of environment variables con
 
 **NOT USED FOR GRID SEARCH**
 
-- The model to use ('RNN' or 'GRU') is defined by (*please note that the 'RNN' model is GPU compatible and a lot faster than 'GRU'.*):
-
-MODEL='RNN'
-
 - Your dataset folder is defined by: 
 
 DATASET_NAME='sample-dataset'
@@ -202,7 +198,7 @@ MODEL_DIRECTORY='model_checkpoints'
 
 RESULTS_DIRECTORY='grid_search_results'
 
-- The option to run the model on 'cpu' or 'cuda' can be controlled by (CPU recommended at the moment): 
+- The option to run the model on 'cpu' or 'cuda' can be controlled by (*cuda recommended only for the 'RNN' model*): 
 
 DEVICE='cpu'
 
@@ -211,6 +207,10 @@ DEVICE='cpu'
 To define a range for the grid search please pass the values in the following format:
 1. For numeric ranges: ENVVAR='min_value&max_value&number_of_values' (e.g. '10&15&2')
 2. For string ranges: ENVVAR='selection_1&selection_2' (e.g. 'SGD&Adam')
+
+- The model to use ('RNN' or 'GRU') is defined by (*please note that the 'RNN' model is GPU compatible and a lot faster than 'GRU'.*):
+
+MODEL='RNN'
 
 - The total number of epochs can be controlled by:
 
