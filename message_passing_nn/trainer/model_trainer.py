@@ -49,8 +49,8 @@ class ModelTrainer:
                                                       labels.to(self.device)
             current_batch_size = self._get_current_batch_size(labels)
             if self.normalize:
-                node_features = self.preprocessor.normalize(node_features)
-                labels = self.preprocessor.normalize(labels)
+                node_features = self.preprocessor.normalize(node_features, self.device)
+                labels = self.preprocessor.normalize(labels, self.device)
             self.optimizer.zero_grad()
             outputs = self.model.forward(node_features,
                                          adjacency_matrix=adjacency_matrix,
@@ -71,8 +71,8 @@ class ModelTrainer:
                                                                          adjacency_matrix.to(self.device), \
                                                                          labels_validation.to(self.device)
                     if self.normalize:
-                        node_features = self.preprocessor.normalize(node_features)
-                        labels_validation = self.preprocessor.normalize(labels_validation)
+                        node_features = self.preprocessor.normalize(node_features, self.device)
+                        labels_validation = self.preprocessor.normalize(labels_validation, self.device)
                     current_batch_size = self._get_current_batch_size(labels_validation)
                     outputs = self.model.forward(node_features, adjacency_matrix, current_batch_size)
                     loss = self.loss_function(outputs, labels_validation)

@@ -29,5 +29,5 @@ class Preprocessor(metaclass=ABCMeta):
 
     @staticmethod
     @abstractmethod
-    def normalize(tensors: to.Tensor) -> to.Tensor:
+    def normalize(tensors: to.Tensor, device: str) -> to.Tensor:
         pass

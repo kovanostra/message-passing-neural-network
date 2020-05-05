@@ -11,6 +11,7 @@ class GridSearchParametersParser:
         pass
 
     def get_grid_search_dictionary(self,
+                                   model_selection: str,
                                    epochs: str,
                                    loss_function_selection: str,
                                    optimizer_selection: str,
@@ -22,6 +23,7 @@ class GridSearchParametersParser:
                                    time_steps: str,
                                    validation_period: str) -> Dict:
         return {
+            'model': self._parse_string_selections(model_selection),
             'epochs': self._parse_integer_range(epochs),
             'loss_function': self._parse_string_selections(loss_function_selection),
             'optimizer': self._parse_string_selections(optimizer_selection),
@@ -61,8 +63,8 @@ class GridSearchParametersParser:
             raise Exception
 
     @staticmethod
-    def _parse_string_selections(loss_function_selection: str) -> List[str]:
-        return loss_function_selection.split(GRID_SEARCH_SEPARATION_CHARACTER)
+    def _parse_string_selections(string_selection: str) -> List[str]:
+        return string_selection.split(GRID_SEARCH_SEPARATION_CHARACTER)
 
     @staticmethod
     def get_logger() -> logging.Logger:
