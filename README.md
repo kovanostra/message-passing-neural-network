@@ -41,7 +41,7 @@ from message_passing_nn.model.graph_rnn_encoder import GraphRNNEncoder
 from message_passing_nn.data.data_preprocessor import DataPreprocessor
 
 # Set up the variables 
-device = 'cpu'
+device = 'cpu' # You can use 'cuda' for GraphRNNEncoder, but it is not adviced for GraphGRUEncoder
 epochs = 10
 loss_function = 'MSE'
 optimizer = 'SGD'
@@ -114,6 +114,7 @@ message_passing_nn = create(dataset_name='the-name-of-the-directory-containing-y
                            data_directory='the-path-to-the-directory-containing-all-your-datasets', #e.g. '~/message-passing-nn/data/'
                            model_directory='model_checkpoints',
                            results_directory='grid_search_results',
+                           model='RNN',
                            device='cpu',
                            epochs='10&15&2',
                            loss_function_selection='MSE',
@@ -171,7 +172,7 @@ The repository expects the data to be in the following format:
   
 For example, in the protein-folding dataset:
 
-  - M: represents the number of aminoacids
+  - M: represents the number of amino acids
   - N: represents the number of protein features
   - L: represents the number of values to predict
 
@@ -180,6 +181,10 @@ For example, in the protein-folding dataset:
 The model and grid search can be set up using a set of environment variables contained in the grid-search-parameters.sh. 
 
 **NOT USED FOR GRID SEARCH**
+
+- The model to use ('RNN' or 'GRU') is defined by (*please note that 'RNN' is GPU compatible and a lot faster than GRU.*):
+
+MODEL='RNN'
 
 - Your dataset folder is defined by: 
 
