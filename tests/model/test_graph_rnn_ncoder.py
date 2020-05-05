@@ -2,7 +2,7 @@ from unittest import TestCase
 
 import torch as to
 
-from message_passing_nn.model.graph_rnn_ncoder import GraphRNNEncoder
+from message_passing_nn.model.graph_rnn_encoder import GraphRNNEncoder
 from tests.fixtures.matrices_and_vectors import BASE_GRAPH, BASE_GRAPH_NODE_FEATURES, BASE_W_MATRIX, BASE_U_MATRIX
 
 
