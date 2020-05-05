@@ -43,6 +43,7 @@ from message_passing_nn.data.data_preprocessor import DataPreprocessor
 # Set up the variables 
 device = 'cpu' # You can use 'cuda' for GraphRNNEncoder, but it is not adviced for GraphGRUEncoder
 epochs = 10
+model = 'RNN'
 loss_function = 'MSE'
 optimizer = 'SGD'
 batch_size = 1
@@ -89,10 +90,11 @@ data_dimensions = data_preprocessor.extract_data_dimensions(equalized_dataset)
 
 
 configuration_dictionary = {'time_steps': time_steps,
-                           'loss_function': loss_function,
-                           'optimizer': optimizer}
-#model_trainer = ModelTrainer(GraphGRUEncoder, data_preprocessor, device)
-model_trainer = ModelTrainer(GraphRNNEncoder, data_preprocessor, device)
+                            'model': model,
+                            'loss_function': loss_function,
+                            'optimizer': optimizer}
+# model_trainer = ModelTrainer(data_preprocessor, device)
+model_trainer = ModelTrainer(data_preprocessor, device)
 model_trainer.instantiate_attributes(data_dimensions, configuration_dictionary)
 
 for epoch in range(epochs):
