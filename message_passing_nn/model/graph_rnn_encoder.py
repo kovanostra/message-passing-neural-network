@@ -7,7 +7,7 @@ from message_passing_nn.data.data_preprocessor import DataPreprocessor
 from message_passing_nn.model.node import Node
 
 
-class GraphRNNEncoder:
+class GraphRNNEncoder(nn.Module):
     def __init__(self,
                  time_steps: int,
                  number_of_nodes: int,
