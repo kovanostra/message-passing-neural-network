@@ -208,7 +208,7 @@ To define a range for the grid search please pass the values in the following fo
 1. For numeric ranges: ENVVAR='min_value&max_value&number_of_values' (e.g. '10&15&2')
 2. For string ranges: ENVVAR='selection_1&selection_2' (e.g. 'SGD&Adam')
 
-- The model to use ('RNN' or 'GRU'. *Please note that the 'RNN' model is GPU compatible and a lot faster than 'GRU'.*) is defined by :
+- The model to use ('RNN' or 'GRU') is defined by :
 
 MODEL='RNN'
 
