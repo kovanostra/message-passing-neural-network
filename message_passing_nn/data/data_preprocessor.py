@@ -66,8 +66,8 @@ class DataPreprocessor(Preprocessor):
     @staticmethod
     def normalize(tensor: to.Tensor, device: str) -> to.Tensor:
         if tensor.size()[0] > 1:
-            normalizer = nn.BatchNorm1d(tensor.size()[1], affine=False)
-            return normalizer(tensor.to(device))
+            normalizer = nn.BatchNorm1d(tensor.size()[1], affine=False).to(device)
+            return normalizer(tensor)
         else:
             return tensor
 
