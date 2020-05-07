@@ -139,7 +139,7 @@ Python 3.7.6
 Run
 ```
 click
-pytorch=1.4.0
+torch=1.4.0
 numpy==1.17.4
 pandas=1.03
 ```
@@ -147,7 +147,8 @@ pandas=1.03
 Tests
 ```
 numpy==1.17.4
-pytorch=1.4.0
+torch=1.4.0
+pandas=1.03
 ```
 
 ### 4. Environment
