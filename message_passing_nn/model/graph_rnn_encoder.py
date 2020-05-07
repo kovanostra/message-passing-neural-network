@@ -16,8 +16,7 @@ class GraphRNNEncoder(nn.Module):
                  fully_connected_layer_output_size: int,
                  device: str) -> None:
         super(GraphRNNEncoder, self).__init__()
-        base_4d_tensor_shape = [number_of_nodes, number_of_nodes, number_of_node_features, number_of_node_features]
-        base_3d_tensor_shape = [number_of_nodes, number_of_node_features, number_of_node_features]
+        base_tensor_shape = [number_of_node_features, number_of_node_features]
 
         self.time_steps = time_steps
         self.number_of_nodes = number_of_nodes
@@ -26,10 +25,10 @@ class GraphRNNEncoder(nn.Module):
         self.fully_connected_layer_output_size = fully_connected_layer_output_size
         self.device = device
 
-        self.w_graph_node_features = self._get_parameter(base_4d_tensor_shape)
-        self.w_graph_neighbor_messages = self._get_parameter(base_4d_tensor_shape)
-        self.u_graph_node_features = self._get_parameter(base_3d_tensor_shape)
-        self.u_graph_neighbor_messages = self._get_parameter(base_3d_tensor_shape)
+        self.w_graph_node_features = self._get_parameter(base_tensor_shape)
+        self.w_graph_neighbor_messages = self._get_parameter(base_tensor_shape)
+        self.u_graph_node_features = self._get_parameter(base_tensor_shape)
+        self.u_graph_neighbor_messages = self._get_parameter(base_tensor_shape)
         self.linear = to.nn.Linear(self.fully_connected_layer_input_size, self.fully_connected_layer_output_size)
         self.sigmoid = to.nn.Sigmoid()
 
@@ -80,8 +79,8 @@ class GraphRNNEncoder(nn.Module):
         return encoded_node
 
     def _apply_recurrent_layer(self, node_features: to.Tensor, messages: to.Tensor, node_id: int) -> to.Tensor:
-        node_encoding_features = self.u_graph_node_features[node_id].matmul(node_features[node_id])
-        node_encoding_messages = self.u_graph_neighbor_messages[node_id].matmul(to.sum(messages[node_id], dim=0))
+        node_encoding_features = self.u_graph_node_features.matmul(node_features[node_id])
+        node_encoding_messages = self.u_graph_neighbor_messages.matmul(to.sum(messages[node_id], dim=0))
         return to.relu(node_encoding_features + node_encoding_messages)
 
     def _compose_messages(self,
@@ -98,26 +97,17 @@ class GraphRNNEncoder(nn.Module):
                     new_messages[end_node_id, node_id] = message
         return new_messages
 
-    def _get_message_value(self,
-                           messages: to.Tensor,
-                           node: Node,
-                           end_node_id: int,
-                           node_features: to.Tensor) -> to.Tensor:
-        return to.relu(to.add(self.w_graph_node_features[node.node_id, end_node_id].matmul(node_features[node.node_id]),
-                              self.w_graph_neighbor_messages[node.node_id, end_node_id].
-                              matmul(self._sum_messages_from_neighbors_except_target(messages,
-                                                                                     node,
-                                                                                     end_node_id))))
+    def _get_message_value(self, messages: to.Tensor, node: Node, end_node_id: int, node_features: to.Tensor) \
+            -> to.Tensor:
+        return to.relu(to.add(self.w_graph_node_features.matmul(node_features[node.node_id]),
+                              self._sum_messages_from_neighbors_except_target(messages, node, end_node_id)))
 
-    def _sum_messages_from_neighbors_except_target(self,
-                                                   messages: to.Tensor,
-                                                   node: Node,
-                                                   end_node_id: int) -> to.Tensor:
+    def _sum_messages_from_neighbors_except_target(self, messages: to.Tensor, node: Node, end_node_id: int) \
+            -> to.Tensor:
         messages_from_the_other_neighbors = to.zeros(node.features.shape[0], device=self.device)
         if node.neighbors_count > 1:
             neighbors_slice = node.get_start_node_neighbors_without_end_node(end_node_id)
-            messages_from_the_other_neighbors = self.w_graph_neighbor_messages[neighbors_slice][0]. \
-                matmul(messages[neighbors_slice][0])
+            messages_from_the_other_neighbors = self.w_graph_neighbor_messages.matmul(messages[neighbors_slice][0])
         return messages_from_the_other_neighbors
 
     def _get_parameter(self, tensor_shape: List[int]) -> nn.Parameter:
