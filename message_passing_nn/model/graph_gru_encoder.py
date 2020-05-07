@@ -16,8 +16,7 @@ class GraphGRUEncoder(nn.Module):
                  fully_connected_layer_output_size: int,
                  device: str) -> None:
         super(GraphGRUEncoder, self).__init__()
-        base_4d_tensor_shape = [number_of_nodes, number_of_nodes, number_of_node_features, number_of_node_features]
-        base_3d_tensor_shape = [number_of_nodes, number_of_node_features, number_of_node_features]
+        base_tensor_shape = [number_of_node_features, number_of_node_features]
         base_2d_tensor_shape = [number_of_node_features, 1]
 
         self.time_steps = time_steps
@@ -27,17 +26,17 @@ class GraphGRUEncoder(nn.Module):
         self.fully_connected_layer_output_size = fully_connected_layer_output_size
         self.device = device
 
-        self.w_gru_update_gate_features = self._get_parameter(base_4d_tensor_shape)
-        self.w_gru_forget_gate_features = self._get_parameter(base_4d_tensor_shape)
-        self.w_gru_current_memory_message_features = self._get_parameter(base_4d_tensor_shape)
-        self.u_gru_update_gate = self._get_parameter(base_4d_tensor_shape)
-        self.u_gru_forget_gate = self._get_parameter(base_4d_tensor_shape)
-        self.u_gru_current_memory_message = self._get_parameter(base_4d_tensor_shape)
+        self.w_gru_update_gate_features = self._get_parameter(base_tensor_shape)
+        self.w_gru_forget_gate_features = self._get_parameter(base_tensor_shape)
+        self.w_gru_current_memory_message_features = self._get_parameter(base_tensor_shape)
+        self.u_gru_update_gate = self._get_parameter(base_tensor_shape)
+        self.u_gru_forget_gate = self._get_parameter(base_tensor_shape)
+        self.u_gru_current_memory_message = self._get_parameter(base_tensor_shape)
         self.b_gru_update_gate = self._get_parameter(base_2d_tensor_shape).view(base_2d_tensor_shape[0])
         self.b_gru_forget_gate = self._get_parameter(base_2d_tensor_shape).view(base_2d_tensor_shape[0])
         self.b_gru_current_memory_message = self._get_parameter(base_2d_tensor_shape).view(base_2d_tensor_shape[0])
-        self.u_graph_node_features = self._get_parameter(base_3d_tensor_shape)
-        self.u_graph_neighbor_messages = self._get_parameter(base_3d_tensor_shape)
+        self.u_graph_node_features = self._get_parameter(base_tensor_shape)
+        self.u_graph_neighbor_messages = self._get_parameter(base_tensor_shape)
         self.linear = to.nn.Linear(self.fully_connected_layer_input_size, self.fully_connected_layer_output_size)
         self.sigmoid = to.nn.Sigmoid()
 
@@ -88,8 +87,8 @@ class GraphGRUEncoder(nn.Module):
         return encoded_node
 
     def _apply_recurrent_layer(self, node_features: to.Tensor, messages: to.Tensor, node_id: int) -> to.Tensor:
-        node_encoding_features = self.u_graph_node_features[node_id].matmul(node_features[node_id])
-        node_encoding_messages = self.u_graph_neighbor_messages[node_id].matmul(to.sum(messages[node_id], dim=0))
+        node_encoding_features = self.u_graph_node_features.matmul(node_features[node_id])
+        node_encoding_messages = self.u_graph_neighbor_messages.matmul(to.sum(messages[node_id], dim=0))
         return to.relu(node_encoding_features + node_encoding_messages)
 
     def _compose_messages(self,
@@ -145,8 +144,8 @@ class GraphGRUEncoder(nn.Module):
             end_node_id)
         update_gate_output = to.sigmoid(
             to.add(
-                to.add(self.w_gru_update_gate_features[node.node_id, end_node_id].matmul(node_features[node.node_id]),
-                       self.u_gru_update_gate[node.node_id, end_node_id].matmul(
+                to.add(self.w_gru_update_gate_features.matmul(node_features[node.node_id]),
+                       self.u_gru_update_gate.matmul(
                            message_from_a_neighbor_other_than_target)),
                 self.b_gru_update_gate))
         return update_gate_output
@@ -161,10 +160,10 @@ class GraphGRUEncoder(nn.Module):
                                                                           end_node_id,
                                                                           node_features)
         current_memory_message = to.add(
-            to.add(self.w_gru_current_memory_message_features[node.node_id, end_node_id].matmul(
+            to.add(self.w_gru_current_memory_message_features.matmul(
                 node_features[node.node_id]),
-                   self.u_gru_current_memory_message[node.node_id, end_node_id].matmul(
-                       messages_passed_through_reset_gate)),
+                self.u_gru_current_memory_message.matmul(
+                    messages_passed_through_reset_gate)),
             self.b_gru_current_memory_message)
         return to.tanh(current_memory_message)
 
@@ -173,15 +172,15 @@ class GraphGRUEncoder(nn.Module):
                                 node: Node,
                                 end_node_id: int,
                                 node_features: to.Tensor) -> to.Tensor:
-        return self.u_gru_current_memory_message[node.node_id, end_node_id].matmul(sum([to.mul(to.sigmoid(
+        return self.u_gru_current_memory_message.matmul(sum([to.mul(to.sigmoid(
             to.add(
-                to.add(self.w_gru_update_gate_features[node.node_id, end_node_id].matmul(node_features[node.node_id]),
-                       self.u_gru_update_gate[node.node_id, end_node_id].matmul(
+                to.add(self.w_gru_update_gate_features.matmul(node_features[node.node_id]),
+                       self.u_gru_update_gate.matmul(
                            messages[node.node_id, reset_node_index])),
                 self.b_gru_update_gate)).long(), messages[node.node_id, reset_node_index])
-                                                                                        for reset_node_index in
-                                                                                        node.get_start_node_neighbors_without_end_node(
-                                                                                            end_node_id)[0]]))
+                                                             for reset_node_index in
+                                                             node.get_start_node_neighbors_without_end_node(
+                                                                 end_node_id)[0]]))
 
     def _pass_through_reset_gate(self,
                                  messages: to.Tensor,
@@ -190,8 +189,8 @@ class GraphGRUEncoder(nn.Module):
                                  node_features: to.Tensor) -> to.Tensor:
         return to.sigmoid(
             to.add(
-                to.add(self.w_gru_update_gate_features[node.node_id, end_node_id].matmul(node_features[node.node_id]),
-                       self.u_gru_update_gate[node.node_id, end_node_id].matmul(messages[node.node_id, end_node_id])),
+                to.add(self.w_gru_update_gate_features.matmul(node_features[node.node_id]),
+                       self.u_gru_update_gate.matmul(messages[node.node_id, end_node_id])),
                 self.b_gru_update_gate)).long()
 
     def _get_parameter(self, tensor_shape: List[int]) -> nn.Parameter:

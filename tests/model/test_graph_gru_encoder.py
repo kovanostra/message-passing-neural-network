@@ -5,7 +5,7 @@ from torch import nn
 
 from message_passing_nn.model.graph_gru_encoder import GraphGRUEncoder
 from tests.fixtures.matrices_and_vectors import BASE_GRAPH, BASE_GRAPH_NODE_FEATURES, \
-    BASE_U_MATRIX, BASE_W_MATRIX, MULTIPLICATION_FACTOR, BASE_B_VECTOR
+    BASE_UNITY_MATRIX_TENSOR, MULTIPLICATION_FACTOR, BASE_B_VECTOR
 
 
 class TestGraphGRUEncoder(TestCase):
@@ -20,28 +20,28 @@ class TestGraphGRUEncoder(TestCase):
                                                 fully_connected_layer_input_size=number_of_nodes * number_of_node_features,
                                                 fully_connected_layer_output_size=number_of_nodes ** 2,
                                                 device=device)
-        self.graph_encoder.w_gru_update_gate_features = nn.Parameter(MULTIPLICATION_FACTOR * BASE_W_MATRIX,
-                                                                     requires_grad=False).float()
-        self.graph_encoder.w_gru_forget_gate_features = nn.Parameter(MULTIPLICATION_FACTOR * BASE_W_MATRIX,
-                                                                     requires_grad=False).float()
-        self.graph_encoder.w_gru_current_memory_message_features = nn.Parameter(MULTIPLICATION_FACTOR * BASE_W_MATRIX,
-                                                                                requires_grad=False).float()
-        self.graph_encoder.u_gru_update_gate = nn.Parameter(MULTIPLICATION_FACTOR * BASE_W_MATRIX,
-                                                            requires_grad=False).float()
-        self.graph_encoder.u_gru_forget_gate = nn.Parameter(MULTIPLICATION_FACTOR * BASE_W_MATRIX,
-                                                            requires_grad=False).float()
-        self.graph_encoder.u_gru_current_memory_message = nn.Parameter(MULTIPLICATION_FACTOR * BASE_W_MATRIX,
-                                                                       requires_grad=False).float()
+        self.graph_encoder.w_gru_update_gate_features = nn.Parameter(MULTIPLICATION_FACTOR * BASE_UNITY_MATRIX_TENSOR,
+                                                                     requires_grad=False)
+        self.graph_encoder.w_gru_forget_gate_features = nn.Parameter(MULTIPLICATION_FACTOR * BASE_UNITY_MATRIX_TENSOR,
+                                                                     requires_grad=False)
+        self.graph_encoder.w_gru_current_memory_message_features = nn.Parameter(MULTIPLICATION_FACTOR * BASE_UNITY_MATRIX_TENSOR,
+                                                                                requires_grad=False)
+        self.graph_encoder.u_gru_update_gate = nn.Parameter(MULTIPLICATION_FACTOR * BASE_UNITY_MATRIX_TENSOR,
+                                                            requires_grad=False)
+        self.graph_encoder.u_gru_forget_gate = nn.Parameter(MULTIPLICATION_FACTOR * BASE_UNITY_MATRIX_TENSOR,
+                                                            requires_grad=False)
+        self.graph_encoder.u_gru_current_memory_message = nn.Parameter(MULTIPLICATION_FACTOR * BASE_UNITY_MATRIX_TENSOR,
+                                                                       requires_grad=False)
         self.graph_encoder.b_gru_update_gate = nn.Parameter(MULTIPLICATION_FACTOR * BASE_B_VECTOR,
-                                                            requires_grad=False).float()
+                                                            requires_grad=False)
         self.graph_encoder.b_gru_forget_gate = nn.Parameter(MULTIPLICATION_FACTOR * BASE_B_VECTOR,
-                                                            requires_grad=False).float()
+                                                            requires_grad=False)
         self.graph_encoder.b_gru_current_memory_message = nn.Parameter(MULTIPLICATION_FACTOR * BASE_B_VECTOR,
-                                                                       requires_grad=False).float()
-        self.graph_encoder.u_graph_node_features = nn.Parameter(MULTIPLICATION_FACTOR * BASE_U_MATRIX,
-                                                                requires_grad=False).float()
-        self.graph_encoder.u_graph_neighbor_messages = nn.Parameter(MULTIPLICATION_FACTOR * BASE_U_MATRIX,
-                                                                    requires_grad=False).float()
+                                                                       requires_grad=False)
+        self.graph_encoder.u_graph_node_features = nn.Parameter(MULTIPLICATION_FACTOR * BASE_UNITY_MATRIX_TENSOR,
+                                                                requires_grad=False)
+        self.graph_encoder.u_graph_neighbor_messages = nn.Parameter(MULTIPLICATION_FACTOR * BASE_UNITY_MATRIX_TENSOR,
+                                                                    requires_grad=False)
         self.graph_encoder.linear.weight = to.nn.Parameter(to.ones(number_of_nodes ** 2,
                                                                    number_of_nodes * number_of_node_features),
                                                            requires_grad=False).float()
