@@ -77,7 +77,7 @@ adjacency_matrix_example = torch.tensor([[0, 1, 1, 0],
 labels_example = torch.tensor([2, 0.5, 0.5, 0.5]).float()
 raw_dataset = [(node_features_example, adjacency_matrix_example, labels_example) for i in range(dataset_size)]
 
-# Here we pad zeros to the dataset to eequalize its size
+# Here we pad zeros to the dataset to equalize its size
 data_preprocessor = DataPreprocessor()
 equalized_dataset = data_preprocessor.equalize_dataset_dimensions(raw_dataset,
                                                                   maximum_number_of_nodes,
