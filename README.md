@@ -36,12 +36,10 @@ To train one configuration of the model please execute the following (I use exam
 ```
 import torch
 from message_passing_nn.trainer.model_trainer import ModelTrainer
-from message_passing_nn.model.graph_gru_encoder import GraphGRUEncoder
-from message_passing_nn.model.graph_rnn_encoder import GraphRNNEncoder
 from message_passing_nn.data.data_preprocessor import DataPreprocessor
 
 # Set up the variables 
-device = 'cpu' # You can use 'cuda' for GraphRNNEncoder, but it is not adviced for GraphGRUEncoder
+device = 'cpu' # You can use 'cuda' for the RNN model, but it is not adviced for the GRU model
 epochs = 10
 model = 'RNN'
 loss_function = 'MSE'
