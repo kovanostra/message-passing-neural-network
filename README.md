@@ -65,7 +65,7 @@ number_of_node_features = 2
 # file_system_repository = FileSystemRepository(data_directory, dataset_name)
 # raw_dataset = file_system_repository.get_all_data()
 
-# This is just an example to make the code runnable 
+# If you don't have a dataset you can use the following sample data 
 node_features_example = torch.tensor([[1, 2], 
                                      [1, 1], 
                                      [2, 0.5], 
@@ -76,6 +76,8 @@ adjacency_matrix_example = torch.tensor([[0, 1, 1, 0],
                                          [0, 0, 1, 0]]).float()
 labels_example = torch.tensor([2, 0.5, 0.5, 0.5]).float()
 raw_dataset = [(node_features_example, adjacency_matrix_example, labels_example) for i in range(dataset_size)]
+
+# Here we pad zeros to the dataset to eequalize its size
 data_preprocessor = DataPreprocessor()
 equalized_dataset = data_preprocessor.equalize_dataset_dimensions(raw_dataset,
                                                                   maximum_number_of_nodes,
