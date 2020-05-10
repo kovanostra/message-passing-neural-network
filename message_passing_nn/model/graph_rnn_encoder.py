@@ -73,10 +73,11 @@ class GraphRNNEncoder(nn.Module):
         return messages
 
     def _encode_nodes(self, node_features: to.Tensor, messages: to.Tensor) -> to.Tensor:
-        encoded_node = to.zeros(self.number_of_nodes, self.number_of_node_features, device=self.device)
+        node_encoding_messages = to.zeros(self.number_of_nodes, self.number_of_node_features, device=self.device)
+        node_encoding_features = self.u_graph_node_features.matmul(node_features)
         for node_id in range(self.number_of_nodes):
-            encoded_node[node_id] = self._apply_recurrent_layer(node_features, messages, node_id)
-        return encoded_node
+            node_encoding_messages[node_id] = self.u_graph_neighbor_messages.matmul(to.sum(messages[node_id], dim=0))
+        return to.relu(node_encoding_features + node_encoding_messages)
 
     def _apply_recurrent_layer(self, node_features: to.Tensor, messages: to.Tensor, node_id: int) -> to.Tensor:
         node_encoding_features = self.u_graph_node_features.matmul(node_features[node_id])
@@ -90,11 +91,9 @@ class GraphRNNEncoder(nn.Module):
         new_messages = to.zeros(messages.shape, device=self.device)
         for node_id in range(self.number_of_nodes):
             node = self._create_node(node_features, adjacency_matrix, node_id)
-            for end_node_id in node.neighbors:
+            for end_node_id in node.all_neighbors:
                 message = self._get_message_value(messages, node, end_node_id, node_features)
                 new_messages[node_id, end_node_id] = message
-                if Node.is_adjacency_matrix_symmetric(adjacency_matrix):
-                    new_messages[end_node_id, node_id] = message
         return new_messages
 
     def _get_message_value(self, messages: to.Tensor, node: Node, end_node_id: int, node_features: to.Tensor) \
