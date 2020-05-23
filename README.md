@@ -165,7 +165,8 @@ The repository expects the data to be in the following format:
   - features: torch.tensor.Size([M,N])
   - adjacency-matrix: torch.tensor.Size([M,M])
   - labels: torch.tensor.Size([L])
-  * **All features and labels should be preprocessed to be of the same size**
+
+**All features and labels should be preprocessed to be of the same size**
   
 For example, in the protein-folding dataset:
 
