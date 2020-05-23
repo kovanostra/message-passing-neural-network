@@ -1,7 +1,6 @@
 from unittest import TestCase
 
 from message_passing_nn.data.data_preprocessor import DataPreprocessor
-from message_passing_nn.model.graph_gru_encoder import GraphGRUEncoder
 from message_passing_nn.trainer.model_trainer import ModelTrainer
 from tests.fixtures.matrices_and_vectors import BASE_GRAPH, BASE_GRAPH_NODE_FEATURES
 

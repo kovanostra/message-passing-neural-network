@@ -189,7 +189,7 @@ class TestGraphRNNEncoder(TestCase):
     def test_encode_graph_returns_the_expected_encoding_for_a_node_after_one_time_step(self):
         # Give
         node = 0
-        node_encoding_expected = to.tensor([[0.42, 0.42]])
+        node_encoding_expected = to.tensor([[0.5880, 0.5380]])
 
         # When
         node_encoding = self.graph_encoder.encode(BASE_GRAPH_NODE_FEATURES, BASE_GRAPH)[node]

@@ -16,7 +16,8 @@ class GraphRNNEncoder(nn.Module):
                  fully_connected_layer_output_size: int,
                  device: str) -> None:
         super(GraphRNNEncoder, self).__init__()
-        base_tensor_shape = [number_of_node_features, number_of_node_features]
+        node_features_tensor_shape = [number_of_node_features, number_of_node_features]
+        nodes_tensor_shape = [number_of_nodes, number_of_nodes]
 
         self.time_steps = time_steps
         self.number_of_nodes = number_of_nodes
@@ -25,10 +26,10 @@ class GraphRNNEncoder(nn.Module):
         self.fully_connected_layer_output_size = fully_connected_layer_output_size
         self.device = device
 
-        self.w_graph_node_features = self._get_parameter(base_tensor_shape)
-        self.w_graph_neighbor_messages = self._get_parameter(base_tensor_shape)
-        self.u_graph_node_features = self._get_parameter(base_tensor_shape)
-        self.u_graph_neighbor_messages = self._get_parameter(base_tensor_shape)
+        self.w_graph_node_features = self._get_parameter(node_features_tensor_shape)
+        self.w_graph_neighbor_messages = self._get_parameter(node_features_tensor_shape)
+        self.u_graph_node_features = self._get_parameter(nodes_tensor_shape)
+        self.u_graph_neighbor_messages = self._get_parameter(node_features_tensor_shape)
         self.linear = to.nn.Linear(self.fully_connected_layer_input_size, self.fully_connected_layer_output_size)
         self.sigmoid = to.nn.Sigmoid()
 
