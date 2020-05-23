@@ -99,7 +99,11 @@ class ModelTrainer:
 
     def _instantiate_the_optimizer(self, optimizer: Any) -> Optimizer:
         model_parameters = list(self.model.parameters())
-        return optimizer(model_parameters, lr=0.001, momentum=0.9)
+        try:
+            optimizer = optimizer(model_parameters, lr=0.001, momentum=0.9)
+        except:
+            optimizer = optimizer(model_parameters, lr=0.001)
+        return optimizer
 
     @staticmethod
     def _get_current_batch_size(features: to.Tensor) -> int:

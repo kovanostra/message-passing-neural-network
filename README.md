@@ -160,24 +160,25 @@ conda env create -f environment.yml
 
 ### 5. Dataset
       
-This repository contains two dataset folders with examples of data to run the code:
-
-  - sample-dataset: Contains just one pair of features/labels with some default values. This data lets you run the code in demo mode.
-  - protein-folding: Contains pairs of features/labels for various proteins (prepared using https://github.com/simonholmes001/structure_prediction). The features represent protein characteristics, and the labels the distance between all aminoacids.
-
 The repository expects the data to be in the following format:
 
   - filenames: something_features.pickle, something_adjacency-matrix.pickle & something_labels.pickle
   - features: torch.tensor.Size([M,N])
   - adjacency-matrix: torch.tensor.Size([M,M])
   - labels: torch.tensor.Size([L])
-  * All features and labels should be preprocessed to be of the same size
+
+**All features and labels should be preprocessed to be of the same size**
   
 For example, in the protein-folding dataset:
 
   - M: represents the number of amino acids
   - N: represents the number of protein features
   - L: represents the number of values to predict
+
+This repository contains two dataset folders with examples of data to run the code:
+
+  - sample-dataset: Contains just one pair of features/labels with some default values. This data lets you run the code in demo mode.
+  - protein-folding: Contains pairs of features/labels for various proteins (prepared using https://github.com/simonholmes001/structure_prediction). The features represent protein characteristics, and the labels the distance between all aminoacids.
 
 ### 6. Environment variables
       
