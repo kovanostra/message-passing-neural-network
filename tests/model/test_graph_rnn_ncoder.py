@@ -182,8 +182,6 @@ class TestGraphRNNEncoder(TestCase):
         outputs = self.graph_encoder.forward(node_features, adjacency_matrix, batch_size)
 
         # Then
-        print(outputs_expected)
-        print(outputs)
         self.assertTrue(np.allclose(outputs_expected.numpy(), outputs.numpy(), atol=1e-02))
 
     def test_encode_graph_returns_the_expected_encoding_for_a_node_after_one_time_step(self):
