@@ -29,12 +29,12 @@ class ModelTrainer:
         number_of_node_features = node_features_size[1]
         fully_connected_layer_output_size = labels_size[0]
         self.model = ModelSelector.load_model(configuration_dictionary['model'])
-        self.model = self.model.of(time_steps=configuration_dictionary['time_steps'],
-                                   number_of_nodes=number_of_nodes,
-                                   number_of_node_features=number_of_node_features,
-                                   fully_connected_layer_input_size=number_of_nodes * number_of_node_features,
-                                   fully_connected_layer_output_size=fully_connected_layer_output_size,
-                                   device=self.device)
+        self.model = self.model(time_steps=configuration_dictionary['time_steps'],
+                                number_of_nodes=number_of_nodes,
+                                number_of_node_features=number_of_node_features,
+                                fully_connected_layer_input_size=number_of_nodes * number_of_node_features,
+                                fully_connected_layer_output_size=fully_connected_layer_output_size,
+                                device=self.device)
         self.model.to(self.device)
         self.loss_function = self._instantiate_the_loss_function(
             LossFunctionSelector.load_loss_function(configuration_dictionary['loss_function']))
