@@ -10,7 +10,7 @@ class Node:
         self.symmetry = self.is_adjacency_matrix_symmetric(adjacency_matrix)
         self.all_neighbors = self._get_all_neighbors(adjacency_matrix)
         self.neighbors = self._get_neighbors(adjacency_matrix)
-        self.neighbors_count = len(self.neighbors)
+        self.neighbors_count = len(self.all_neighbors)
 
     @staticmethod
     def is_adjacency_matrix_symmetric(adjacency_matrix: to.Tensor) -> bool:

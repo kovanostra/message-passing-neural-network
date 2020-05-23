@@ -60,7 +60,7 @@ class TestGraphRNNEncoder(TestCase):
         # -> Pre-loop
         batch = 0
         all_neighbors = [to.tensor([1, 2]), to.tensor([0, 2]), to.tensor([0, 1, 3]), to.tensor([2])]
-        neighbors_slice = [[[2], [1]], [[2], [0]], [[1, 3], [0, 3], [0, 1]]]
+        neighbors_slice = [[[2], [1]], [[2], [0]], [[1, 3], [0, 3], [0, 1], [1, 3], [0, 3], [0, 1]]]
         messages_init = to.zeros((self.number_of_nodes, self.number_of_nodes, self.number_of_node_features),
                                  device=self.device)
 
@@ -73,22 +73,21 @@ class TestGraphRNNEncoder(TestCase):
 
         # -> Step 0
         # Calculations
-        index_pairs_expected = [[0, 1], [0, 2], [1, 0], [1, 2], [2, 0], [2, 1], [2, 3]]
+        index_pairs_expected = [[0, 2], [0, 1], [1, 2], [1, 0], [2, 1], [2, 3], [2, 0], [2, 3], [2, 0], [2, 1]]
         index_pairs = []
         for node_id in range(number_of_nodes):
-            messages_from_neighbors_step_0 = to.zeros((number_of_nodes, number_of_node_features), device=self.device)
             if batch + node_id < len(all_neighbors):
                 for index in range(len(all_neighbors[batch + node_id])):
                     end_node_id = all_neighbors[batch + node_id][index].item()
+                    messages_from_neighbors_step_0 = to.zeros(number_of_node_features, device=self.device)
                     messages_step_0_part_1[node_id, end_node_id] = self.graph_encoder.w_graph_node_features.matmul(
                         node_features[batch][node_id])
                     if batch + node_id < len(neighbors_slice):
-                        index_pairs.append([node_id, end_node_id])
                         for node_to_sum in neighbors_slice[batch + node_id][index]:
-                            messages_from_neighbors_step_0[
-                                node_to_sum] = self.graph_encoder.w_graph_neighbor_messages.matmul(
+                            index_pairs.append([node_id, node_to_sum])
+                            messages_from_neighbors_step_0 += self.graph_encoder.w_graph_neighbor_messages.matmul(
                                 messages_init[node_to_sum, node_id])
-                        messages_step_0_part_2[node_id, end_node_id] = to.sum(messages_from_neighbors_step_0, dim=0)
+                        messages_step_0_part_2[node_id, end_node_id] = messages_from_neighbors_step_0
         self.assertTrue(to.allclose(messages_step_0_part_1[0, 1], to.tensor([0.30, 0.30])))
         self.assertTrue(to.allclose(messages_step_0_part_1[1, 2], to.tensor([0.20, 0.20])))
         self.assertTrue(to.allclose(messages_step_0_part_1[2, 3], to.tensor([0.25, 0.25])))
@@ -100,7 +99,9 @@ class TestGraphRNNEncoder(TestCase):
         # -> Step 1
         # Messages
         messages_step_0 = to.relu(to.add(messages_step_0_part_1, messages_step_0_part_2))
+        messages_from_model_step_0 = self.graph_encoder._compose_messages(node_features[0], adjacency_matrix[0], messages_init)
         self.assertTrue(messages_step_0.size() == messages_init.size())
+        self.assertTrue(np.allclose(messages_step_0.numpy(), messages_from_model_step_0.numpy(), atol=1e-02))
         print("Passed first step assertions!")
 
         # -> Step 1
@@ -112,26 +113,25 @@ class TestGraphRNNEncoder(TestCase):
 
         # -> Step 1
         # Calculations
-        index_pairs_expected = [[0, 1], [0, 2], [1, 0], [1, 2], [2, 0], [2, 1], [2, 3]]
+        index_pairs_expected = [[0, 2], [0, 1], [1, 2], [1, 0], [2, 1], [2, 3], [2, 0], [2, 3], [2, 0], [2, 1]]
         index_pairs = []
         for node_id in range(number_of_nodes):
-            messages_from_neighbors_step_1 = to.zeros((number_of_nodes, number_of_node_features), device=self.device)
             if batch + node_id < len(all_neighbors):
                 for index in range(len(all_neighbors[batch + node_id])):
                     end_node_id = all_neighbors[batch + node_id][index].item()
+                    messages_from_neighbors_step_1 = to.zeros(number_of_node_features, device=self.device)
                     messages_step_1_part_1[node_id, end_node_id] = self.graph_encoder.w_graph_node_features.matmul(
                         node_features[batch][node_id])
                     if batch + node_id < len(neighbors_slice):
-                        index_pairs.append([node_id, end_node_id])
                         for node_to_sum in neighbors_slice[batch + node_id][index]:
-                            messages_from_neighbors_step_1[
-                                node_to_sum] = self.graph_encoder.w_graph_neighbor_messages.matmul(
+                            index_pairs.append([node_id, node_to_sum])
+                            messages_from_neighbors_step_1 += self.graph_encoder.w_graph_neighbor_messages.matmul(
                                 messages_step_0[node_to_sum, node_id])
-                        messages_step_1_part_2[node_id, end_node_id] = to.sum(messages_from_neighbors_step_1, dim=0)
-        self.assertTrue(to.allclose(messages_step_0_part_1[0, 1], to.tensor([0.30, 0.30])))
-        self.assertTrue(to.allclose(messages_step_0_part_1[1, 2], to.tensor([0.20, 0.20])))
-        self.assertTrue(to.allclose(messages_step_0_part_1[2, 3], to.tensor([0.25, 0.25])))
-        self.assertTrue(to.allclose(messages_step_0_part_1[3, 2], to.tensor([0.10, 0.10])))
+                        messages_step_1_part_2[node_id, end_node_id] = messages_from_neighbors_step_1
+        self.assertTrue(to.allclose(messages_step_1_part_1[0, 1], to.tensor([0.30, 0.30])))
+        self.assertTrue(to.allclose(messages_step_1_part_1[1, 2], to.tensor([0.20, 0.20])))
+        self.assertTrue(to.allclose(messages_step_1_part_1[2, 3], to.tensor([0.25, 0.25])))
+        self.assertTrue(to.allclose(messages_step_1_part_1[3, 2], to.tensor([0.10, 0.10])))
         for node_id in range(number_of_nodes):
             for end_node_id in range(number_of_nodes):
                 if [node_id, end_node_id] in index_pairs_expected:
@@ -144,7 +144,9 @@ class TestGraphRNNEncoder(TestCase):
         # -> Step 1
         # Messages
         messages_step_1 = to.relu(to.add(messages_step_1_part_1, messages_step_1_part_2))
+        messages_from_model_step_1 = self.graph_encoder._compose_messages(node_features[0], adjacency_matrix[0], messages_step_0)
         self.assertTrue(messages_step_1.size() == messages_init.size())
+        self.assertTrue(np.allclose(messages_step_1.numpy(), messages_from_model_step_1.numpy(), atol=1e-02))
         print("Passed second step assertions!")
 
         # -> Sum messages
