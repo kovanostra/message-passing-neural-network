@@ -1,9 +1,8 @@
-from typing import List
-
 import torch as to
 import torch.nn as nn
 
 from message_passing_nn.data.data_preprocessor import DataPreprocessor
+import rnn_encoder_forward
 
 
 class GraphRNNEncoder(nn.Module):
@@ -43,6 +42,7 @@ class GraphRNNEncoder(nn.Module):
                 adjacency_matrix: to.Tensor,
                 batch_size: int) -> to.Tensor:
         outputs = to.zeros(batch_size, self.fully_connected_layer_output_size, device=self.device)
+        print(rnn_encoder_forward.forward(node_features, adjacency_matrix, batch_size))
         for batch in range(batch_size):
             outputs[batch] = self.sigmoid(
                 self.linear(
@@ -57,14 +57,13 @@ class GraphRNNEncoder(nn.Module):
         for step in range(self.time_steps):
             messages = self._compose_messages(node_features, adjacency_matrix, messages)
         node_encoding_messages = to.zeros(self.number_of_nodes, self.number_of_node_features, device=self.device)
-        node_encoding_features = self.u_graph_node_features.matmul(node_features)
         for node_id in range(self.number_of_nodes):
-            node_encoding_messages[node_id] = self.u_graph_neighbor_messages.matmul(to.sum(messages[node_id], dim=0))
-        return to.relu(node_encoding_features + node_encoding_messages)
+            all_neighbors = to.nonzero(adjacency_matrix[node_id], as_tuple=True)[0]
+            for end_node_id in all_neighbors:
+                node_encoding_messages[node_id] += self.u_graph_neighbor_messages.matmul(messages[end_node_id, node_id])
+        return to.relu(to.add(self.u_graph_node_features.matmul(node_features), node_encoding_messages))
 
-    def _compose_messages(self,
-                          node_features: to.Tensor,
-                          adjacency_matrix: to.Tensor,
+    def _compose_messages(self, node_features: to.Tensor, adjacency_matrix: to.Tensor,
                           messages: to.Tensor) -> to.Tensor:
         new_messages = to.zeros(messages.shape, device=self.device)
         for node_id in range(self.number_of_nodes):
@@ -80,6 +79,3 @@ class GraphRNNEncoder(nn.Module):
                     to.add(self.w_graph_node_features.matmul(node_features[node_id]),
                            messages_from_the_other_neighbors))
         return new_messages
-
-    def _get_parameter(self, tensor_shape: List[int]) -> nn.Parameter:
-        return nn.Parameter(nn.init.kaiming_normal_(to.zeros(tensor_shape, device=self.device)), requires_grad=True)
