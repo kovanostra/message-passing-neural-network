@@ -1,33 +1,18 @@
 #include <torch/extension.h>
-#include <torch/csrc/autograd/variable.h>
-#include <torch/csrc/autograd/function.h>
 #include <iostream>
 
-at::Tensor* compose_messages(torch::Tensor node_features,
-                                torch::Tensor adjacency_matrix,
-                                at::Tensor* messages) {
-    auto new_messages = new torch::Tensor[adjacency_matrix.size(0), adjacency_matrix.size(1), node_features.size(1)];
-    return new_messages;
+at::Tensor messages_from_the_other_neighbors(
+    const at::Tensor& w_graph_neighbor_messages,
+    const at::Tensor& messages) {
 
-}
-
-torch::Tensor* rnn_encoder_forward(
-    torch::Tensor node_features,
-    torch::Tensor adjacency_matrix,
-    int16_t batch_size) {
-
-  auto outputs = new torch::Tensor[batch_size];
-  auto messages = new torch::Tensor[adjacency_matrix.size(0), adjacency_matrix.size(1), node_features.size(1)];
-
-  for(int batch=0; batch<batch_size ; batch++)
-  {
-     outputs[batch] = torch::sigmoid(torch::add(adjacency_matrix, adjacency_matrix));
-     messages = compose_messages(node_features, adjacency_matrix, messages);
+  auto messages_from_the_other_neighbors = torch::matmul(w_graph_neighbor_messages, messages);
+  for (auto const& i : data) {
+      std::cout << i.name;
   }
 
-  return outputs;
+  return messages_from_the_other_neighbors;
 }
 
 PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
-  m.def("forward", &rnn_encoder_forward, "RNN encoder forward (CPU)");
+  m.def("messages_from_the_other_neighbors", &messages_from_the_other_neighbors, "RNN encoder forward (CPU)");
 }

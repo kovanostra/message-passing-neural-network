@@ -2,7 +2,7 @@ import torch as to
 import torch.nn as nn
 
 from message_passing_nn.data.data_preprocessor import DataPreprocessor
-import rnn_encoder_forward
+import rnn_encoder_forward as rnn_cpp
 
 
 class GraphRNNEncoder(nn.Module):
@@ -42,7 +42,6 @@ class GraphRNNEncoder(nn.Module):
                 adjacency_matrix: to.Tensor,
                 batch_size: int) -> to.Tensor:
         outputs = to.zeros(batch_size, self.fully_connected_layer_output_size, device=self.device)
-        print(rnn_encoder_forward.forward(node_features, adjacency_matrix, batch_size))
         for batch in range(batch_size):
             outputs[batch] = self.sigmoid(
                 self.linear(
@@ -72,8 +71,10 @@ class GraphRNNEncoder(nn.Module):
                 messages_from_the_other_neighbors = to.zeros(node_features[node_id].shape[0], device=self.device)
                 if len(all_neighbors) > 1:
                     end_node_index = (all_neighbors == end_node_id).nonzero()[0][0].item()
-                    for neighbor in to.cat((all_neighbors[:end_node_index], all_neighbors[end_node_index + 1:])):
-                        messages_from_the_other_neighbors += self.w_graph_neighbor_messages.matmul(
+                    other_neighbors = to.cat((all_neighbors[:end_node_index], all_neighbors[end_node_index + 1:]))
+                    for neighbor in other_neighbors:
+                        messages_from_the_other_neighbors += rnn_cpp.messages_from_the_other_neighbors(
+                            self.w_graph_neighbor_messages,
                             messages[neighbor, node_id])
                 new_messages[node_id, end_node_id] = to.relu(
                     to.add(self.w_graph_node_features.matmul(node_features[node_id]),

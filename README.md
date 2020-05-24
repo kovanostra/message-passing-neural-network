@@ -38,7 +38,7 @@ Python 3.7.6
 Run
 ```
 click
-torch=1.4.0
+torch=1.5.0
 numpy==1.17.4
 pandas=1.0.3
 ```
@@ -46,7 +46,7 @@ pandas=1.0.3
 Tests
 ```
 numpy==1.17.4
-torch=1.4.0
+torch=1.5.0
 pandas=1.0.3
 ```
 
