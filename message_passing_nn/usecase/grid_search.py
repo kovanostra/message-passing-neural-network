@@ -91,7 +91,7 @@ class GridSearch:
                                          configuration_dictionary['batch_size'],
                                          configuration_dictionary['validation_split'],
                                          configuration_dictionary['test_split'])
-        data_dimensions = self.data_preprocessor.extract_data_dimensions(raw_dataset)
+        data_dimensions = self.data_preprocessor.extract_data_dimensions(equalized_dataset)
         return training_data, validation_data, test_data, data_dimensions
 
     def _get_all_grid_search_configurations(self) -> List[Tuple[Tuple]]:
