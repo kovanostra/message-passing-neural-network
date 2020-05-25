@@ -54,30 +54,16 @@ class GraphRNNEncoder(nn.Module):
         messages = to.zeros((self.number_of_nodes, self.number_of_nodes, self.number_of_node_features),
                             device=self.device)
         for step in range(self.time_steps):
-            messages = self._compose_messages(node_features, adjacency_matrix, messages)
+            messages = rnn_cpp.compose_messages(
+                self.number_of_nodes,
+                self.w_graph_node_features,
+                self.w_graph_neighbor_messages,
+                node_features,
+                adjacency_matrix,
+                messages)
         node_encoding_messages = to.zeros(self.number_of_nodes, self.number_of_node_features, device=self.device)
         for node_id in range(self.number_of_nodes):
             all_neighbors = to.nonzero(adjacency_matrix[node_id], as_tuple=True)[0]
             for end_node_id in all_neighbors:
                 node_encoding_messages[node_id] += self.u_graph_neighbor_messages.matmul(messages[end_node_id, node_id])
         return to.relu(to.add(self.u_graph_node_features.matmul(node_features), node_encoding_messages))
-
-    def _compose_messages(self, node_features: to.Tensor, adjacency_matrix: to.Tensor,
-                          messages: to.Tensor) -> to.Tensor:
-        new_messages = to.zeros(messages.shape, device=self.device)
-        for node_id in range(self.number_of_nodes):
-            all_neighbors = to.nonzero(adjacency_matrix[node_id], as_tuple=True)[0]
-            for end_node_id in all_neighbors:
-                messages_from_the_other_neighbors = to.zeros(node_features[node_id].shape[0], device=self.device)
-                if len(all_neighbors) > 1:
-                    end_node_index = (all_neighbors == end_node_id).nonzero()[0][0].item()
-                    messages_from_the_other_neighbors += rnn_cpp.messages_from_the_other_neighbors(
-                        self.w_graph_neighbor_messages,
-                        messages,
-                        node_id,
-                        all_neighbors,
-                        end_node_index)
-                new_messages[node_id, end_node_id] = to.relu(
-                    to.add(self.w_graph_node_features.matmul(node_features[node_id]),
-                           messages_from_the_other_neighbors))
-        return new_messages
