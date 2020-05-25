@@ -53,17 +53,21 @@ class GraphRNNEncoder(nn.Module):
     def encode(self, node_features: to.Tensor, adjacency_matrix: to.Tensor) -> to.Tensor:
         messages = to.zeros((self.number_of_nodes, self.number_of_nodes, self.number_of_node_features),
                             device=self.device)
-        for step in range(self.time_steps):
-            messages = rnn_cpp.compose_messages(
-                self.number_of_nodes,
-                self.w_graph_node_features,
-                self.w_graph_neighbor_messages,
-                node_features,
-                adjacency_matrix,
-                messages)
+        messages = rnn_cpp.compose_messages(
+            self.time_steps,
+            self.number_of_nodes,
+            self.number_of_node_features,
+            self.w_graph_node_features,
+            self.w_graph_neighbor_messages,
+            node_features,
+            adjacency_matrix,
+            messages)
         node_encoding_messages = to.zeros(self.number_of_nodes, self.number_of_node_features, device=self.device)
-        for node_id in range(self.number_of_nodes):
-            all_neighbors = to.nonzero(adjacency_matrix[node_id], as_tuple=True)[0]
-            for end_node_id in all_neighbors:
-                node_encoding_messages[node_id] += self.u_graph_neighbor_messages.matmul(messages[end_node_id, node_id])
-        return to.relu(to.add(self.u_graph_node_features.matmul(node_features), node_encoding_messages))
+        return rnn_cpp.encode_messages(
+            self.number_of_nodes,
+            node_encoding_messages,
+            self.u_graph_neighbor_messages,
+            self.u_graph_node_features,
+            node_features,
+            adjacency_matrix,
+            messages)

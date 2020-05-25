@@ -17,7 +17,8 @@ class TestGraphRNNEncoder(TestCase):
         self.fully_connected_layer_input_size = self.number_of_nodes * self.number_of_node_features
         self.fully_connected_layer_output_size = self.number_of_nodes ** 2
         self.device = "cpu"
-        self.graph_encoder = GraphRNNEncoder(time_steps=2,
+        self.time_steps = 2
+        self.graph_encoder = GraphRNNEncoder(time_steps=self.time_steps,
                                              number_of_nodes=self.number_of_nodes,
                                              number_of_node_features=self.number_of_node_features,
                                              fully_connected_layer_input_size=self.fully_connected_layer_input_size,
@@ -65,17 +66,20 @@ class TestGraphRNNEncoder(TestCase):
         self.assertEqual(encoded_graph_shape_expected, list(encoded_graph_shape))
 
     def test_get_the_expected_messages_from_a_node_after_one_time_step(self):
+        time_steps = 1
         messages_initial = to.zeros((self.number_of_nodes,
                                      self.number_of_nodes,
                                      self.number_of_node_features),
-                                    device=self.device)
+                                     device=self.device)
         node_expected = 0
         messages_from_node_expected = to.tensor([[0.0, 0.0],
                                                  [0.3, 0.3],
                                                  [0.3, 0.3],
                                                  [0.0, 0.0]])
         # When
-        messages_from_node = rnn_cpp.compose_messages(self.graph_encoder.number_of_nodes,
+        messages_from_node = rnn_cpp.compose_messages(time_steps,
+                                                      self.graph_encoder.number_of_nodes,
+                                                      self.graph_encoder.number_of_node_features,
                                                       self.graph_encoder.w_graph_node_features,
                                                       self.graph_encoder.w_graph_neighbor_messages,
                                                       BASE_GRAPH_NODE_FEATURES,
@@ -131,7 +135,9 @@ class TestGraphRNNEncoder(TestCase):
         # -> Step 1
         # Messages
         messages_step_0 = to.relu(to.add(messages_step_0_part_1, messages_step_0_part_2))
-        messages_from_model_step_0 = rnn_cpp.compose_messages(self.graph_encoder.number_of_nodes,
+        messages_from_model_step_0 = rnn_cpp.compose_messages(1,
+                                                              self.graph_encoder.number_of_nodes,
+                                                              self.graph_encoder.number_of_node_features,
                                                               self.graph_encoder.w_graph_node_features,
                                                               self.graph_encoder.w_graph_neighbor_messages,
                                                               node_features[0],
@@ -165,7 +171,9 @@ class TestGraphRNNEncoder(TestCase):
         # -> Step 1
         # Messages
         messages_step_1 = to.relu(to.add(messages_step_1_part_1, messages_step_1_part_2))
-        messages_from_model_step_1 = rnn_cpp.compose_messages(self.graph_encoder.number_of_nodes,
+        messages_from_model_step_1 = rnn_cpp.compose_messages(1,
+                                                              self.graph_encoder.number_of_nodes,
+                                                              self.graph_encoder.number_of_node_features,
                                                               self.graph_encoder.w_graph_node_features,
                                                               self.graph_encoder.w_graph_neighbor_messages,
                                                               node_features[0],
