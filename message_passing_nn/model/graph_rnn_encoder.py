@@ -1,8 +1,6 @@
+import rnn_encoder_forward as rnn_cpp
 import torch as to
 import torch.nn as nn
-
-from message_passing_nn.data.data_preprocessor import DataPreprocessor
-import rnn_encoder_forward as rnn_cpp
 
 
 class GraphRNNEncoder(nn.Module):
@@ -41,33 +39,17 @@ class GraphRNNEncoder(nn.Module):
                 node_features: to.Tensor,
                 adjacency_matrix: to.Tensor,
                 batch_size: int) -> to.Tensor:
-        outputs = to.zeros(batch_size, self.fully_connected_layer_output_size, device=self.device)
-        for batch in range(batch_size):
-            outputs[batch] = self.sigmoid(
-                self.linear(
-                    DataPreprocessor.flatten(
-                        self.encode(node_features[batch], adjacency_matrix[batch]),
-                        self.fully_connected_layer_input_size)))
-        return outputs
-
-    def encode(self, node_features: to.Tensor, adjacency_matrix: to.Tensor) -> to.Tensor:
-        messages = to.zeros((self.number_of_nodes, self.number_of_nodes, self.number_of_node_features),
-                            device=self.device)
-        messages = rnn_cpp.compose_messages(
+        #TODO: Initialize linear weight and bias, as parameters and pass them inside forward to apply bmm()
+        return rnn_cpp.forward(
             self.time_steps,
             self.number_of_nodes,
             self.number_of_node_features,
+            batch_size,
+            self.fully_connected_layer_output_size,
             self.w_graph_node_features,
             self.w_graph_neighbor_messages,
-            node_features,
-            adjacency_matrix,
-            messages)
-        node_encoding_messages = to.zeros(self.number_of_nodes, self.number_of_node_features, device=self.device)
-        return rnn_cpp.encode_messages(
-            self.number_of_nodes,
-            node_encoding_messages,
             self.u_graph_neighbor_messages,
             self.u_graph_node_features,
             node_features,
             adjacency_matrix,
-            messages)
+            self.linear)

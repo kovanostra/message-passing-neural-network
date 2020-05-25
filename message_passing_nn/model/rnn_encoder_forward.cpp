@@ -98,9 +98,75 @@ at::Tensor encode_messages(
     return torch::relu(torch::add(torch::matmul(u_graph_node_features, node_features), node_encoding_messages));
   }
 
+at::Tensor encode(
+    const int& time_steps,
+    const int& number_of_nodes,
+    const int& number_of_node_features,
+    const at::Tensor& w_graph_node_features,
+    const at::Tensor& w_graph_neighbor_messages,
+    const at::Tensor& u_graph_neighbor_messages,
+    const at::Tensor& u_graph_node_features,
+    const at::Tensor& node_features,
+    const at::Tensor& adjacency_matrix) {
+
+    auto messages = torch::zeros({number_of_nodes, number_of_nodes, number_of_node_features});
+    messages = compose_messages(
+        time_steps,
+        number_of_nodes,
+        number_of_node_features,
+        w_graph_node_features,
+        w_graph_neighbor_messages,
+        node_features,
+        adjacency_matrix,
+        messages);
+    auto node_encoding_messages = torch::zeros({number_of_nodes, number_of_node_features});
+    return encode_messages(
+        number_of_nodes,
+        node_encoding_messages,
+        u_graph_neighbor_messages,
+        u_graph_node_features,
+        node_features,
+        adjacency_matrix,
+        messages);
+}
+
+at::Tensor forward(
+    const int& time_steps,
+    const int& number_of_nodes,
+    const int& number_of_node_features,
+    const int& batch_size,
+    const int& fully_connected_layer_output_size,
+    const at::Tensor& w_graph_node_features,
+    const at::Tensor& w_graph_neighbor_messages,
+    const at::Tensor& u_graph_neighbor_messages,
+    const at::Tensor& u_graph_node_features,
+    const at::Tensor& node_features,
+    const at::Tensor& adjacency_matrix,
+    torch::nn::Linear& fully_connected_layer) {
+      
+    auto outputs = torch::zeros({batch_size, fully_connected_layer_output_size});
+      
+    for (int batch = 0; batch<batch_size; batch++) {
+      outputs[batch] = torch::sigmoid(
+                          fully_connected_layer -> forward(
+                              encode(time_steps,
+                                    number_of_nodes,
+                                    number_of_node_features,
+                                    w_graph_node_features,
+                                    w_graph_neighbor_messages,
+                                    u_graph_neighbor_messages,
+                                    u_graph_node_features,
+                                    node_features[batch],
+                                    adjacency_matrix[batch]).view({-1})));
+      
+    }
+    return outputs;
+  }
 
 
 PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
   m.def("compose_messages", &compose_messages, "RNN encoder compose messages (CPU)");
   m.def("encode_messages", &encode_messages, "RNN encoder encode messages (CPU)");
+  m.def("encode", &encode, "RNN encoder encode (CPU)");
+  m.def("forward", &forward, "RNN encoder forward (CPU)");
 }
