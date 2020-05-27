@@ -130,43 +130,83 @@ at::Tensor encode(
         messages);
 }
 
-at::Tensor forward(
+at::Tensor forward_cpp(
     const int& time_steps,
     const int& number_of_nodes,
     const int& number_of_node_features,
-    const int& batch_size,
     const int& fully_connected_layer_output_size,
+    const int& batch_size,
+    const at::Tensor& node_features,
+    const at::Tensor& adjacency_matrix,
     const at::Tensor& w_graph_node_features,
     const at::Tensor& w_graph_neighbor_messages,
     const at::Tensor& u_graph_neighbor_messages,
     const at::Tensor& u_graph_node_features,
-    const at::Tensor& node_features,
-    const at::Tensor& adjacency_matrix,
-    torch::nn::Linear& fully_connected_layer) {
+    const at::Tensor& linear_weight,
+    const at::Tensor& linear_bias) {
       
     auto outputs = torch::zeros({batch_size, fully_connected_layer_output_size});
       
     for (int batch = 0; batch<batch_size; batch++) {
       outputs[batch] = torch::sigmoid(
-                          fully_connected_layer -> forward(
-                              encode(time_steps,
-                                    number_of_nodes,
-                                    number_of_node_features,
-                                    w_graph_node_features,
-                                    w_graph_neighbor_messages,
-                                    u_graph_neighbor_messages,
-                                    u_graph_node_features,
-                                    node_features[batch],
-                                    adjacency_matrix[batch]).view({-1})));
+                          torch::add(linear_bias, 
+                          torch::matmul(linear_weight,
+                                encode(time_steps,
+                                      number_of_nodes,
+                                      number_of_node_features,
+                                      w_graph_node_features,
+                                      w_graph_neighbor_messages,
+                                      u_graph_neighbor_messages,
+                                      u_graph_node_features,
+                                      node_features[batch],
+                                      adjacency_matrix[batch]).view({-1}))));
       
     }
     return outputs;
   }
 
+torch::Tensor d_sigmoid(torch::Tensor z) {
+  auto s = torch::sigmoid(z);
+  return (1 - s) * s;
+}
+
+torch::Tensor d_elu(torch::Tensor z, torch::Scalar alpha = 1.0) {
+  auto e = z.exp();
+  auto mask = (alpha * (e - 1)) < 0;
+  return (z > 0).type_as(z) + mask.type_as(z) * (alpha * e);
+}
+
+std::vector<torch::Tensor> backward_cpp(
+  const at::Tensor& grad_output,
+  const at::Tensor& outputs,
+  const at::Tensor& w_graph_node_features,
+  const at::Tensor& w_graph_neighbor_messages,
+  const at::Tensor& u_graph_neighbor_messages,
+  const at::Tensor& u_graph_node_features,
+  const at::Tensor& linear_weight,
+  const at::Tensor& linear_bias) {
+
+  auto d_linear_weight = grad_output*d_sigmoid(outputs) * outputs;
+  auto d_linear_bias = grad_output*d_sigmoid(outputs);
+
+  auto d_u_graph_node_features = grad_output*d_sigmoid(outputs)*linear_weight*d_elu(outputs);
+  auto d_u_graph_neighbor_messages = grad_output*d_sigmoid(outputs)*linear_weight*d_elu(outputs);
+
+  auto d_w_graph_node_features = grad_output*d_sigmoid(outputs)*linear_weight*d_elu(outputs);
+  auto d_w_graph_neighbor_messages = grad_output*d_sigmoid(outputs)*linear_weight*d_elu(outputs);
+
+  return {d_linear_weight, 
+          d_linear_bias, 
+          d_u_graph_node_features, 
+          d_u_graph_neighbor_messages,
+          d_w_graph_node_features,
+          d_w_graph_neighbor_messages};
+}
 
 PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
   m.def("compose_messages", &compose_messages, "RNN encoder compose messages (CPU)");
   m.def("encode_messages", &encode_messages, "RNN encoder encode messages (CPU)");
   m.def("encode", &encode, "RNN encoder encode (CPU)");
-  m.def("forward", &forward, "RNN encoder forward (CPU)");
+  m.def("forward", &forward_cpp, "RNN encoder forward pass (CPU)");
+  m.def("backward", &backward_cpp, "RNN encoder backward pass (CPU)");
 }

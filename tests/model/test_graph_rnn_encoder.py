@@ -22,8 +22,7 @@ class TestGraphRNNEncoder(TestCase):
                                              number_of_nodes=self.number_of_nodes,
                                              number_of_node_features=self.number_of_node_features,
                                              fully_connected_layer_input_size=self.fully_connected_layer_input_size,
-                                             fully_connected_layer_output_size=self.fully_connected_layer_output_size,
-                                             device=self.device)
+                                             fully_connected_layer_output_size=self.fully_connected_layer_output_size)
         self.graph_encoder.w_graph_node_features = nn.Parameter(
             MULTIPLICATION_FACTOR * (to.ones((self.number_of_node_features, self.number_of_node_features))),
             requires_grad=False)
@@ -36,31 +35,49 @@ class TestGraphRNNEncoder(TestCase):
         self.graph_encoder.u_graph_neighbor_messages = nn.Parameter(
             MULTIPLICATION_FACTOR * to.ones((self.number_of_node_features, self.number_of_node_features)),
             requires_grad=False)
-        self.graph_encoder.linear.weight = to.nn.Parameter(
+        self.graph_encoder.linear_weight = to.nn.Parameter(
             MULTIPLICATION_FACTOR * to.ones(self.fully_connected_layer_output_size,
                                             self.fully_connected_layer_input_size),
             requires_grad=False).float()
-        self.graph_encoder.linear.bias = to.nn.Parameter(
+        self.graph_encoder.linear_bias = to.nn.Parameter(
             MULTIPLICATION_FACTOR * to.tensor([i for i in range(self.fully_connected_layer_output_size)]),
             requires_grad=False).float()
 
     def test_encode_graph_returns_the_expected_encoding_for_a_node_after_one_time_step(self):
         # Give
         node = 0
-        node_encoding_expected = to.tensor([[0.5620, 0.5120]])
+        time_steps = 1
+        node_encoding_expected = to.tensor([[0.5400, 0.4900]])
 
         # When
-        node_encoding = self.graph_encoder.encode(BASE_GRAPH_NODE_FEATURES, BASE_GRAPH)[node]
+        node_encoding = rnn_cpp.encode(time_steps,
+                                       self.number_of_nodes,
+                                       self.number_of_node_features,
+                                       self.graph_encoder.w_graph_node_features,
+                                       self.graph_encoder.w_graph_neighbor_messages,
+                                       self.graph_encoder.u_graph_neighbor_messages,
+                                       self.graph_encoder.u_graph_node_features,
+                                       BASE_GRAPH_NODE_FEATURES,
+                                       BASE_GRAPH)[node]
 
         # Then
         self.assertTrue(to.allclose(node_encoding_expected, node_encoding))
 
     def test_encode_graph_returns_the_expected_shape(self):
         # Given
+        time_steps = 1
         encoded_graph_shape_expected = list(BASE_GRAPH_NODE_FEATURES.shape)
 
         # When
-        encoded_graph_shape = self.graph_encoder.encode(BASE_GRAPH_NODE_FEATURES, BASE_GRAPH).shape
+        encoded_graph_shape = rnn_cpp.encode(time_steps,
+                                             self.number_of_nodes,
+                                             self.number_of_node_features,
+                                             self.graph_encoder.w_graph_node_features,
+                                             self.graph_encoder.w_graph_neighbor_messages,
+                                             self.graph_encoder.u_graph_neighbor_messages,
+                                             self.graph_encoder.u_graph_node_features,
+                                             BASE_GRAPH_NODE_FEATURES,
+                                             BASE_GRAPH).shape
 
         # Then
         self.assertEqual(encoded_graph_shape_expected, list(encoded_graph_shape))

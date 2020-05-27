@@ -22,7 +22,8 @@ setup(
             'message-passing-nn = message_passing_nn.cli:main'
         ],
     },
-    ext_modules=[cpp_extension.CppExtension('rnn_encoder_forward', ['message_passing_nn/model/rnn_encoder_forward.cpp'])],
+    ext_modules=[
+        cpp_extension.CppExtension('graph_rnn_encoder_cpp', ['message_passing_nn/model/graph_rnn_encoder.cpp'])],
     cmdclass={'build_ext': cpp_extension.BuildExtension},
     classifiers=[
         'Development Status :: 5 - Production/Stable',
