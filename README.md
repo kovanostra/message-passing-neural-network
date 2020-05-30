@@ -11,6 +11,7 @@
 - [9. Tox build](#9-tox-build)
 - [10. Run the code using docker](#10-run-the-code-using-docker)
 - [11. Azure pipelines](#11-azure-pipelines)
+- [12. Upcoming](#12-upcoming)
 
 
 ### 1. Description
@@ -149,3 +150,8 @@ Please note that this will delete also untagged images created by other projects
 ### 11. Azure pipelines
 
 https://dev.azure.com/kovamos/message-passing-nn
+
+### 12. Upcoming
+
+V1.5.0:
+      - The RNN model will be implemented in C++ (both forward and backward methods)
