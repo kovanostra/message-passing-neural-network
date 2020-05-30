@@ -170,12 +170,6 @@ torch::Tensor d_sigmoid(torch::Tensor z) {
   return (1 - s) * s;
 }
 
-torch::Tensor d_elu(torch::Tensor z, torch::Scalar alpha = 1.0) {
-  auto e = z.exp();
-  auto mask = (alpha * (e - 1)) < 0;
-  return (z > 0).type_as(z) + mask.type_as(z) * (alpha * e);
-}
-
 std::vector<torch::Tensor> backward_cpp(
   const at::Tensor& grad_output,
   const at::Tensor& outputs,
@@ -189,11 +183,11 @@ std::vector<torch::Tensor> backward_cpp(
   auto d_linear_weight = grad_output*d_sigmoid(outputs) * outputs;
   auto d_linear_bias = grad_output*d_sigmoid(outputs);
 
-  auto d_u_graph_node_features = grad_output*d_sigmoid(outputs)*linear_weight*d_elu(outputs);
-  auto d_u_graph_neighbor_messages = grad_output*d_sigmoid(outputs)*linear_weight*d_elu(outputs);
+  auto d_u_graph_node_features = grad_output*d_sigmoid(outputs)*linear_weight;
+  auto d_u_graph_neighbor_messages = grad_output*d_sigmoid(outputs)*linear_weight;
 
-  auto d_w_graph_node_features = grad_output*d_sigmoid(outputs)*linear_weight*d_elu(outputs);
-  auto d_w_graph_neighbor_messages = grad_output*d_sigmoid(outputs)*linear_weight*d_elu(outputs);
+  auto d_w_graph_node_features = grad_output*d_sigmoid(outputs)*linear_weight;
+  auto d_w_graph_neighbor_messages = grad_output*d_sigmoid(outputs)*linear_weight;
 
   return {d_linear_weight, 
           d_linear_bias, 

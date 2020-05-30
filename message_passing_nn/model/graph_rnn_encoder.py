@@ -1,10 +1,10 @@
-import math
+from typing import List
 
 import graph_rnn_encoder_cpp as rnn_encoder_cpp
+import math
 import torch as to
 import torch.nn as nn
 from torch.nn import init
-from typing import Tuple, List
 
 
 class GraphRNNEncoderFunction(to.autograd.Function):
