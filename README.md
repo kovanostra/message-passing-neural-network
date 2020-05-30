@@ -154,4 +154,5 @@ https://dev.azure.com/kovamos/message-passing-nn
 ### 12. Upcoming
 
 V1.5.0:
+
       - The RNN model will be implemented in C++ (both forward and backward methods)
