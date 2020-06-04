@@ -18,8 +18,7 @@ class TestGraphGRUEncoder(TestCase):
                                                 number_of_nodes=number_of_nodes,
                                                 number_of_node_features=number_of_node_features,
                                                 fully_connected_layer_input_size=number_of_nodes * number_of_node_features,
-                                                fully_connected_layer_output_size=number_of_nodes ** 2,
-                                                device=device)
+                                                fully_connected_layer_output_size=number_of_nodes ** 2)
         self.graph_encoder.w_gru_update_gate_features = nn.Parameter(MULTIPLICATION_FACTOR * BASE_UNITY_MATRIX_TENSOR,
                                                                      requires_grad=False)
         self.graph_encoder.w_gru_forget_gate_features = nn.Parameter(MULTIPLICATION_FACTOR * BASE_UNITY_MATRIX_TENSOR,

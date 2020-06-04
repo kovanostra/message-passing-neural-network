@@ -80,8 +80,8 @@ at::Tensor compose_messages(
 at::Tensor encode_messages(
     const int& number_of_nodes,
     const at::Tensor& node_encoding_messages,
-    const at::Tensor& u_graph_neighbor_messages,
     const at::Tensor& u_graph_node_features,
+    const at::Tensor& u_graph_neighbor_messages,
     const at::Tensor& node_features,
     const at::Tensor& adjacency_matrix,
     at::Tensor& messages) {
@@ -104,8 +104,8 @@ at::Tensor encode(
     const int& number_of_node_features,
     const at::Tensor& w_graph_node_features,
     const at::Tensor& w_graph_neighbor_messages,
-    const at::Tensor& u_graph_neighbor_messages,
     const at::Tensor& u_graph_node_features,
+    const at::Tensor& u_graph_neighbor_messages,
     const at::Tensor& node_features,
     const at::Tensor& adjacency_matrix) {
 
@@ -123,14 +123,14 @@ at::Tensor encode(
     return encode_messages(
         number_of_nodes,
         node_encoding_messages,
-        u_graph_neighbor_messages,
         u_graph_node_features,
+        u_graph_neighbor_messages,
         node_features,
         adjacency_matrix,
         messages);
 }
 
-at::Tensor forward_cpp(
+std::vector<torch::Tensor> forward_cpp(
     const int& time_steps,
     const int& number_of_nodes,
     const int& number_of_node_features,
@@ -140,29 +140,30 @@ at::Tensor forward_cpp(
     const at::Tensor& adjacency_matrix,
     const at::Tensor& w_graph_node_features,
     const at::Tensor& w_graph_neighbor_messages,
-    const at::Tensor& u_graph_neighbor_messages,
     const at::Tensor& u_graph_node_features,
+    const at::Tensor& u_graph_neighbor_messages,
     const at::Tensor& linear_weight,
     const at::Tensor& linear_bias) {
       
     auto outputs = torch::zeros({batch_size, fully_connected_layer_output_size});
+    auto encodings = torch::zeros({batch_size, number_of_nodes, number_of_node_features});
       
     for (int batch = 0; batch<batch_size; batch++) {
-      outputs[batch] = torch::sigmoid(
-                          torch::add(linear_bias, 
-                          torch::matmul(linear_weight,
-                                encode(time_steps,
+      encodings[batch] = encode(time_steps,
                                       number_of_nodes,
                                       number_of_node_features,
                                       w_graph_node_features,
                                       w_graph_neighbor_messages,
-                                      u_graph_neighbor_messages,
                                       u_graph_node_features,
+                                      u_graph_neighbor_messages,
                                       node_features[batch],
-                                      adjacency_matrix[batch]).view({-1}))));
+                                      adjacency_matrix[batch]);
+      outputs[batch] = torch::sigmoid(
+                          torch::add(linear_bias, 
+                          torch::matmul(linear_weight,encodings.view({-1}))));
       
     }
-    return outputs;
+    return {outputs, encodings};
   }
 
 torch::Tensor d_sigmoid(torch::Tensor z) {
@@ -173,28 +174,38 @@ torch::Tensor d_sigmoid(torch::Tensor z) {
 std::vector<torch::Tensor> backward_cpp(
   const at::Tensor& grad_output,
   const at::Tensor& outputs,
+  const at::Tensor& encodings_flat,
   const at::Tensor& w_graph_node_features,
   const at::Tensor& w_graph_neighbor_messages,
-  const at::Tensor& u_graph_neighbor_messages,
   const at::Tensor& u_graph_node_features,
+  const at::Tensor& u_graph_neighbor_messages,
   const at::Tensor& linear_weight,
   const at::Tensor& linear_bias) {
 
-  auto d_linear_weight = grad_output*d_sigmoid(outputs) * outputs;
+  // auto d_linear_weight = grad_output*d_sigmoid(outputs) * outputs;
+  // auto d_linear_bias = grad_output*d_sigmoid(outputs);
+
+  // auto d_u_graph_node_features = grad_output*d_sigmoid(outputs)*linear_weight;
+  // auto d_u_graph_neighbor_messages = grad_output*d_sigmoid(outputs)*linear_weight;
+
+  // auto d_w_graph_node_features = grad_output*d_sigmoid(outputs)*linear_weight;
+  // auto d_w_graph_neighbor_messages = grad_output*d_sigmoid(outputs)*linear_weight;
+  auto d_linear_weight = torch::matmul((grad_output*d_sigmoid(outputs)).transpose(0, 1), encodings_flat);
   auto d_linear_bias = grad_output*d_sigmoid(outputs);
 
-  auto d_u_graph_node_features = grad_output*d_sigmoid(outputs)*linear_weight;
-  auto d_u_graph_neighbor_messages = grad_output*d_sigmoid(outputs)*linear_weight;
+  auto d_u_graph_node_features = torch::zeros_like(u_graph_node_features);
+  auto d_u_graph_neighbor_messages = torch::zeros_like(u_graph_neighbor_messages);
 
-  auto d_w_graph_node_features = grad_output*d_sigmoid(outputs)*linear_weight;
-  auto d_w_graph_neighbor_messages = grad_output*d_sigmoid(outputs)*linear_weight;
+  auto d_w_graph_node_features = torch::zeros_like(w_graph_node_features);
+  auto d_w_graph_neighbor_messages = torch::zeros_like(w_graph_neighbor_messages);
 
-  return {d_linear_weight, 
-          d_linear_bias, 
+
+  return {d_w_graph_node_features, 
+          d_w_graph_neighbor_messages, 
           d_u_graph_node_features, 
           d_u_graph_neighbor_messages,
-          d_w_graph_node_features,
-          d_w_graph_neighbor_messages};
+          d_linear_weight,
+          d_linear_bias};
 }
 
 PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {

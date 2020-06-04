@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Any, Tuple
 
 import graph_rnn_encoder_cpp as rnn_encoder_cpp
 import math
@@ -19,11 +19,11 @@ class GraphRNNEncoderFunction(to.autograd.Function):
                 adjacency_matrix: to.Tensor,
                 w_graph_node_features: to.Tensor,
                 w_graph_neighbor_messages: to.Tensor,
-                u_graph_neighbor_messages: to.Tensor,
                 u_graph_node_features: to.Tensor,
+                u_graph_neighbor_messages: to.Tensor,
                 linear_weight: to.Tensor,
                 linear_bias: to.Tensor) -> to.Tensor:
-        outputs = rnn_encoder_cpp.forward(
+        outputs, encodings = rnn_encoder_cpp.forward(
             time_steps,
             number_of_nodes,
             number_of_node_features,
@@ -33,25 +33,50 @@ class GraphRNNEncoderFunction(to.autograd.Function):
             adjacency_matrix,
             w_graph_node_features,
             w_graph_neighbor_messages,
-            u_graph_neighbor_messages,
             u_graph_node_features,
+            u_graph_neighbor_messages,
             linear_weight,
             linear_bias)
         variables = [outputs,
+                     encodings.view(1, 8),
                      w_graph_node_features,
                      w_graph_neighbor_messages,
-                     u_graph_neighbor_messages,
                      u_graph_node_features,
+                     u_graph_neighbor_messages,
                      linear_weight,
                      linear_bias]
         ctx.save_for_backward(*variables)
         return outputs
 
     @staticmethod
-    def backward(ctx, grad_outputs: to.Tensor) -> List[to.Tensor]:
+    def backward(ctx, grad_outputs: to.Tensor) -> Tuple[None,
+                                                        None,
+                                                        None,
+                                                        None,
+                                                        None,
+                                                        None,
+                                                        None,
+                                                        to.Tensor,
+                                                        to.Tensor,
+                                                        to.Tensor,
+                                                        to.Tensor,
+                                                        to.Tensor,
+                                                        to.Tensor]:
         backward_outputs = rnn_encoder_cpp.backward(grad_outputs.contiguous(), *ctx.saved_variables)
-        d_linear_weight, d_linear_bias, d_u_graph_node_features, d_u_graph_neighbor_messages, d_w_graph_node_features, d_w_graph_neighbor_messages = backward_outputs
-        return d_linear_weight, d_linear_bias, d_u_graph_node_features, d_u_graph_neighbor_messages, d_w_graph_node_features, d_w_graph_neighbor_messages
+        d_w_graph_node_features, d_w_graph_neighbor_messages, d_u_graph_neighbor_messages, d_u_graph_node_features, d_linear_weight, d_linear_bias = backward_outputs
+        return None, \
+               None, \
+               None, \
+               None, \
+               None, \
+               None, \
+               None, \
+               d_w_graph_node_features, \
+               d_w_graph_neighbor_messages, \
+               d_u_graph_neighbor_messages, \
+               d_u_graph_node_features, \
+               d_linear_weight, \
+               d_linear_bias
 
 
 class GraphRNNEncoder(nn.Module):
@@ -111,7 +136,7 @@ class GraphRNNEncoder(nn.Module):
                                              adjacency_matrix,
                                              self.w_graph_node_features,
                                              self.w_graph_neighbor_messages,
-                                             self.u_graph_neighbor_messages,
                                              self.u_graph_node_features,
+                                             self.u_graph_neighbor_messages,
                                              self.linear_weight,
                                              self.linear_bias)

@@ -44,14 +44,12 @@ class GraphGRUEncoder(nn.Module):
            number_of_nodes: int,
            number_of_node_features: int,
            fully_connected_layer_input_size: int,
-           fully_connected_layer_output_size: int,
-           device: str):
+           fully_connected_layer_output_size: int):
         return cls(time_steps,
                    number_of_nodes,
                    number_of_node_features,
                    fully_connected_layer_input_size,
-                   fully_connected_layer_output_size,
-                   device)
+                   fully_connected_layer_output_size)
 
     def forward(self,
                 node_features: to.Tensor,
