@@ -193,10 +193,7 @@ std::vector<torch::Tensor> backward_cpp(
   const at::Tensor& batch_size,
   const at::Tensor& number_of_nodes,
   const at::Tensor& number_of_node_features,
-  const at::Tensor& w_graph_node_features,
-  const at::Tensor& w_graph_neighbor_messages,
-  const at::Tensor& u_graph_node_features,
-  const at::Tensor& u_graph_neighbor_messages,
+  const at::Tensor& u_graph_neighbor_messages_summed,
   const at::Tensor& linear_weight,
   const at::Tensor& linear_bias) {
   
@@ -208,9 +205,9 @@ std::vector<torch::Tensor> backward_cpp(
   auto d_u_graph_node_features = torch::matmul(delta_2, node_features.transpose(1, 2));
   auto d_u_graph_neighbor_messages = torch::matmul(delta_2.transpose(1, 2), messages_summed);
 
-  auto delta_3 = delta_2*torch::sum(torch::matmul(u_graph_neighbor_messages, d_relu_4d(messages).transpose(2, 3)));
-  auto d_w_graph_node_features = torch::matmul(delta_3.transpose(1, 2), node_features);
-  auto d_w_graph_neighbor_messages = torch::matmul(delta_3.transpose(1, 2), messages_previous_step_summed);
+  auto delta_3 = torch::matmul(delta_2.transpose(1, 2), torch::matmul(u_graph_neighbor_messages_summed, d_relu_4d(messages).transpose(2, 3)));
+  auto d_w_graph_node_features = torch::matmul(delta_3, node_features);
+  auto d_w_graph_neighbor_messages = torch::matmul(delta_3, messages_previous_step_summed);
 
 
   return {d_w_graph_node_features, 

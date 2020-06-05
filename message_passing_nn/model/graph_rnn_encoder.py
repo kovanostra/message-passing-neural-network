@@ -47,10 +47,7 @@ class GraphRNNEncoderFunction(to.autograd.Function):
                      to.Tensor([batch_size]),
                      to.Tensor([number_of_nodes]),
                      to.Tensor([number_of_node_features]),
-                     w_graph_node_features,
-                     w_graph_neighbor_messages,
-                     u_graph_node_features,
-                     u_graph_neighbor_messages,
+                     to.sum(u_graph_neighbor_messages, dim=0),
                      linear_weight,
                      linear_bias]
         ctx.save_for_backward(*variables)
