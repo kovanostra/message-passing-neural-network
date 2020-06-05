@@ -23,7 +23,7 @@ class GraphRNNEncoderFunction(to.autograd.Function):
                 u_graph_neighbor_messages: to.Tensor,
                 linear_weight: to.Tensor,
                 linear_bias: to.Tensor) -> to.Tensor:
-        outputs, encodings = rnn_encoder_cpp.forward(
+        outputs, linear_outputs, encodings, messages = rnn_encoder_cpp.forward(
             time_steps,
             number_of_nodes,
             number_of_node_features,
@@ -38,7 +38,14 @@ class GraphRNNEncoderFunction(to.autograd.Function):
             linear_weight,
             linear_bias)
         variables = [outputs,
-                     encodings.view(1, 8),
+                     linear_outputs,
+                     encodings.view(batch_size, number_of_nodes*number_of_node_features),
+                     to.sum(to.relu(messages), dim=2).squeeze(),
+                     messages,
+                     node_features,
+                     to.Tensor([batch_size]),
+                     to.Tensor([number_of_nodes]),
+                     to.Tensor([number_of_node_features]),
                      w_graph_node_features,
                      w_graph_neighbor_messages,
                      u_graph_node_features,
@@ -62,7 +69,7 @@ class GraphRNNEncoderFunction(to.autograd.Function):
                                                         to.Tensor,
                                                         to.Tensor,
                                                         to.Tensor]:
-        backward_outputs = rnn_encoder_cpp.backward(grad_outputs.contiguous(), *ctx.saved_variables)
+        backward_outputs = rnn_encoder_cpp.backward(grad_outputs.contiguous(), *ctx.saved_tensors)
         d_w_graph_node_features, d_w_graph_neighbor_messages, d_u_graph_neighbor_messages, d_u_graph_node_features, d_linear_weight, d_linear_bias = backward_outputs
         return None, \
                None, \
