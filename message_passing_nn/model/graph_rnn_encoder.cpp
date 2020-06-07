@@ -70,8 +70,7 @@ std::vector<torch::Tensor> compose_messages(
               messages_from_the_other_neighbors += torch::matmul(w_graph_neighbor_messages, torch::relu(messages_per_time_step[neighbor][node_id]));
           }
         }
-        new_messages[node_id][end_node_id] = torch::add(torch::matmul(w_graph_node_features, 
-                                                                                  node_features[node_id]), 
+        new_messages[node_id][end_node_id] = torch::add(torch::matmul(w_graph_node_features, node_features[node_id]), 
                                                                     messages_from_the_other_neighbors);
       }
     }
@@ -124,7 +123,9 @@ std::vector<torch::Tensor> forward_cpp(
     auto node_encoding_messages = torch::zeros({batch_size, number_of_nodes, number_of_node_features});
     auto encodings = torch::zeros({batch_size, number_of_nodes*number_of_node_features});
       
-    for (int batch = 0; batch<batch_size; batch++) {
+    // for (int batch = 0; batch<batch_size; batch++) {
+    int a[] = {0, batch_size};
+    std::for_each(std::execution::par_unseq, std::begin(a), std::end(a), [&](int batch) {
       auto messages_vector = compose_messages(time_steps,
                                         number_of_nodes,
                                         number_of_node_features,
@@ -144,7 +145,7 @@ std::vector<torch::Tensor> forward_cpp(
                                         torch::relu(messages[batch])).view({-1});
       linear_outputs[batch] = torch::add(linear_bias, torch::matmul(linear_weight, encodings[batch]));
       outputs[batch] = torch::sigmoid(linear_outputs[batch]);
-    }
+    });
     return {outputs, linear_outputs, encodings, messages, messages_previous_step};
   }
 
