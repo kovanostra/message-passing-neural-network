@@ -7,15 +7,15 @@ setup(
     packages=find_packages(exclude=["tests"]),
     url='https://github.com/kovanostra/message-passing-nn',
     download_url='https://github.com/kovanostra/message-passing-nn/archive/1.5.0.tar.gz',
-    keywords=['MESSAGE PASSING', 'NEURAL NETWORK', 'GRU'],
+    keywords=['MESSAGE PASSING', 'NEURAL NETWORK', 'RNN', 'GRU'],
     license='MIT',
     author='Michail Kovanis',
-    description='A message passing neural network with GRU units',
+    description='A message passing neural network with RNN or GRU units',
     install_requires=[
         'click',
         'numpy==1.17.4',
         'pandas==1.0.3',
-        'torch==1.4.0'
+        'torch==1.5.0'
     ],
     entry_points={
         'console_scripts': [
@@ -23,7 +23,10 @@ setup(
         ],
     },
     ext_modules=[
-        cpp_extension.CppExtension('graph_rnn_encoder_cpp', ['message_passing_nn/model/graph_rnn_encoder.cpp'])],
+        cpp_extension.CppExtension('graph_rnn_encoder_cpp',
+                                   sources=['message_passing_nn/model/graph_rnn_encoder.cpp'],
+                                   extra_compile_args=['-fopenmp'],
+                                   extra_link_args=['-lgomp'])],
     cmdclass={'build_ext': cpp_extension.BuildExtension},
     classifiers=[
         'Development Status :: 5 - Production/Stable',

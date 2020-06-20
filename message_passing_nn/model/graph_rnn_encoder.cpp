@@ -1,6 +1,9 @@
 #include <torch/extension.h>
 #include <iostream>
 
+#define _OPENMP
+#include <ATen/ParallelOpenMP.h>
+
 std::vector<int> find_nonzero_elements(const torch::Tensor& tensor){
   std::vector<int> vector;
   for(int index=0; index<tensor.sizes()[0]; index++){
@@ -67,7 +70,8 @@ std::vector<torch::Tensor> compose_messages(
           auto number_of_other_neighbors = static_cast<int>(other_neighbors.size());
           for (int z = 0; z < number_of_other_neighbors; ++z) {
               auto neighbor = other_neighbors[z];
-              messages_from_the_other_neighbors += torch::matmul(w_graph_neighbor_messages, torch::relu(messages_per_time_step[neighbor][node_id]));
+              messages_from_the_other_neighbors += torch::matmul(w_graph_neighbor_messages, 
+                                                                 torch::relu(messages_per_time_step[neighbor][node_id]));
           }
         }
         new_messages[node_id][end_node_id] = torch::add(torch::matmul(w_graph_node_features, node_features[node_id]), 
@@ -123,7 +127,7 @@ std::vector<torch::Tensor> forward_cpp(
     auto node_encoding_messages = torch::zeros({batch_size, number_of_nodes, number_of_node_features});
     auto encodings = torch::zeros({batch_size, number_of_nodes*number_of_node_features});
       
-    for (int batch = 0; batch<batch_size; batch++) {
+    at::parallel_for (int batch = 0; batch<batch_size; batch++) {
       auto messages_vector = compose_messages(time_steps,
                                         number_of_nodes,
                                         number_of_node_features,
