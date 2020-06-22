@@ -16,24 +16,32 @@ std::vector<torch::Tensor> compose_messages(
   auto messages_per_time_step = torch::zeros_like({messages_init});
   auto messages_previous_step = torch::zeros_like({messages_init});
   auto messages_from_the_other_neighbors = torch::zeros_like({messages_per_time_step[0][0]});
+  auto new_messages = torch::zeros_like({messages_per_time_step});
+  std::vector<int> all_neighbors;
+  int number_of_neighbors;
+  int end_node_id;
+  int end_node_index;
+  std::vector<int> other_neighbors;
+  int number_of_other_neighbors;
+  int neighbor;
 
   for (int time_step = 0; time_step<time_steps; time_step++) {
-    auto new_messages = torch::zeros_like({messages_per_time_step});
+    new_messages = torch::zeros_like({messages_per_time_step});
 
     for (int node_id = 0; node_id<number_of_nodes; node_id++) {
-      auto all_neighbors = find_nonzero_elements(adjacency_matrix[node_id]);
-      auto number_of_neighbors = static_cast<int>(all_neighbors.size());
+      all_neighbors = find_nonzero_elements(adjacency_matrix[node_id]);
+      number_of_neighbors = static_cast<int>(all_neighbors.size());
       
       for (int i = 0; i < number_of_neighbors; i++){
-        auto end_node_id = all_neighbors[i];
+        end_node_id = all_neighbors[i];
         messages_from_the_other_neighbors = torch::zeros_like({messages_per_time_step[0][0]});
 
         if (number_of_neighbors > 1) {
-          auto end_node_index = find_index_by_value(all_neighbors, end_node_id);
-          auto other_neighbors = remove_element_by_index_from_vector(all_neighbors, end_node_index);      
-          auto number_of_other_neighbors = static_cast<int>(other_neighbors.size());
+          end_node_index = find_index_by_value(all_neighbors, end_node_id);
+          other_neighbors = remove_element_by_index_from_vector(all_neighbors, end_node_index);      
+          number_of_other_neighbors = static_cast<int>(other_neighbors.size());
           for (int z = 0; z < number_of_other_neighbors; ++z) {
-              auto neighbor = other_neighbors[z];
+              neighbor = other_neighbors[z];
               messages_from_the_other_neighbors += torch::matmul(w_graph_neighbor_messages, 
                                                                  torch::relu(messages_per_time_step[neighbor][node_id]));
           }
