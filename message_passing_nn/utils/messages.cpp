@@ -15,6 +15,7 @@ std::vector<torch::Tensor> compose_messages(
 
   auto messages_per_time_step = torch::zeros_like({messages_init});
   auto messages_previous_step = torch::zeros_like({messages_init});
+  auto messages_from_the_other_neighbors = torch::zeros_like({messages_per_time_step[0][0]});
 
   for (int time_step = 0; time_step<time_steps; time_step++) {
     auto new_messages = torch::zeros_like({messages_per_time_step});
@@ -25,7 +26,7 @@ std::vector<torch::Tensor> compose_messages(
       
       for (int i = 0; i < number_of_neighbors; i++){
         auto end_node_id = all_neighbors[i];
-        auto messages_from_the_other_neighbors = torch::zeros_like({messages_per_time_step[0][0]});
+        messages_from_the_other_neighbors = torch::zeros_like({messages_per_time_step[0][0]});
 
         if (number_of_neighbors > 1) {
           auto end_node_index = find_index_by_value(all_neighbors, end_node_id);
