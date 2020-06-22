@@ -1,5 +1,5 @@
 #include <torch/extension.h>
-#include <utils/array_operations.h>
+#include "array_operations.h"
 
 
 std::vector<torch::Tensor> compose_messages(

@@ -1,3 +1,6 @@
+#ifndef MESSAGES_H
+#define MESSAGES_H
+
 #include <torch/extension.h>
 
 std::vector<torch::Tensor> compose_messages(
@@ -18,3 +21,5 @@ torch::Tensor encode_messages(
     const torch::Tensor& node_features,
     const torch::Tensor& adjacency_matrix,
     const torch::Tensor& messages);
+
+#endif
