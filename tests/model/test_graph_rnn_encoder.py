@@ -172,7 +172,6 @@ class TestGraphRNNEncoder(TestCase):
                                                                  adjacency_matrix[0],
                                                                  messages_init)
         self.assertTrue(messages_step_0.size() == messages_init.size())
-        print(messages_step_0.numpy(), messages_from_model_step_0.numpy())
         self.assertTrue(np.allclose(messages_step_0.numpy(), messages_from_model_step_0.numpy(), atol=1e-02))
         print("Passed first step assertions!")
 
@@ -200,16 +199,15 @@ class TestGraphRNNEncoder(TestCase):
         # -> Step 1
         # Messages
         messages_step_1 = to.relu(to.add(messages_step_1_part_1, messages_step_1_part_2))
-        messages_from_model_step_1, _ = rnn_cpp.compose_messages(1,
+        messages_from_model_step_1, a = rnn_cpp.compose_messages(2,
                                                                  self.graph_encoder.number_of_nodes,
                                                                  self.graph_encoder.number_of_node_features,
                                                                  self.graph_encoder.w_graph_node_features,
                                                                  self.graph_encoder.w_graph_neighbor_messages,
                                                                  node_features[0],
                                                                  adjacency_matrix[0],
-                                                                 messages_step_0)
+                                                                 messages_init)
         self.assertTrue(messages_step_1.size() == messages_init.size())
-        print(messages_step_1.numpy(), messages_from_model_step_1.numpy())
         self.assertTrue(np.allclose(messages_step_1.numpy(), messages_from_model_step_1.numpy(), atol=1e-02))
         print("Passed second step assertions!")
 
