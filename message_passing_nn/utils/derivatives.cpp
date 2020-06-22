@@ -1,4 +1,5 @@
 #include <torch/extension.h>
+#include "../utils/derivatives.h"
 
 torch::Tensor d_sigmoid(torch::Tensor z) {
   auto s = torch::sigmoid(z);

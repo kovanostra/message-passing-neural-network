@@ -9,6 +9,6 @@ export CXX=clang++
 #export CC=gcc
 #export CXX=g++
 python setup.py install
-#export PYTHONPATH=path/to/message-passing-neural-network/
+#export PYTHONPATH=path/to/message-passing-neural-network/conda remove --name myenv --all
 . grid-search-parameters.sh
 python message_passing_nn/cli.py grid-search

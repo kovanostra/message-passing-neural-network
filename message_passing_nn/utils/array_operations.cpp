@@ -1,4 +1,5 @@
 #include <torch/extension.h>
+#include "../utils/array_operations.h"
 
 std::vector<int> find_nonzero_elements(const torch::Tensor& tensor){
   std::vector<int> vector;

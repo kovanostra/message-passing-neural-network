@@ -1,4 +1,4 @@
-from typing import List, Any, Tuple
+from typing import Tuple
 
 import graph_rnn_encoder_cpp as rnn_encoder_cpp
 import math
