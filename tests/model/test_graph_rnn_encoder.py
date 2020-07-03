@@ -48,7 +48,7 @@ class TestGraphRNNEncoder(TestCase):
         node = 0
         time_steps = 1
         batch_size = 1
-        node_encoding_expected = to.tensor([0.3000, 0.3000])
+        node_encoding_expected = to.tensor([0.5400, 0.4900])
 
         # When
         _, _, encodings, _, _ = rnn_cpp.forward(time_steps,
@@ -56,12 +56,12 @@ class TestGraphRNNEncoder(TestCase):
                                                 self.number_of_node_features,
                                                 self.fully_connected_layer_output_size,
                                                 batch_size,
-                                                BASE_GRAPH_NODE_FEATURES,
-                                                BASE_GRAPH,
+                                                BASE_GRAPH_NODE_FEATURES.unsqueeze(0),
+                                                BASE_GRAPH.unsqueeze(0),
                                                 self.graph_encoder.w_graph_node_features,
                                                 self.graph_encoder.w_graph_neighbor_messages,
-                                                self.graph_encoder.u_graph_neighbor_messages,
                                                 self.graph_encoder.u_graph_node_features,
+                                                self.graph_encoder.u_graph_neighbor_messages,
                                                 self.graph_encoder.linear_weight,
                                                 self.graph_encoder.linear_bias)
         node_encodings = encodings[batch_size - 1].view(self.number_of_nodes, self.number_of_node_features)[node]
@@ -81,12 +81,12 @@ class TestGraphRNNEncoder(TestCase):
                                                 self.number_of_node_features,
                                                 self.fully_connected_layer_output_size,
                                                 batch_size,
-                                                BASE_GRAPH_NODE_FEATURES,
-                                                BASE_GRAPH,
+                                                BASE_GRAPH_NODE_FEATURES.unsqueeze(0),
+                                                BASE_GRAPH.unsqueeze(0),
                                                 self.graph_encoder.w_graph_node_features,
                                                 self.graph_encoder.w_graph_neighbor_messages,
-                                                self.graph_encoder.u_graph_neighbor_messages,
                                                 self.graph_encoder.u_graph_node_features,
+                                                self.graph_encoder.u_graph_neighbor_messages,
                                                 self.graph_encoder.linear_weight,
                                                 self.graph_encoder.linear_bias)
 
