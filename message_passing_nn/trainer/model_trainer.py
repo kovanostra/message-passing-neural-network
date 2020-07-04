@@ -76,7 +76,7 @@ class ModelTrainer:
                     current_batch_size = self._get_current_batch_size(labels_validation)
                     outputs = self.model.forward(node_features, adjacency_matrix, current_batch_size)
                     loss = self.loss_function(outputs, labels_validation)
-                    evaluation_loss += loss
+                    evaluation_loss += loss.item()
                 if epoch is not None:
                     self.get_logger().info('[Iteration %d] validation loss: %.3f' % (epoch, evaluation_loss))
                 else:
