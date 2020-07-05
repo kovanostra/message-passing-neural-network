@@ -32,6 +32,10 @@ class DataPreprocessor(Preprocessor):
             test_data = DataLoader(GraphDataset([]))
         return training_data, validation_data, test_data
 
+    @staticmethod
+    def get_dataloader(dataset: List[Tuple[to.Tensor, to.Tensor, to.Tensor]], batch_size: int = 1) -> DataLoader:
+        return DataLoader(GraphDataset(dataset), batch_size)
+
     def equalize_dataset_dimensions(self,
                                     dataset: List[Tuple[to.Tensor, to.Tensor, to.Tensor]],
                                     maximum_number_of_nodes: int = -1,
