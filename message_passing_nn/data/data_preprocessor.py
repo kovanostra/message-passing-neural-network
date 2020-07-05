@@ -5,6 +5,7 @@ import torch as to
 from torch import nn
 from torch.utils.data import DataLoader
 
+from message_passing_nn.graph.node import Node
 from message_passing_nn.data.graph_dataset import GraphDataset
 from message_passing_nn.data.preprocessor import Preprocessor
 
@@ -74,6 +75,25 @@ class DataPreprocessor(Preprocessor):
             return normalizer(tensor)
         else:
             return tensor
+
+    @staticmethod
+    def get_distance_maps(outputs_labels_pairs: List[Tuple[to.Tensor, to.Tensor, to.Tensor]]) -> List[Tuple]:
+        distance_maps = []
+        for pair in outputs_labels_pairs:
+            outputs, labels, adjacency_matrix = pair
+            outputs_distance_map, labels_distance_map = to.zeros_like(adjacency_matrix), to.zeros_like(adjacency_matrix)
+            number_of_nodes = adjacency_matrix.shape[0]
+            counter = 0
+            for node_id in range(number_of_nodes):
+                node = Node(to.empty_like(adjacency_matrix), adjacency_matrix, node_id)
+                for end_node_id in node.neighbors:
+                    outputs_distance_map[node_id, end_node_id] = outputs[counter]
+                    outputs_distance_map[end_node_id, node_id] = outputs[counter]
+                    labels_distance_map[node_id, end_node_id] = labels[counter]
+                    labels_distance_map[end_node_id, node_id] = labels[counter]
+                    counter += 1
+            distance_maps.append((outputs_distance_map.numpy(), labels_distance_map.numpy()))
+        return distance_maps
 
     @staticmethod
     def _pad_zeros(flattened_tensor: to.Tensor, desired_size: int) -> to.Tensor:
