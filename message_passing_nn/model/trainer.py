@@ -56,7 +56,7 @@ class Trainer:
             loss = self.loss_function(outputs, labels)
             training_loss += loss.item()
             self._do_backpropagate(loss)
-        self.get_logger().info('[Iteration %d] training loss: %.3f' % (epoch, training_loss))
+        self.get_logger().info('[Iteration %d] training loss: %.6f' % (epoch, training_loss))
         return training_loss
 
     def do_evaluate(self, evaluation_data: DataLoader, epoch: int = None) -> float:
@@ -76,9 +76,9 @@ class Trainer:
                     loss = self.loss_function(outputs, labels_validation)
                     evaluation_loss += loss.item()
                 if epoch is not None:
-                    self.get_logger().info('[Iteration %d] validation loss: %.3f' % (epoch, evaluation_loss))
+                    self.get_logger().info('[Iteration %d] validation loss: %.6f' % (epoch, evaluation_loss))
                 else:
-                    self.get_logger().info('Test loss: %.3f' % evaluation_loss)
+                    self.get_logger().info('Test loss: %.6f' % evaluation_loss)
             else:
                 self.get_logger().warning('No evaluation data found!')
         return evaluation_loss
