@@ -3,7 +3,7 @@ import logging
 import click
 import sys
 
-from message_passing_nn.create_message_passing_nn import create
+from message_passing_nn.create_message_passing_nn import create_grid_search, create_inference
 
 
 @click.group("message-passing-nn")
@@ -47,22 +47,42 @@ def start_training(dataset_name: str,
                    time_steps: str,
                    validation_period: str) -> None:
     get_logger().info("Starting training")
-    message_passing_nn = create(dataset_name,
-                                data_directory,
-                                model_directory,
-                                results_directory,
-                                model,
-                                device,
-                                epochs,
-                                loss_function,
-                                optimizer,
-                                batch_size,
-                                maximum_number_of_features,
-                                maximum_number_of_nodes,
-                                validation_split,
-                                test_split,
-                                time_steps,
-                                validation_period)
+    message_passing_nn = create_grid_search(dataset_name,
+                                            data_directory,
+                                            model_directory,
+                                            results_directory,
+                                            model,
+                                            device,
+                                            epochs,
+                                            loss_function,
+                                            optimizer,
+                                            batch_size,
+                                            maximum_number_of_features,
+                                            maximum_number_of_nodes,
+                                            validation_split,
+                                            test_split,
+                                            time_steps,
+                                            validation_period)
+    message_passing_nn.start()
+
+
+@click.command('inference', help='Starts the inference')
+@click.argument('dataset_name', envvar='DATASET_NAME', type=str)
+@click.argument('data_directory', envvar='DATA_DIRECTORY', type=str)
+@click.argument('model_directory', envvar='MODEL_DIRECTORY', type=str)
+@click.argument('results_directory', envvar='RESULTS_DIRECTORY', type=str)
+@click.argument('device', envvar='DEVICE', type=str)
+def start_inference(dataset_name: str,
+                    data_directory: str,
+                    model_directory: str,
+                    results_directory: str,
+                    device: str) -> None:
+    get_logger().info("Starting inference")
+    message_passing_nn = create_inference(dataset_name,
+                                          data_directory,
+                                          model_directory,
+                                          results_directory,
+                                          device)
     message_passing_nn.start()
 
 
@@ -90,6 +110,7 @@ def get_logger() -> logging.Logger:
 
 
 main.add_command(start_training)
+main.add_command(start_inference)
 
 if __name__ == '__main__':
     main()

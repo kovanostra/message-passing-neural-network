@@ -1,2 +1,2 @@
-from message_passing_nn.create_message_passing_nn import create
+from message_passing_nn.create_message_passing_nn import create_grid_search
 from message_passing_nn.cli import main
