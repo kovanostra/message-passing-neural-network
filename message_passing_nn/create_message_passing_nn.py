@@ -2,9 +2,12 @@ import logging
 from typing import Any
 
 from message_passing_nn.data.data_preprocessor import DataPreprocessor
+from message_passing_nn.model.inferencer import Inferencer
+from message_passing_nn.model.loader import Loader
+from message_passing_nn.model.trainer import Trainer
 from message_passing_nn.repository.file_system_repository import FileSystemRepository
-from message_passing_nn.trainer.model_trainer import ModelTrainer
 from message_passing_nn.usecase.grid_search import GridSearch
+from message_passing_nn.usecase.inference import Inference
 from message_passing_nn.utils.grid_search_parameters_parser import GridSearchParametersParser
 from message_passing_nn.utils.saver import Saver
 
@@ -49,9 +52,9 @@ def create_grid_search(dataset_name: str,
                                                                                      validation_period)
     file_system_repository = FileSystemRepository(data_directory, dataset_name)
     data_preprocessor = DataPreprocessor()
-    model_trainer = ModelTrainer(data_preprocessor, device)
+    trainer = Trainer(data_preprocessor, device)
     saver = Saver(model_directory, results_directory)
-    grid_search = GridSearch(file_system_repository, data_preprocessor, model_trainer, grid_search_dictionary, saver)
+    grid_search = GridSearch(file_system_repository, data_preprocessor, trainer, grid_search_dictionary, saver)
     return MessagePassingNN(grid_search)
 
 
@@ -62,9 +65,10 @@ def create_inference(dataset_name: str,
                      device: str) -> MessagePassingNN:
     file_system_repository = FileSystemRepository(data_directory, dataset_name)
     data_preprocessor = DataPreprocessor()
-    model_trainer = ModelTrainer(data_preprocessor, device)
+    model_loader = Loader()
+    model_inferencer = Inferencer(device)
     saver = Saver(model_directory, results_directory)
-    inference = Inference(file_system_repository, data_preprocessor, model_trainer, saver)
+    inference = Inference(file_system_repository, data_preprocessor, model_loader, model_inferencer, saver)
     return MessagePassingNN(inference)
 
 

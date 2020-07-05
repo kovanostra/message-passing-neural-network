@@ -94,4 +94,6 @@ std::vector<torch::Tensor> backward_cpp(
 PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
   m.def("forward", &forward_cpp, "RNN encoder forward pass (CPU)");
   m.def("backward", &backward_cpp, "RNN encoder backward pass (CPU)");
+  m.def("compose_messages", &compose_messages, "RNN compose messages (CPU)");
+  m.def("encode_messages", &encode_messages, "RNN encode messages (CPU)");
 }

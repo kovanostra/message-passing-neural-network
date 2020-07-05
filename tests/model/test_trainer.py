@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from message_passing_nn.data.data_preprocessor import DataPreprocessor
-from message_passing_nn.trainer.model_trainer import ModelTrainer
+from message_passing_nn.model.trainer import Trainer
 from tests.fixtures.matrices_and_vectors import BASE_GRAPH, BASE_GRAPH_NODE_FEATURES
 
 
@@ -17,7 +17,7 @@ class TestModelTrainer(TestCase):
                                          "optimizer": optimizer,
                                          "time_steps": time_steps}
         data_preprocessor = DataPreprocessor()
-        self.model_trainer = ModelTrainer(data_preprocessor, device, normalize=True)
+        self.model_trainer = Trainer(data_preprocessor, device, normalize=True)
 
     def test_instantiate_attributes(self):
         # Given

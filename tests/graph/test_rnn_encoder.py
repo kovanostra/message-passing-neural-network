@@ -4,13 +4,13 @@ import torch as to
 from torch import nn
 import numpy as np
 
-from message_passing_nn.model.graph_rnn_encoder import GraphRNNEncoder
+from message_passing_nn.graph.rnn_encoder import RNNEncoder
 from tests.fixtures.matrices_and_vectors import BASE_GRAPH, BASE_GRAPH_NODE_FEATURES, \
     MULTIPLICATION_FACTOR
 import graph_rnn_encoder_cpp as rnn_cpp
 
 
-class TestGraphRNNEncoder(TestCase):
+class TestRNNEncoder(TestCase):
     def setUp(self) -> None:
         self.number_of_nodes = BASE_GRAPH.size()[0]
         self.number_of_node_features = BASE_GRAPH_NODE_FEATURES.size()[1]
@@ -18,11 +18,11 @@ class TestGraphRNNEncoder(TestCase):
         self.fully_connected_layer_output_size = self.number_of_nodes ** 2
         self.device = "cpu"
         self.time_steps = 2
-        self.graph_encoder = GraphRNNEncoder(time_steps=self.time_steps,
-                                             number_of_nodes=self.number_of_nodes,
-                                             number_of_node_features=self.number_of_node_features,
-                                             fully_connected_layer_input_size=self.fully_connected_layer_input_size,
-                                             fully_connected_layer_output_size=self.fully_connected_layer_output_size)
+        self.graph_encoder = RNNEncoder(time_steps=self.time_steps,
+                                        number_of_nodes=self.number_of_nodes,
+                                        number_of_node_features=self.number_of_node_features,
+                                        fully_connected_layer_input_size=self.fully_connected_layer_input_size,
+                                        fully_connected_layer_output_size=self.fully_connected_layer_output_size)
         self.graph_encoder.w_graph_node_features = nn.Parameter(
             MULTIPLICATION_FACTOR * (to.ones((self.number_of_node_features, self.number_of_node_features))),
             requires_grad=False)

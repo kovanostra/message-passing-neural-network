@@ -12,7 +12,7 @@ from message_passing_nn.utils.optimizer_selector import OptimizerSelector
 from message_passing_nn.utils.model_selector import ModelSelector
 
 
-class ModelTrainer:
+class Trainer:
     def __init__(self, preprocessor: Preprocessor, device: str, normalize: bool = False) -> None:
         self.preprocessor = preprocessor
         self.device = device

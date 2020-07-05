@@ -1,13 +1,13 @@
 from typing import Tuple
 
-import graph_rnn_encoder_cpp as rnn_encoder_cpp
+import rnn_encoder_cpp as rnn_encoder_cpp
 import math
 import torch as to
 import torch.nn as nn
 from torch.nn import init
 
 
-class GraphRNNEncoderFunction(to.autograd.Function):
+class RNNEncoderFunction(to.autograd.Function):
     @staticmethod
     def forward(ctx,
                 time_steps: int,
@@ -84,14 +84,14 @@ class GraphRNNEncoderFunction(to.autograd.Function):
                d_linear_bias
 
 
-class GraphRNNEncoder(nn.Module):
+class RNNEncoder(nn.Module):
     def __init__(self,
                  time_steps: int,
                  number_of_nodes: int,
                  number_of_node_features: int,
                  fully_connected_layer_input_size: int,
                  fully_connected_layer_output_size: int) -> None:
-        super(GraphRNNEncoder, self).__init__()
+        super(RNNEncoder, self).__init__()
 
         self.time_steps = time_steps
         self.number_of_nodes = number_of_nodes
@@ -132,16 +132,16 @@ class GraphRNNEncoder(nn.Module):
                 node_features: to.Tensor,
                 adjacency_matrix: to.Tensor,
                 batch_size: int) -> to.Tensor:
-        return GraphRNNEncoderFunction.apply(self.time_steps,
-                                             self.number_of_nodes,
-                                             self.number_of_node_features,
-                                             self.fully_connected_layer_output_size,
-                                             batch_size,
-                                             node_features,
-                                             adjacency_matrix,
-                                             self.w_graph_node_features,
-                                             self.w_graph_neighbor_messages,
-                                             self.u_graph_node_features,
-                                             self.u_graph_neighbor_messages,
-                                             self.linear_weight,
-                                             self.linear_bias)
+        return RNNEncoderFunction.apply(self.time_steps,
+                                        self.number_of_nodes,
+                                        self.number_of_node_features,
+                                        self.fully_connected_layer_output_size,
+                                        batch_size,
+                                        node_features,
+                                        adjacency_matrix,
+                                        self.w_graph_node_features,
+                                        self.w_graph_neighbor_messages,
+                                        self.u_graph_node_features,
+                                        self.u_graph_neighbor_messages,
+                                        self.linear_weight,
+                                        self.linear_bias)

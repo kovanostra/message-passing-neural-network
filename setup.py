@@ -23,11 +23,11 @@ setup(
         ],
     },
     ext_modules=[
-        cpp_extension.CppExtension('graph_rnn_encoder_cpp',
+        cpp_extension.CppExtension('rnn_encoder_cpp',
                                    headers=['message_passing_nn/utils/messages.h',
                                             'message_passing_nn/utils/derivatives.h',
                                             'message_passing_nn/utils/array_operations.h'],
-                                   sources=['message_passing_nn/model/graph_rnn_encoder.cpp',
+                                   sources=['message_passing_nn/graph/rnn_encoder.cpp',
                                             'message_passing_nn/utils/messages.cpp',
                                             'message_passing_nn/utils/derivatives.cpp',
                                             'message_passing_nn/utils/array_operations.cpp'],

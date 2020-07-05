@@ -4,17 +4,17 @@ import torch as to
 import torch.nn as nn
 
 from message_passing_nn.data.data_preprocessor import DataPreprocessor
-from message_passing_nn.model.node import Node
+from message_passing_nn.graph.node import Node
 
 
-class GraphGRUEncoder(nn.Module):
+class GRUEncoder(nn.Module):
     def __init__(self,
                  time_steps: int,
                  number_of_nodes: int,
                  number_of_node_features: int,
                  fully_connected_layer_input_size: int,
                  fully_connected_layer_output_size: int) -> None:
-        super(GraphGRUEncoder, self).__init__()
+        super(GRUEncoder, self).__init__()
         base_tensor_shape = [number_of_node_features, number_of_node_features]
         base_2d_tensor_shape = [number_of_node_features, 1]
 

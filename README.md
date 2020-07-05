@@ -140,7 +140,7 @@ You can clear the docker container and images created by running:
 ```
 . remove-containers-and-images.sh
 ```
-This, by default will remove only tagged images created by the train-model.sh. However, you can uncomment the following lines if you want to remove all stopped containers and untagged images too:
+This, by default will remove only tagged images created by the grid-search-docker.sh. However, you can uncomment the following lines if you want to remove all stopped containers and untagged images too:
 ```
 docker container rm $(docker container ls -aq)
 docker rmi $(docker images | grep "^<none>" | awk "{print $3}")
