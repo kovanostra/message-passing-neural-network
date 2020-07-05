@@ -68,7 +68,7 @@ def create_inference(dataset_name: str,
     file_system_repository = FileSystemRepository(data_directory, dataset_name)
     data_preprocessor = DataPreprocessor()
     model_loader = Loader(model)
-    model_inferencer = Inferencer(device)
+    model_inferencer = Inferencer(data_preprocessor, device)
     saver = Saver(model_directory, results_directory)
     inference = Inference(file_system_repository, data_preprocessor, model_loader, model_inferencer, saver)
     return MessagePassingNN(inference)

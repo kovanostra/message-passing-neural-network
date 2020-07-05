@@ -34,8 +34,8 @@ class DataPreprocessor(Preprocessor):
 
     def equalize_dataset_dimensions(self,
                                     dataset: List[Tuple[to.Tensor, to.Tensor, to.Tensor]],
-                                    maximum_number_of_nodes: int,
-                                    maximum_number_of_features: int) \
+                                    maximum_number_of_nodes: int = -1,
+                                    maximum_number_of_features: int = -1) \
             -> List[Tuple[to.Tensor, to.Tensor, to.Tensor]]:
 
         adjacency_matrix_max_size, features_max_size, labels_max_size = self._get_maximum_data_size(dataset,
