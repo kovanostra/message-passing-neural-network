@@ -10,10 +10,11 @@ from message_passing_nn.usecase.grid_search import GridSearch
 from message_passing_nn.usecase.inference import Inference
 from message_passing_nn.utils.grid_search_parameters_parser import GridSearchParametersParser
 from message_passing_nn.utils.saver import Saver
+from message_passing_nn.usecase import Usecase
 
 
 class MessagePassingNN:
-    def __init__(self, usecase: Any) -> None:
+    def __init__(self, usecase: Usecase) -> None:
         self.usecase = usecase
 
     def start(self):
@@ -62,10 +63,11 @@ def create_inference(dataset_name: str,
                      data_directory: str,
                      model_directory: str,
                      results_directory: str,
+                     model: str,
                      device: str) -> MessagePassingNN:
     file_system_repository = FileSystemRepository(data_directory, dataset_name)
     data_preprocessor = DataPreprocessor()
-    model_loader = Loader()
+    model_loader = Loader(model)
     model_inferencer = Inferencer(device)
     saver = Saver(model_directory, results_directory)
     inference = Inference(file_system_repository, data_preprocessor, model_loader, model_inferencer, saver)

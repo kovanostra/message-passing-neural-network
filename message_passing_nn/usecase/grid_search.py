@@ -9,9 +9,10 @@ from message_passing_nn.data.data_preprocessor import DataPreprocessor
 from message_passing_nn.repository.repository import Repository
 from message_passing_nn.model.trainer import Trainer
 from message_passing_nn.utils.saver import Saver
+from message_passing_nn.usecase import Usecase
 
 
-class GridSearch:
+class GridSearch(Usecase):
     def __init__(self,
                  training_data_repository: Repository,
                  data_preprocessor: DataPreprocessor,

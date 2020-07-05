@@ -71,17 +71,20 @@ def start_training(dataset_name: str,
 @click.argument('data_directory', envvar='DATA_DIRECTORY', type=str)
 @click.argument('model_directory', envvar='MODEL_DIRECTORY', type=str)
 @click.argument('results_directory', envvar='RESULTS_DIRECTORY', type=str)
+@click.argument('model', envvar='MODEL', type=str)
 @click.argument('device', envvar='DEVICE', type=str)
 def start_inference(dataset_name: str,
                     data_directory: str,
                     model_directory: str,
                     results_directory: str,
+                    model: str,
                     device: str) -> None:
     get_logger().info("Starting inference")
     message_passing_nn = create_inference(dataset_name,
                                           data_directory,
                                           model_directory,
                                           results_directory,
+                                          model,
                                           device)
     message_passing_nn.start()
 
