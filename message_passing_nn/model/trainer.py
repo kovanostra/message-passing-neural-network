@@ -52,9 +52,7 @@ class Trainer:
                 node_features = self.preprocessor.normalize(node_features, self.device)
                 labels = self.preprocessor.normalize(labels, self.device)
             self.optimizer.zero_grad()
-            outputs = self.model.forward(node_features,
-                                         adjacency_matrix=adjacency_matrix,
-                                         batch_size=current_batch_size)
+            outputs = self.model.forward(node_features, adjacency_matrix, batch_size=current_batch_size)
             loss = self.loss_function(outputs, labels)
             training_loss += loss.item()
             self._do_backpropagate(loss)

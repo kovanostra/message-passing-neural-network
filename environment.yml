@@ -1,4 +1,4 @@
-name: message-passing-nn
+name: message-passing-neural-network
 channels:
   - pytorch
   - defaults

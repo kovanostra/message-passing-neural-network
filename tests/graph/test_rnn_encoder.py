@@ -7,7 +7,7 @@ import numpy as np
 from message_passing_nn.graph.rnn_encoder import RNNEncoder
 from tests.fixtures.matrices_and_vectors import BASE_GRAPH, BASE_GRAPH_NODE_FEATURES, \
     MULTIPLICATION_FACTOR
-import graph_rnn_encoder_cpp as rnn_cpp
+import rnn_encoder_cpp as rnn_cpp
 
 
 class TestRNNEncoder(TestCase):

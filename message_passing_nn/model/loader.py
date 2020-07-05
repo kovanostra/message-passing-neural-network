@@ -16,7 +16,7 @@ class Loader:
         number_of_nodes = adjacency_matrix_size[0]
         number_of_node_features = node_features_size[1]
         fully_connected_layer_output_size = labels_size[0]
-        self.model = self.model(time_steps=model_parameters['time_steps'],
+        self.model = self.model(time_steps=int(model_parameters['time_steps']),
                                 number_of_nodes=number_of_nodes,
                                 number_of_node_features=number_of_node_features,
                                 fully_connected_layer_input_size=number_of_nodes * number_of_node_features,
@@ -30,6 +30,6 @@ class Loader:
         model_configuration = path_to_model.split("/")[-2].split("__")
         model_parameters = {}
         for model_parameter in model_configuration:
-            key, value = model_parameter.split("_")[0], model_parameter.split("_")[1]
+            key, value = model_parameter.split("&")[0], model_parameter.split("&")[1]
             model_parameters.update({key: value})
         return model_parameters

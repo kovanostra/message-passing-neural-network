@@ -1,16 +1,15 @@
 import logging
-from typing import Any
 
 from message_passing_nn.data.data_preprocessor import DataPreprocessor
 from message_passing_nn.model.inferencer import Inferencer
 from message_passing_nn.model.loader import Loader
 from message_passing_nn.model.trainer import Trainer
 from message_passing_nn.repository.file_system_repository import FileSystemRepository
+from message_passing_nn.usecase import Usecase
 from message_passing_nn.usecase.grid_search import GridSearch
 from message_passing_nn.usecase.inference import Inference
 from message_passing_nn.utils.grid_search_parameters_parser import GridSearchParametersParser
 from message_passing_nn.utils.saver import Saver
-from message_passing_nn.usecase import Usecase
 
 
 class MessagePassingNN:

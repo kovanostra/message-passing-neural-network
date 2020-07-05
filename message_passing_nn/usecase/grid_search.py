@@ -76,9 +76,9 @@ class GridSearch(Usecase):
     @staticmethod
     def _get_grid_search_configuration_dictionary(configuration: Tuple[Tuple]) -> Tuple[str, Dict]:
         grid_search_configuration_dictionary = dict(((key, value) for key, value in configuration))
-        configuration_id = 'configuration_id'
+        configuration_id = 'configuration&id'
         for key, value in grid_search_configuration_dictionary.items():
-            configuration_id += "__" + "_".join([key, str(value)])
+            configuration_id += "__" + "&".join([key, str(value)])
         grid_search_configuration_dictionary.update({"configuration_id": configuration_id})
         return configuration_id, grid_search_configuration_dictionary
 

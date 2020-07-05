@@ -1,6 +1,6 @@
 #!/bin/bash
 conda env create -f environment.yml
-conda activate message-passing-nn
+conda activate message-passing-neural-network
 #FOR MAC
 export MACOSX_DEPLOYMENT_TARGET=10.11
 export CC=clang
