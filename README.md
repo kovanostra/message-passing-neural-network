@@ -1,17 +1,18 @@
 [![Build Status](https://dev.azure.com/kovamos/message-passing-nn/_apis/build/status/kovanostra.message-passing-nn?branchName=master)](https://dev.azure.com/kovamos/message-passing-nn/_build/latest?definitionId=2&branchName=master)
 ### Table of contents
 - [1. Description](#1-description)
-- [2. Import and use](#2-import-as-package)
-- [3. Examples](#3-examples)
-- [4. Requirements](#4-requirements)
-- [5. Environment](#5-environment)
-- [6. Dataset](#6-dataset)
-- [7. Environment variables](#7-environment-variables)
-- [8. Execute a grid search](#8-execute-a-grid-search)
-- [9. Tox build](#9-tox-build)
-- [10. Run the code using docker](#10-run-the-code-using-docker)
-- [11. Azure pipelines](#11-azure-pipelines)
-- [12. Upcoming](#12-upcoming)
+- [2. Build and use](#2-build-and-use)
+- [3. Import and use](#3-import-as-package)
+- [4. Examples](#4-examples)
+- [5. Requirements](#5-requirements)
+- [6. Environment](#6-environment)
+- [7. Dataset](#7-dataset)
+- [8. Environment variables](#8-environment-variables)
+- [9. Execute a grid search](#9-execute-a-grid-search)
+- [10. Tox build](#10-tox-build)
+- [11. Run the code using docker](#11-run-the-code-using-docker)
+- [12. Azure pipelines](#12-azure-pipelines)
+- [13. Upcoming](#13-upcoming)
 
 
 ### 1. Description
@@ -20,18 +21,34 @@ This repository contains:
 1. A pytorch implementation of a message passing neural network with either RNN or GRU units (inspired from https://arxiv.org/abs/1812.01070). 
 2. A wrapper around the model to perform a grid search, and save model checkpoints when the validation error is best for each configuration.
 
-### 2. Import as package
-To install the project using pip please run:
+### 2. Build and use
+
+To use the current version (1.5.0) you need to first build the project. Please clone the repository and then run the build scripts depending on your OS.
+
+Linux
+```
+. linux_build.sh
+```
+
+macOS
+```
+. macos_build.sh
+```
+
+Then you can use the code as in the [examples](#4-examples) or perform a [grid search](#9-execute-a-grid-search). The GRU model can be used without building as it is only python code.
+
+### 3. Import as package
+If you can't build the project you can install the pure python version of the project (version 1.4.2) using pip please run:
 
 ```
 pip install message-passing-nn
 ```
 
-### 3. Examples
+### 4. Examples
 
 The code can be used to either train a single configuration of the message passing neural network or to perform a grid search. For usage examples please look in the example_notebooks/ directory or on the [colab notebook](https://colab.research.google.com/drive/1jFJ7l7jIv22BhvvzlmXOWFtgBE15ea2X).
 
-### 4. Requirements
+### 5. Requirements
 
 Python 3.7.6
 
@@ -50,14 +67,14 @@ torch=1.5.0
 pandas=1.0.3
 ```
 
-### 5. Environment
+### 6. Environment
 To create the "message-passing-nn" conda environment please run:
 
 ```
 conda env create -f environment.yml
 ```
 
-### 6. Dataset
+### 7. Dataset
       
 The repository expects the data to be in the following format:
 
@@ -79,11 +96,11 @@ This repository contains two dataset folders with examples of data to run the co
   - sample-dataset: Contains just one pair of features/labels with some default values. This data lets you run the code in demo mode.
   - protein-folding: Contains pairs of features/labels for various proteins (prepared using https://github.com/simonholmes001/structure_prediction). The features represent protein characteristics, and the labels the distance between all aminoacids.
 
-### 7. Environment variables
+### 8. Environment variables
       
 The model and grid search can be set up using a set of environment variables contained in the grid-search-parameters.sh. Please refer to the ENVIRONMENT_VARIABLES.md for the full list of available environment variables and how to use them.
 
-### 8. Execute a grid search
+### 9. Execute a grid search
        
 Before executing a grid-search please go to the grid-search.sh to add your PYTHONPATH=path/to/message-passing-nn/.
 
@@ -100,7 +117,7 @@ This script will:
 4. Export the environment variables to be used for the Grid Search
 5. Run the grid search
 
-### 9. Tox build
+### 10. Tox build
 
 Tox is a tool which downloads the code dependencies, runs all the tests and, if the tests pass, it builds an artifact in the .tox/dist/ directory. The artifact is name tagged by the version of your code which can be specified in the setup.py.
 
@@ -119,10 +136,10 @@ From the parent directory run (with sudo if necessary):
 tox
 ```
 
-### 10. Run the code using docker
+### 11. Run the code using docker
 The model can be run from inside a docker container (currently cpu only). To do so please execute the following shell script:
 ```
-. grid-search-docker.sh
+. docker-grid-search.sh
 ```
 
 The grid-search-docker.sh will:
@@ -147,12 +164,6 @@ docker rmi $(docker images | grep "^<none>" | awk "{print $3}")
 ```
 Please note that this will delete also untagged images created by other projects, so use with caution.
 
-### 11. Azure pipelines
+### 12. Azure pipelines
 
 https://dev.azure.com/kovamos/message-passing-nn
-
-### 12. Upcoming
-
-V1.5.0:
-
-      - The RNN model will be implemented in C++ (both forward and backward methods)
