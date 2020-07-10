@@ -2,7 +2,7 @@
 export DATASET_NAME='sample-dataset'
 export DATA_DIRECTORY='data/'
 export MODEL_DIRECTORY='model_checkpoints'
-export RESULTS_DIRECTORY='grid_search_results'
+export RESULTS_DIRECTORY='results_grid_search'
 export MODEL='RNN'
 export DEVICE='cpu'
 export EPOCHS='1'
