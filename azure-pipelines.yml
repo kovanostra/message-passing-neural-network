@@ -22,10 +22,6 @@ steps:
   displayName: 'Use Python $(python.version)'
 
 - script: |
-    python -m pip install --upgrade pip
+    python -m unittest discover
     pip install tox
-  displayName: 'Upgrade pip & install tox'
-
-- script: |
-    tox
-  displayName: 'Run tox'
+  displayName: 'Run the tests'
