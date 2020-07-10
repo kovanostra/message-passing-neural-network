@@ -3,9 +3,9 @@ from typing import List
 from unittest import TestCase
 
 from message_passing_nn.data.data_preprocessor import DataPreprocessor
-from message_passing_nn.model.graph_gru_encoder import GraphGRUEncoder
+from message_passing_nn.graph.gru_encoder import GRUEncoder
 from message_passing_nn.repository.file_system_repository import FileSystemRepository
-from message_passing_nn.trainer.model_trainer import ModelTrainer
+from message_passing_nn.model.trainer import Trainer
 from message_passing_nn.usecase.grid_search import GridSearch
 from message_passing_nn.utils.saver import Saver
 from tests.fixtures.matrices_and_vectors import BASE_GRAPH, BASE_GRAPH_NODE_FEATURES
@@ -23,7 +23,7 @@ class TestTraining(TestCase):
         device = "cpu"
         self.repository = FileSystemRepository(self.tests_data_directory, self.dataset)
         self.data_preprocessor = DataPreprocessor()
-        self.model_trainer = ModelTrainer(self.data_preprocessor, device)
+        self.model_trainer = Trainer(self.data_preprocessor, device)
         self.saver = Saver(tests_model_directory, tests_results_directory)
 
     def test_start_for_multiple_batches_of_the_same_size(self):

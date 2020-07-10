@@ -1,7 +1,8 @@
 import logging
 import os
+import pickle
 from datetime import datetime
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 import torch as to
 from pandas import pandas as pd
@@ -18,14 +19,14 @@ class Saver:
         current_folder = self._join_path([self.model_directory, configuration_id])
         if not os.path.exists(current_folder):
             os.makedirs(current_folder)
-        path_and_filename = self._join_path(
-            [current_folder, self._join_strings([EPOCH, str(epoch), MODEL_STATE_DICTIONARY])])
+        path_and_filename = self._join_path([current_folder, self._join_strings([EPOCH,
+                                                                                 str(epoch),
+                                                                                 MODEL_STATE_DICTIONARY])])
         to.save(model.state_dict(), path_and_filename)
         self.get_logger().info("Saved model checkpoint in " + path_and_filename)
 
     def save_results(self, configuration_id: str, results: Dict) -> None:
-        current_folder = self._join_path(
-            [self.results_directory, configuration_id])
+        current_folder = self._join_path([self.results_directory, configuration_id])
         if not os.path.exists(current_folder):
             os.makedirs(current_folder)
         results_dataframe = self._construct_dataframe_from_nested_dictionary(results)
@@ -34,6 +35,17 @@ class Saver:
                                                                  RESULTS_CSV])])
         results_dataframe.to_csv(path_and_filename)
         self.get_logger().info("Saved results in " + path_and_filename)
+
+    def save_distance_maps(self, configuration_id: str, distance_maps: List[Tuple]):
+        current_folder = self._join_path([self.results_directory, configuration_id])
+        if not os.path.exists(current_folder):
+            os.makedirs(current_folder)
+        path_and_filename = self._join_path([current_folder,
+                                             self._join_strings([datetime.now().strftime("%d-%b-%YT%H_%M"),
+                                                                 DISTANCE_MAPS])])
+        with open(path_and_filename, 'wb') as file:
+            pickle.dump(distance_maps, file)
+        self.get_logger().info("Saved inference outputs in " + path_and_filename)
 
     @staticmethod
     def _join_strings(fields: List) -> str:

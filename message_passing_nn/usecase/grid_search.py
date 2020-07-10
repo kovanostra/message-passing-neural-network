@@ -7,20 +7,21 @@ from torch.utils.data.dataloader import DataLoader
 
 from message_passing_nn.data.data_preprocessor import DataPreprocessor
 from message_passing_nn.repository.repository import Repository
-from message_passing_nn.trainer.model_trainer import ModelTrainer
+from message_passing_nn.model.trainer import Trainer
 from message_passing_nn.utils.saver import Saver
+from message_passing_nn.usecase import Usecase
 
 
-class GridSearch:
+class GridSearch(Usecase):
     def __init__(self,
                  training_data_repository: Repository,
                  data_preprocessor: DataPreprocessor,
-                 model_trainer: ModelTrainer,
+                 trainer: Trainer,
                  grid_search_dictionary: Dict,
                  saver: Saver) -> None:
         self.repository = training_data_repository
         self.data_preprocessor = data_preprocessor
-        self.model_trainer = model_trainer
+        self.trainer = trainer
         self.grid_search_dictionary = grid_search_dictionary
         self.saver = saver
 
@@ -47,20 +48,20 @@ class GridSearch:
                               losses: Dict) -> Dict:
         training_data, validation_data, test_data, data_dimensions = self._prepare_dataset(
             grid_search_configuration_dictionary)
-        self.model_trainer.instantiate_attributes(data_dimensions, grid_search_configuration_dictionary)
+        self.trainer.instantiate_attributes(data_dimensions, grid_search_configuration_dictionary)
         losses = self._update_losses_with_configuration_id(grid_search_configuration_dictionary, losses)
         validation_loss_max = np.inf
         for epoch in range(1, grid_search_configuration_dictionary['epochs'] + 1):
-            training_loss = self.model_trainer.do_train(training_data, epoch)
+            training_loss = self.trainer.do_train(training_data, epoch)
             losses['training_loss'][grid_search_configuration_dictionary["configuration_id"]].update(
                 {epoch: training_loss})
             if epoch % grid_search_configuration_dictionary["validation_period"] == 0:
-                validation_loss = self.model_trainer.do_evaluate(validation_data, epoch)
+                validation_loss = self.trainer.do_evaluate(validation_data, epoch)
                 losses['validation_loss'][grid_search_configuration_dictionary["configuration_id"]].update(
                     {epoch: validation_loss})
                 if validation_loss < validation_loss_max:
-                    self.saver.save_model(epoch, configuration_id, self.model_trainer.model)
-        test_loss = self.model_trainer.do_evaluate(test_data)
+                    self.saver.save_model(epoch, configuration_id, self.trainer.model)
+        test_loss = self.trainer.do_evaluate(test_data)
         losses['test_loss'][grid_search_configuration_dictionary["configuration_id"]].update(
             {"final_epoch": test_loss})
         return losses
@@ -75,9 +76,9 @@ class GridSearch:
     @staticmethod
     def _get_grid_search_configuration_dictionary(configuration: Tuple[Tuple]) -> Tuple[str, Dict]:
         grid_search_configuration_dictionary = dict(((key, value) for key, value in configuration))
-        configuration_id = 'configuration_id'
+        configuration_id = 'configuration&id'
         for key, value in grid_search_configuration_dictionary.items():
-            configuration_id += "__" + "_".join([key, str(value)])
+            configuration_id += "__" + "&".join([key, str(value)])
         grid_search_configuration_dictionary.update({"configuration_id": configuration_id})
         return configuration_id, grid_search_configuration_dictionary
 

@@ -4,18 +4,17 @@ import torch as to
 import torch.nn as nn
 
 from message_passing_nn.data.data_preprocessor import DataPreprocessor
-from message_passing_nn.model.node import Node
+from message_passing_nn.graph.node import Node
 
 
-class GraphGRUEncoder(nn.Module):
+class GRUEncoder(nn.Module):
     def __init__(self,
                  time_steps: int,
                  number_of_nodes: int,
                  number_of_node_features: int,
                  fully_connected_layer_input_size: int,
-                 fully_connected_layer_output_size: int,
-                 device: str) -> None:
-        super(GraphGRUEncoder, self).__init__()
+                 fully_connected_layer_output_size: int) -> None:
+        super(GRUEncoder, self).__init__()
         base_tensor_shape = [number_of_node_features, number_of_node_features]
         base_2d_tensor_shape = [number_of_node_features, 1]
 
@@ -24,7 +23,6 @@ class GraphGRUEncoder(nn.Module):
         self.number_of_node_features = number_of_node_features
         self.fully_connected_layer_input_size = fully_connected_layer_input_size
         self.fully_connected_layer_output_size = fully_connected_layer_output_size
-        self.device = device
 
         self.w_gru_update_gate_features = self._get_parameter(base_tensor_shape)
         self.w_gru_forget_gate_features = self._get_parameter(base_tensor_shape)
@@ -46,20 +44,18 @@ class GraphGRUEncoder(nn.Module):
            number_of_nodes: int,
            number_of_node_features: int,
            fully_connected_layer_input_size: int,
-           fully_connected_layer_output_size: int,
-           device: str):
+           fully_connected_layer_output_size: int):
         return cls(time_steps,
                    number_of_nodes,
                    number_of_node_features,
                    fully_connected_layer_input_size,
-                   fully_connected_layer_output_size,
-                   device)
+                   fully_connected_layer_output_size)
 
     def forward(self,
                 node_features: to.Tensor,
                 adjacency_matrix: to.Tensor,
                 batch_size: int) -> to.Tensor:
-        outputs = to.zeros(batch_size, self.fully_connected_layer_output_size, device=self.device)
+        outputs = to.zeros(batch_size, self.fully_connected_layer_output_size)
         for batch in range(batch_size):
             outputs[batch] = self.sigmoid(
                 self.linear(
@@ -74,14 +70,13 @@ class GraphGRUEncoder(nn.Module):
         return encodings
 
     def _send_messages(self, node_features: to.Tensor, adjacency_matrix: to.Tensor) -> to.Tensor:
-        messages = to.zeros((self.number_of_nodes, self.number_of_nodes, self.number_of_node_features),
-                            device=self.device)
+        messages = to.zeros((self.number_of_nodes, self.number_of_nodes, self.number_of_node_features))
         for step in range(self.time_steps):
             messages = self._compose_messages(node_features, adjacency_matrix, messages)
         return messages
 
     def _encode_nodes(self, node_features: to.Tensor, messages: to.Tensor) -> to.Tensor:
-        encoded_node = to.zeros(self.number_of_nodes, self.number_of_node_features, device=self.device)
+        encoded_node = to.zeros(self.number_of_nodes, self.number_of_node_features)
         for node_id in range(self.number_of_nodes):
             encoded_node[node_id] = self._apply_recurrent_layer(node_features, messages, node_id)
         return encoded_node
@@ -95,7 +90,7 @@ class GraphGRUEncoder(nn.Module):
                           node_features: to.Tensor,
                           adjacency_matrix: to.Tensor,
                           messages: to.Tensor) -> to.Tensor:
-        new_messages = to.zeros(messages.shape, device=self.device)
+        new_messages = to.zeros(messages.shape)
         for node_id in range(self.number_of_nodes):
             node = self._create_node(node_features, adjacency_matrix, node_id)
             for end_node_id in node.neighbors:
@@ -117,7 +112,7 @@ class GraphGRUEncoder(nn.Module):
         current_memory = self._get_current_memory_message(messages, node, end_node_id, node_features)
         return to.add(
             to.mul(
-                to.sub(to.ones(update_gate.shape, device=self.device),
+                to.sub(to.ones(update_gate.shape),
                        update_gate),
                 previous_messages),
             to.mul(update_gate,
@@ -127,7 +122,7 @@ class GraphGRUEncoder(nn.Module):
                                                    messages: to.Tensor,
                                                    node: Node,
                                                    end_node_id: int) -> to.Tensor:
-        messages_from_the_other_neighbors = to.zeros(node.features.shape[0], device=self.device)
+        messages_from_the_other_neighbors = to.zeros(node.features.shape[0])
         if node.neighbors_count > 1:
             neighbors_slice = node.get_start_node_neighbors_without_end_node(end_node_id)
             messages_from_the_other_neighbors = to.sum(messages[neighbors_slice], dim=0)
@@ -193,8 +188,9 @@ class GraphGRUEncoder(nn.Module):
                        self.u_gru_update_gate.matmul(messages[node.node_id, end_node_id])),
                 self.b_gru_update_gate)).long()
 
-    def _get_parameter(self, tensor_shape: List[int]) -> nn.Parameter:
-        return nn.Parameter(nn.init.kaiming_normal_(to.zeros(tensor_shape, device=self.device)), requires_grad=True)
+    @staticmethod
+    def _get_parameter(tensor_shape: List[int]) -> nn.Parameter:
+        return nn.Parameter(nn.init.kaiming_normal_(to.zeros(tensor_shape)), requires_grad=True)
 
     @staticmethod
     def _create_node(node_features: to.Tensor, adjacency_matrix: to.Tensor, node_id: int) -> Node:

@@ -12,7 +12,7 @@ from message_passing_nn.utils.optimizer_selector import OptimizerSelector
 from message_passing_nn.utils.model_selector import ModelSelector
 
 
-class ModelTrainer:
+class Trainer:
     def __init__(self, preprocessor: Preprocessor, device: str, normalize: bool = False) -> None:
         self.preprocessor = preprocessor
         self.device = device
@@ -29,12 +29,11 @@ class ModelTrainer:
         number_of_node_features = node_features_size[1]
         fully_connected_layer_output_size = labels_size[0]
         self.model = ModelSelector.load_model(configuration_dictionary['model'])
-        self.model = self.model.of(time_steps=configuration_dictionary['time_steps'],
-                                   number_of_nodes=number_of_nodes,
-                                   number_of_node_features=number_of_node_features,
-                                   fully_connected_layer_input_size=number_of_nodes * number_of_node_features,
-                                   fully_connected_layer_output_size=fully_connected_layer_output_size,
-                                   device=self.device)
+        self.model = self.model(time_steps=configuration_dictionary['time_steps'],
+                                number_of_nodes=number_of_nodes,
+                                number_of_node_features=number_of_node_features,
+                                fully_connected_layer_input_size=number_of_nodes * number_of_node_features,
+                                fully_connected_layer_output_size=fully_connected_layer_output_size)
         self.model.to(self.device)
         self.loss_function = self._instantiate_the_loss_function(
             LossFunctionSelector.load_loss_function(configuration_dictionary['loss_function']))
@@ -53,13 +52,11 @@ class ModelTrainer:
                 node_features = self.preprocessor.normalize(node_features, self.device)
                 labels = self.preprocessor.normalize(labels, self.device)
             self.optimizer.zero_grad()
-            outputs = self.model.forward(node_features,
-                                         adjacency_matrix=adjacency_matrix,
-                                         batch_size=current_batch_size)
+            outputs = self.model.forward(node_features, adjacency_matrix, batch_size=current_batch_size)
             loss = self.loss_function(outputs, labels)
             training_loss += loss.item()
             self._do_backpropagate(loss)
-        self.get_logger().info('[Iteration %d] training loss: %.3f' % (epoch, training_loss))
+        self.get_logger().info('[Iteration %d] training loss: %.6f' % (epoch, training_loss))
         return training_loss
 
     def do_evaluate(self, evaluation_data: DataLoader, epoch: int = None) -> float:
@@ -77,16 +74,17 @@ class ModelTrainer:
                     current_batch_size = self._get_current_batch_size(labels_validation)
                     outputs = self.model.forward(node_features, adjacency_matrix, current_batch_size)
                     loss = self.loss_function(outputs, labels_validation)
-                    evaluation_loss += loss.item()
+                    evaluation_loss += float(loss)
+                evaluation_loss /= len(evaluation_data)
                 if epoch is not None:
-                    self.get_logger().info('[Iteration %d] validation loss: %.3f' % (epoch, evaluation_loss))
+                    self.get_logger().info('[Iteration %d] validation loss: %.6f' % (epoch, evaluation_loss))
                 else:
-                    self.get_logger().info('Test loss: %.3f' % evaluation_loss)
+                    self.get_logger().info('Test loss: %.6f' % evaluation_loss)
             else:
                 self.get_logger().warning('No evaluation data found!')
         return evaluation_loss
 
-    def _do_backpropagate(self, loss: to.Tensor) -> None:
+    def _do_backpropagate(self, loss: to.Tensor) -> float:
         loss.backward()
         self.optimizer.step()
 
