@@ -84,7 +84,7 @@ class Trainer:
                 self.get_logger().warning('No evaluation data found!')
         return evaluation_loss
 
-    def _do_backpropagate(self, loss: to.Tensor, training_loss: float) -> float:
+    def _do_backpropagate(self, loss: to.Tensor) -> float:
         loss.backward()
         self.optimizer.step()
 
