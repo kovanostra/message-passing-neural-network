@@ -30,8 +30,7 @@ class Inference(Usecase):
         inference_dataset, data_dimensions = self._prepare_dataset()
         model = self.loader.load_model(data_dimensions, self.saver.model_directory)
         outputs_labels_pairs = self.inferencer.do_inference(model, inference_dataset)
-        outputs_labels_distance_maps = self.data_preprocessor.get_distance_maps(outputs_labels_pairs)
-        self.saver.save_distance_maps(configuration_id, outputs_labels_distance_maps)
+        self.saver.save_distance_maps(configuration_id, outputs_labels_pairs)
         self.get_logger().info('Finished Inference')
 
     def _prepare_dataset(self) -> Tuple[DataLoader, Tuple]:

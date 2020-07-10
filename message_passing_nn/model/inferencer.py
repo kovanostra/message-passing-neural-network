@@ -25,5 +25,5 @@ class Inferencer:
                     node_features = self.preprocessor.normalize(node_features, self.device)
                     labels = self.preprocessor.normalize(labels, self.device)
                 outputs = model.forward(node_features, adjacency_matrix, batch_size=1)
-                outputs_labels_pairs.append((outputs, labels, adjacency_matrix))
+                outputs_labels_pairs.append((outputs, labels))
         return outputs_labels_pairs
