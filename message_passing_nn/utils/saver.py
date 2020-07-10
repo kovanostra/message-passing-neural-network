@@ -45,7 +45,7 @@ class Saver:
                                                                  DISTANCE_MAPS])])
         with open(path_and_filename, 'wb') as file:
             pickle.dump(distance_maps, file)
-        self.get_logger().info("Saved distance maps in " + path_and_filename)
+        self.get_logger().info("Saved inference outputs in " + path_and_filename)
 
     @staticmethod
     def _join_strings(fields: List) -> str:
