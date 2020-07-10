@@ -23,5 +23,4 @@ steps:
 
 - script: |
     python -m unittest discover
-    pip install tox
   displayName: 'Run the tests'
