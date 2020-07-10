@@ -1,4 +1,4 @@
-**NOT USED FOR GRID SEARCH**
+**GENERAL PARAMETERS**
 
 - Your dataset folder is defined by: 
 
@@ -69,3 +69,9 @@ TIME_STEPS='5'
 - The number of epochs to evaluate the model on the validation set can be controlled by:
 
 VALIDATION_PERIOD='5'
+
+**USED FOR INFERENCE**
+
+- The model to load ('RNN' or 'GRU') is defined by :
+
+MODEL='RNN'
