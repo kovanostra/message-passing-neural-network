@@ -74,7 +74,8 @@ class Trainer:
                     current_batch_size = self._get_current_batch_size(labels_validation)
                     outputs = self.model.forward(node_features, adjacency_matrix, current_batch_size)
                     loss = self.loss_function(outputs, labels_validation)
-                    evaluation_loss += loss.item()
+                    evaluation_loss += float(loss)
+                evaluation_loss /= len(evaluation_data)
                 if epoch is not None:
                     self.get_logger().info('[Iteration %d] validation loss: %.6f' % (epoch, evaluation_loss))
                 else:
@@ -83,7 +84,7 @@ class Trainer:
                 self.get_logger().warning('No evaluation data found!')
         return evaluation_loss
 
-    def _do_backpropagate(self, loss: to.Tensor) -> None:
+    def _do_backpropagate(self, loss: to.Tensor, training_loss: float) -> float:
         loss.backward()
         self.optimizer.step()
 
