@@ -30,9 +30,7 @@ setup(
                                    sources=['message_passing_nn/graph/rnn_encoder.cpp',
                                             'message_passing_nn/utils/messages.cpp',
                                             'message_passing_nn/utils/derivatives.cpp',
-                                            'message_passing_nn/utils/array_operations.cpp'],
-                                   extra_compile_args=['-fopenmp'],
-                                   extra_link_args=['-lgomp'])],
+                                            'message_passing_nn/utils/array_operations.cpp'])],
     cmdclass={'build_ext': cpp_extension.BuildExtension},
     classifiers=[
         'Development Status :: 5 - Production/Stable',
