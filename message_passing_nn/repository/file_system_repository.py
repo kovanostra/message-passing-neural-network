@@ -23,7 +23,7 @@ class FileSystemRepository(Repository):
         dataset = []
         for filename in files_in_path:
             dataset.append((self._get_features(filename), self._get_adjacency_matrix(filename), self._get_labels(filename)))
-        self.get_logger().info("Finished loading dataset")
+        self.get_logger().info("Loaded " + str(len(dataset)) + " files")
         return dataset
 
     def _get_labels(self, filename: str) -> to.Tensor:

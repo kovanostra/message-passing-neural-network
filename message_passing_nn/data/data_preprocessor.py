@@ -30,6 +30,10 @@ class DataPreprocessor(Preprocessor):
             test_data = DataLoader(GraphDataset(dataset[test_index:]), batch_size)
         else:
             test_data = DataLoader(GraphDataset([]))
+        self.get_logger().info("Train/validation/test split: " + "/".join([str(len(training_data)),
+                                                                           str(len(validation_data)),
+                                                                           str(len(test_data))])
+                               + " batches of " + str(batch_size))
         return training_data, validation_data, test_data
 
     @staticmethod

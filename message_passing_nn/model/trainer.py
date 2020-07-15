@@ -1,6 +1,7 @@
 import logging
 from multiprocessing import get_context
 from typing import Dict, Any, Tuple
+import numpy as np
 
 import torch as to
 from torch.nn.modules.module import Module
@@ -47,9 +48,9 @@ class Trainer:
         training_loss = 0.0
         if self.cpu_multiprocessing and self.device == 'cpu':
             with get_context("spawn").Pool() as pool:
-                training_loss += sum(pool.map(self._do_train_batch, training_data))
+                training_loss += np.average(pool.map(self._do_train_batch, training_data))
         else:
-            training_loss += sum(map(self._do_train_batch, training_data))
+            training_loss += np.average(map(self._do_train_batch, training_data))
         self.get_logger().info('[Iteration %d] training loss: %.6f' % (epoch, training_loss))
         return training_loss
 
@@ -71,7 +72,7 @@ class Trainer:
 
     def do_evaluate(self, evaluation_data: DataLoader, epoch: int = None) -> float:
         with to.no_grad():
-            evaluation_loss = 0.0
+            evaluation_loss = []
             if len(evaluation_data):
                 for features_validation, labels_validation in evaluation_data:
                     node_features, adjacency_matrix = features_validation
@@ -84,8 +85,8 @@ class Trainer:
                     current_batch_size = self._get_current_batch_size(labels_validation)
                     outputs = self.model.forward(node_features, adjacency_matrix, current_batch_size)
                     loss = self.loss_function(outputs, labels_validation)
-                    evaluation_loss += float(loss)
-                evaluation_loss /= len(evaluation_data)
+                    evaluation_loss.append(float(loss))
+                evaluation_loss = np.average(evaluation_loss)
                 if epoch is not None:
                     self.get_logger().info('[Iteration %d] validation loss: %.6f' % (epoch, evaluation_loss))
                 else:
@@ -94,7 +95,7 @@ class Trainer:
                 self.get_logger().warning('No evaluation data found!')
         return evaluation_loss
 
-    def _do_backpropagate(self, loss: to.Tensor) -> float:
+    def _do_backpropagate(self, loss: to.Tensor) -> None:
         loss.backward()
         self.optimizer.step()
 
