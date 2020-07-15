@@ -13,7 +13,7 @@ class Inferencer:
         self.device = device
         self.normalize = normalize
 
-    def do_inference(self, model: nn.Module, inference_data: DataLoader) -> List[Tuple]:
+    def do_inference(self, model: nn.Module, inference_data: DataLoader) -> List[Tuple[to.Tensor, to.Tensor]]:
         outputs_labels_pairs = []
         with to.no_grad():
             for features, labels in inference_data:

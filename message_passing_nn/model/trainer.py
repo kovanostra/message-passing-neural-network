@@ -50,7 +50,7 @@ class Trainer:
             with get_context("spawn").Pool() as pool:
                 training_loss += np.average(pool.map(self._do_train_batch, training_data))
         else:
-            training_loss += np.average(map(self._do_train_batch, training_data))
+            training_loss += np.average(list(map(self._do_train_batch, training_data)))
         self.get_logger().info('[Iteration %d] training loss: %.6f' % (epoch, training_loss))
         return training_loss
 
