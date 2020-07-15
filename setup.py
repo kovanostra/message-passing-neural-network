@@ -3,7 +3,7 @@ from torch.utils import cpp_extension
 
 setup(
     name='message-passing-nn',
-    version='1.5.1',
+    version='1.6.0',
     packages=find_packages(exclude=["tests"]),
     url='https://github.com/kovanostra/message-passing-nn',
     download_url='https://github.com/kovanostra/message-passing-nn/archive/1.5.0.tar.gz',
