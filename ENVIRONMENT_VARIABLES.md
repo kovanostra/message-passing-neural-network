@@ -20,6 +20,10 @@ RESULTS_DIRECTORY='grid_search_results'
 
 DEVICE='cpu'
 
+- If the model runs on 'cpu', then the option to use multiprocessing (will use ALL available cores) or not comes from:
+
+CPU_MULTIPROCESSING='True' or 'False'
+
 **USED FOR GRID SEARCH**
 
 To define a range for the grid search please pass the values in the following format:
