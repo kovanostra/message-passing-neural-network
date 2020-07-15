@@ -1,4 +1,4 @@
-**NOT USED FOR GRID SEARCH**
+**GENERAL PARAMETERS**
 
 - Your dataset folder is defined by: 
 
@@ -19,6 +19,10 @@ RESULTS_DIRECTORY='grid_search_results'
 - The option to run the model on 'cpu' or 'cuda' can be controlled by (*cuda recommended only for the 'RNN' model*): 
 
 DEVICE='cpu'
+
+- If the model runs on 'cpu', then the option to use multiprocessing (will use ALL available cores) or not comes from:
+
+CPU_MULTIPROCESSING='True' or 'False'
 
 **USED FOR GRID SEARCH**
 
@@ -69,3 +73,9 @@ TIME_STEPS='5'
 - The number of epochs to evaluate the model on the validation set can be controlled by:
 
 VALIDATION_PERIOD='5'
+
+**USED FOR INFERENCE**
+
+- The model to load ('RNN' or 'GRU') is defined by :
+
+MODEL='RNN'
