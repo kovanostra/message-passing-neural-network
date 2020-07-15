@@ -1,5 +1,5 @@
 import logging
-from multiprocessing import Pool
+from multiprocessing import get_context
 from typing import Dict, Any, Tuple
 
 import torch as to
@@ -43,10 +43,8 @@ class Trainer:
 
     def do_train(self, training_data: DataLoader, epoch: int) -> float:
         training_loss = 0.0
-        pool = Pool()
-        print(pool.map(self._do_train_batch, training_data))
-        training_loss += sum(pool.map(self._do_train_batch, training_data))
-        pool.close()
+        with get_context("spawn").Pool() as pool:
+            training_loss += sum(pool.map(self._do_train_batch, training_data))
         self.get_logger().info('[Iteration %d] training loss: %.6f' % (epoch, training_loss))
         return training_loss
 
