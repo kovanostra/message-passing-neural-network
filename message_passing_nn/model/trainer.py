@@ -1,4 +1,5 @@
 import logging
+from multiprocessing import Pool
 from typing import Dict, Any, Tuple
 
 import torch as to
@@ -8,8 +9,8 @@ from torch.utils.data.dataloader import DataLoader
 
 from message_passing_nn.data.preprocessor import Preprocessor
 from message_passing_nn.utils.loss_function_selector import LossFunctionSelector
-from message_passing_nn.utils.optimizer_selector import OptimizerSelector
 from message_passing_nn.utils.model_selector import ModelSelector
+from message_passing_nn.utils.optimizer_selector import OptimizerSelector
 
 
 class Trainer:
@@ -42,22 +43,28 @@ class Trainer:
 
     def do_train(self, training_data: DataLoader, epoch: int) -> float:
         training_loss = 0.0
-        for features, labels in training_data:
-            node_features, adjacency_matrix = features
-            node_features, adjacency_matrix, labels = node_features.to(self.device), \
-                                                      adjacency_matrix.to(self.device), \
-                                                      labels.to(self.device)
-            current_batch_size = self._get_current_batch_size(labels)
-            if self.normalize:
-                node_features = self.preprocessor.normalize(node_features, self.device)
-                labels = self.preprocessor.normalize(labels, self.device)
-            self.optimizer.zero_grad()
-            outputs = self.model.forward(node_features, adjacency_matrix, batch_size=current_batch_size)
-            loss = self.loss_function(outputs, labels)
-            training_loss += loss.item()
-            self._do_backpropagate(loss)
+        pool = Pool()
+        print(pool.map(self._do_train_batch, training_data))
+        training_loss += sum(pool.map(self._do_train_batch, training_data))
+        pool.close()
         self.get_logger().info('[Iteration %d] training loss: %.6f' % (epoch, training_loss))
         return training_loss
+
+    def _do_train_batch(self, training_data: DataLoader) -> float:
+        features, labels = training_data
+        node_features, adjacency_matrix = features
+        node_features, adjacency_matrix, labels = node_features.to(self.device), \
+                                                  adjacency_matrix.to(self.device), \
+                                                  labels.to(self.device)
+        current_batch_size = self._get_current_batch_size(labels)
+        if self.normalize:
+            node_features = self.preprocessor.normalize(node_features, self.device)
+            labels = self.preprocessor.normalize(labels, self.device)
+        self.optimizer.zero_grad()
+        outputs = self.model.forward(node_features, adjacency_matrix, batch_size=current_batch_size)
+        loss = self.loss_function(outputs, labels)
+        self._do_backpropagate(loss)
+        return loss.item()
 
     def do_evaluate(self, evaluation_data: DataLoader, epoch: int = None) -> float:
         with to.no_grad():
