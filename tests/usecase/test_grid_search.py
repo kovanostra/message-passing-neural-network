@@ -48,13 +48,7 @@ class TestTraining(TestCase):
                                  grid_search_dictionary,
                                  self.saver)
 
-        features_filenames = [str(i) + '_training_features' + '.pickle' for i in range(dataset_size)]
-        adjacency_matrix_filenames = [str(i) + '_training_adjacency-matrix' '.pickle' for i in range(dataset_size)]
-        labels_filenames = [str(i) + '_training_labels' '.pickle' for i in range(dataset_size)]
-        for i in range(dataset_size):
-            self.repository.save(features_filenames[i], self.features)
-            self.repository.save(adjacency_matrix_filenames[i], self.adjacency_matrix)
-            self.repository.save(labels_filenames[i], self.labels)
+        adjacency_matrix_filenames, features_filenames, labels_filenames = self._save_test_data(dataset_size)
 
         # When
         losses = grid_search.start()
@@ -68,6 +62,16 @@ class TestTraining(TestCase):
 
         # Tear down
         self._remove_files(dataset_size, features_filenames, adjacency_matrix_filenames, labels_filenames)
+
+    def _save_test_data(self, dataset_size):
+        features_filenames = [str(i) + '_training_features' + '.pickle' for i in range(dataset_size)]
+        adjacency_matrix_filenames = [str(i) + '_training_adjacency-matrix' '.pickle' for i in range(dataset_size)]
+        labels_filenames = [str(i) + '_training_labels' '.pickle' for i in range(dataset_size)]
+        for i in range(dataset_size):
+            self.repository.save(features_filenames[i], self.features)
+            self.repository.save(adjacency_matrix_filenames[i], self.adjacency_matrix)
+            self.repository.save(labels_filenames[i], self.labels)
+        return adjacency_matrix_filenames, features_filenames, labels_filenames
 
     def test_start_for_multiple_batches_of_differing_size(self):
         # Given
@@ -91,13 +95,7 @@ class TestTraining(TestCase):
                                  grid_search_dictionary,
                                  self.saver)
 
-        features_filenames = [str(i) + '_training_features' + '.pickle' for i in range(dataset_size)]
-        adjacency_matrix_filenames = [str(i) + '_training_adjacency-matrix' '.pickle' for i in range(dataset_size)]
-        labels_filenames = [str(i) + '_training_labels' '.pickle' for i in range(dataset_size)]
-        for i in range(dataset_size):
-            self.repository.save(features_filenames[i], self.features)
-            self.repository.save(adjacency_matrix_filenames[i], self.adjacency_matrix)
-            self.repository.save(labels_filenames[i], self.labels)
+        adjacency_matrix_filenames, features_filenames, labels_filenames = self._save_test_data(dataset_size)
 
         # When
         losses = grid_search.start()
@@ -134,13 +132,7 @@ class TestTraining(TestCase):
                                  grid_search_dictionary,
                                  self.saver)
 
-        features_filenames = [str(i) + '_training_features' + '.pickle' for i in range(dataset_size)]
-        adjacency_matrix_filenames = [str(i) + '_training_adjacency-matrix' '.pickle' for i in range(dataset_size)]
-        labels_filenames = [str(i) + '_training_labels' '.pickle' for i in range(dataset_size)]
-        for i in range(dataset_size):
-            self.repository.save(features_filenames[i], self.features)
-            self.repository.save(adjacency_matrix_filenames[i], self.adjacency_matrix)
-            self.repository.save(labels_filenames[i], self.labels)
+        adjacency_matrix_filenames, features_filenames, labels_filenames = self._save_test_data(dataset_size)
 
         # When
         losses = grid_search.start()
