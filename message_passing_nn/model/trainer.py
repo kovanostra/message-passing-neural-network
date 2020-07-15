@@ -14,9 +14,11 @@ from message_passing_nn.utils.optimizer_selector import OptimizerSelector
 
 
 class Trainer:
-    def __init__(self, preprocessor: Preprocessor, device: str, normalize: bool = False) -> None:
+    def __init__(self, preprocessor: Preprocessor, device: str, cpu_multiprocessing: bool = False,
+                 normalize: bool = False) -> None:
         self.preprocessor = preprocessor
         self.device = device
+        self.cpu_multiprocessing = cpu_multiprocessing
         self.normalize = normalize
         self.model = None
         self.loss_function = None
@@ -43,8 +45,11 @@ class Trainer:
 
     def do_train(self, training_data: DataLoader, epoch: int) -> float:
         training_loss = 0.0
-        with get_context("spawn").Pool() as pool:
-            training_loss += sum(pool.map(self._do_train_batch, training_data))
+        if self.cpu_multiprocessing and self.device == 'cpu':
+            with get_context("spawn").Pool() as pool:
+                training_loss += sum(pool.map(self._do_train_batch, training_data))
+        else:
+            training_loss += sum(map(self._do_train_batch, training_data))
         self.get_logger().info('[Iteration %d] training loss: %.6f' % (epoch, training_loss))
         return training_loss
 
