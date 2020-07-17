@@ -51,6 +51,19 @@ class GRUEncoder(nn.Module):
                    fully_connected_layer_input_size,
                    fully_connected_layer_output_size)
 
+    def get_model_size(self) -> str:
+        return str(int((self.w_gru_update_gate_features.element_size() * self.w_gru_update_gate_features.nelement() +
+                        self.w_gru_forget_gate_features.element_size() * self.w_gru_forget_gate_features.nelement() +
+                        self.w_gru_current_memory_message_features.element_size() * self.w_gru_current_memory_message_features.nelement() +
+                        self.u_gru_update_gate.element_size() * self.u_gru_update_gate.nelement() +
+                        self.u_gru_forget_gate.element_size() * self.u_gru_forget_gate.nelement() +
+                        self.u_gru_current_memory_message.element_size() * self.u_gru_current_memory_message.nelement() +
+                        self.b_gru_update_gate.element_size() * self.b_gru_update_gate.nelement() +
+                        self.b_gru_forget_gate.element_size() * self.b_gru_forget_gate.nelement() +
+                        self.b_gru_current_memory_message.element_size() * self.b_gru_current_memory_message.nelement() +
+                        self.u_graph_node_features.element_size() * self.u_graph_node_features.nelement() +
+                        self.u_graph_neighbor_messages.element_size() * self.u_graph_neighbor_messages.nelement()) * 0.000001))
+
     def forward(self,
                 node_features: to.Tensor,
                 adjacency_matrix: to.Tensor,

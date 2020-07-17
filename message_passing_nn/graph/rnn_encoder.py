@@ -39,7 +39,7 @@ class RNNEncoderFunction(to.autograd.Function):
             linear_bias)
         variables = [outputs,
                      linear_outputs,
-                     encodings.view(batch_size, number_of_nodes*number_of_node_features),
+                     encodings.view(batch_size, number_of_nodes * number_of_node_features),
                      to.sum(to.relu(messages), dim=2).squeeze(),
                      to.sum(to.relu(messages_previous_step), dim=2).squeeze(),
                      messages,
@@ -145,3 +145,11 @@ class RNNEncoder(nn.Module):
                                         self.u_graph_neighbor_messages,
                                         self.linear_weight,
                                         self.linear_bias)
+
+    def get_model_size(self) -> str:
+        return str(int((self.w_graph_node_features.element_size() * self.w_graph_node_features.nelement() +
+                        self.w_graph_neighbor_messages.element_size() * self.w_graph_neighbor_messages.nelement() +
+                        self.u_graph_node_features.element_size() * self.u_graph_node_features.nelement() +
+                        self.u_graph_neighbor_messages.element_size() * self.u_graph_neighbor_messages.nelement() +
+                        self.linear_weight.element_size() * self.linear_weight.nelement() +
+                        self.linear_bias.element_size() * self.linear_bias.nelement()) * 0.000001))

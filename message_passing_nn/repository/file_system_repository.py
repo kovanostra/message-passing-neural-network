@@ -1,6 +1,7 @@
 import logging
 import os
 import pickle
+import sys
 from typing import List, Tuple
 
 import torch as to
@@ -21,10 +22,20 @@ class FileSystemRepository(Repository):
         self.get_logger().info("Loading dataset")
         files_in_path = self._extract_name_prefixes_from_filenames()
         dataset = []
+        size = 0
         for filename in files_in_path:
-            dataset.append((self._get_features(filename), self._get_adjacency_matrix(filename), self._get_labels(filename)))
-        self.get_logger().info("Loaded " + str(len(dataset)) + " files")
+            dataset.append(
+                (self._get_features(filename), self._get_adjacency_matrix(filename), self._get_labels(filename)))
+            size += self._get_size(dataset[-1])
+        self.get_logger().info(
+            "Loaded " + str(len(dataset)) + " files. Size: " + str(int(size * 0.000001)) + " MB")
         return dataset
+
+    @staticmethod
+    def _get_size(data: Tuple[to.Tensor, to.Tensor, to.Tensor]) -> int:
+        return int(data[0].element_size() * data[0].nelement() +
+                   data[1].element_size() * data[1].nelement() +
+                   data[2].element_size() * data[2].nelement())
 
     def _get_labels(self, filename: str) -> to.Tensor:
         with open(self.data_directory + filename + 'labels.pickle', 'rb') as labels_file:
