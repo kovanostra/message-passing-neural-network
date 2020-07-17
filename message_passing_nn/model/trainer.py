@@ -53,8 +53,10 @@ class Trainer:
     def do_train(self, training_data: DataLoader, epoch: int) -> float:
         training_loss = 0.0
         if self.cpu_multiprocessing and self.device == 'cpu':
-            self.get_logger().info('Starting training on ' + str(multiprocessing.cpu_count()) + " CPU cores")
-            with get_context("spawn").Pool() as pool:
+            cpu_cores_to_use = len(training_data) if len(
+                training_data) < multiprocessing.cpu_count() else multiprocessing.cpu_count()
+            self.get_logger().info('Starting training on ' + str(cpu_cores_to_use) + " CPU cores")
+            with get_context("spawn").Pool(cpu_cores_to_use) as pool:
                 training_loss += np.average(pool.map(self._do_train_batch, training_data))
         else:
             self.get_logger().info('Starting training')
