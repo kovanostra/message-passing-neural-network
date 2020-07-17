@@ -59,8 +59,8 @@ def create_grid_search(dataset_name: str,
                              data_preprocessor,
                              trainer,
                              grid_search_dictionary,
-                             eval(cpu_multiprocessing.capitalize()),
-                             saver)
+                             saver,
+                             eval(cpu_multiprocessing.capitalize()))
     return MessagePassingNN(grid_search)
 
 
