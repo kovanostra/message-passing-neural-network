@@ -13,6 +13,7 @@ class FileSystemRepository(Repository):
     def __init__(self, data_directory: str, dataset: str) -> None:
         super().__init__()
         self.data_directory = data_directory + dataset + '/'
+        self.test_mode = False
 
     def save(self, filename: str, data_to_save: to.Tensor) -> None:
         with open(self.data_directory + filename, 'wb') as file:
@@ -23,7 +24,8 @@ class FileSystemRepository(Repository):
         files_in_path = self._extract_name_prefixes_from_filenames()
         dataset = []
         size = 0
-        for filename_index in tqdm(range(len(files_in_path))):
+        disable_progress_bar = self.test_mode
+        for filename_index in tqdm(range(len(files_in_path)), disable=disable_progress_bar):
             filename = files_in_path[filename_index]
             dataset.append(
                 (self._get_features(filename), self._get_adjacency_matrix(filename), self._get_labels(filename)))
@@ -31,6 +33,9 @@ class FileSystemRepository(Repository):
         self.get_logger().info(
             "Loaded " + str(len(dataset)) + " files. Size: " + str(int(size * 0.000001)) + " MB")
         return dataset
+
+    def enable_test_mode(self) -> None:
+        self.test_mode = True
 
     @staticmethod
     def _get_size(data: Tuple[to.Tensor, to.Tensor, to.Tensor]) -> int:

@@ -53,9 +53,14 @@ def create_grid_search(dataset_name: str,
                                                                                      validation_period)
     file_system_repository = FileSystemRepository(data_directory, dataset_name)
     data_preprocessor = DataPreprocessor()
-    trainer = Trainer(data_preprocessor, device, eval(cpu_multiprocessing.capitalize()))
+    trainer = Trainer(data_preprocessor, device)
     saver = Saver(model_directory, results_directory)
-    grid_search = GridSearch(file_system_repository, data_preprocessor, trainer, grid_search_dictionary, saver)
+    grid_search = GridSearch(file_system_repository,
+                             data_preprocessor,
+                             trainer,
+                             grid_search_dictionary,
+                             eval(cpu_multiprocessing.capitalize()),
+                             saver)
     return MessagePassingNN(grid_search)
 
 

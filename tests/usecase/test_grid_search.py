@@ -22,6 +22,7 @@ class TestTraining(TestCase):
         device = "cpu"
         cpu_multiprocessing = False
         self.repository = FileSystemRepository(self.tests_data_directory, self.dataset)
+        self.repository.enable_test_mode()
         self.data_preprocessor = DataPreprocessor()
         self.model_trainer = Trainer(self.data_preprocessor, device, cpu_multiprocessing)
         self.saver = Saver(tests_model_directory, tests_results_directory)

@@ -28,6 +28,7 @@ class TestInference(TestCase):
         tests_results_directory = 'tests/results_inference'
         device = "cpu"
         repository = FileSystemRepository(tests_data_directory, dataset)
+        repository.enable_test_mode()
         data_preprocessor = DataPreprocessor()
         loader = Loader("RNN")
         inferencer = Inferencer(data_preprocessor, device)

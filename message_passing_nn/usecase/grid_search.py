@@ -1,4 +1,6 @@
 import logging
+import os
+from copy import deepcopy
 from typing import Dict, List, Tuple
 
 import itertools
@@ -6,10 +8,10 @@ import numpy as np
 from torch.utils.data.dataloader import DataLoader
 
 from message_passing_nn.data.data_preprocessor import DataPreprocessor
-from message_passing_nn.repository.repository import Repository
 from message_passing_nn.model.trainer import Trainer
-from message_passing_nn.utils.saver import Saver
+from message_passing_nn.repository.repository import Repository
 from message_passing_nn.usecase import Usecase
+from message_passing_nn.utils.saver import Saver
 
 
 class GridSearch(Usecase):
@@ -18,12 +20,14 @@ class GridSearch(Usecase):
                  data_preprocessor: DataPreprocessor,
                  trainer: Trainer,
                  grid_search_dictionary: Dict,
-                 saver: Saver) -> None:
+                 saver: Saver,
+                 cpu_multiprocessing: bool = False) -> None:
         self.repository = training_data_repository
         self.data_preprocessor = data_preprocessor
         self.trainer = trainer
         self.grid_search_dictionary = grid_search_dictionary
         self.saver = saver
+        self.cpu_multiprocessing = cpu_multiprocessing
 
     def start(self) -> Dict:
         all_grid_search_configurations = self._get_all_grid_search_configurations()
@@ -52,6 +56,8 @@ class GridSearch(Usecase):
         losses = self._update_losses_with_configuration_id(grid_search_configuration_dictionary, losses)
         validation_loss_max = np.inf
         for epoch in range(1, grid_search_configuration_dictionary['epochs'] + 1):
+            cpu_cores_to_use = self._get_number_of_cpu_cores_to_use(training_data)
+            self.get_logger().info('Starting training on ' + str(cpu_cores_to_use) + " CPU core(s)")
             training_loss = self.trainer.do_train(training_data, epoch)
             losses['training_loss'][grid_search_configuration_dictionary["configuration_id"]].update(
                 {epoch: training_loss})
@@ -65,6 +71,16 @@ class GridSearch(Usecase):
         losses['test_loss'][grid_search_configuration_dictionary["configuration_id"]].update(
             {"final_epoch": test_loss})
         return losses
+
+    def _get_number_of_cpu_cores_to_use(self, training_data: DataLoader) -> int:
+        if self.cpu_multiprocessing:
+            if len(training_data) < os.cpu_count():
+                cpu_cores_to_use = len(training_data)
+            else:
+                cpu_cores_to_use = deepcopy(os.cpu_count())
+        else:
+            cpu_cores_to_use = 1
+        return cpu_cores_to_use
 
     @staticmethod
     def _update_losses_with_configuration_id(configuration_dictionary: Dict, losses: Dict) -> Dict:

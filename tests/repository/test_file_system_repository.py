@@ -13,6 +13,7 @@ class TestTrainingDataRepository(TestCase):
         self.dataset = 'repo-test-data'
         self.tests_data_directory = 'tests/test_data/'
         self.file_system_repository = FileSystemRepository(self.tests_data_directory, self.dataset)
+        self.file_system_repository.enable_test_mode()
 
     def test_save(self):
         # Given

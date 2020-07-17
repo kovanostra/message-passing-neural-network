@@ -2,7 +2,6 @@ import logging
 from multiprocessing import get_context
 from typing import Dict, Any, Tuple
 
-import multiprocessing
 import numpy as np
 
 import torch as to
@@ -17,11 +16,9 @@ from message_passing_nn.utils.optimizer_selector import OptimizerSelector
 
 
 class Trainer:
-    def __init__(self, preprocessor: Preprocessor, device: str, cpu_multiprocessing: bool = False,
-                 normalize: bool = False) -> None:
+    def __init__(self, preprocessor: Preprocessor, device: str, normalize: bool = False) -> None:
         self.preprocessor = preprocessor
         self.device = device
-        self.cpu_multiprocessing = cpu_multiprocessing
         self.normalize = normalize
         self.model = None
         self.loss_function = None
@@ -50,16 +47,12 @@ class Trainer:
             OptimizerSelector.load_optimizer(configuration_dictionary['optimizer']))
         self.get_logger().info('Optimizer: ' + configuration_dictionary['optimizer'])
 
-    def do_train(self, training_data: DataLoader, epoch: int) -> float:
+    def do_train(self, training_data: DataLoader, epoch: int, cpu_cores_to_use: int = 1) -> float:
         training_loss = 0.0
-        if self.cpu_multiprocessing and self.device == 'cpu':
-            cpu_cores_to_use = len(training_data) if len(
-                training_data) < multiprocessing.cpu_count() else multiprocessing.cpu_count()
-            self.get_logger().info('Starting training on ' + str(cpu_cores_to_use) + " CPU cores")
+        if cpu_cores_to_use > 1 and self.device == 'cpu':
             with get_context("spawn").Pool(cpu_cores_to_use) as pool:
                 training_loss += np.average(pool.map(self._do_train_batch, training_data))
         else:
-            self.get_logger().info('Starting training')
             training_loss += np.average(list(map(self._do_train_batch, training_data)))
         self.get_logger().info('[Iteration %d] training loss: %.6f' % (epoch, training_loss))
         return training_loss
