@@ -1,10 +1,10 @@
 import logging
 import os
 import pickle
-import sys
 from typing import List, Tuple
 
 import torch as to
+from tqdm import tqdm
 
 from message_passing_nn.repository.repository import Repository
 
@@ -23,7 +23,8 @@ class FileSystemRepository(Repository):
         files_in_path = self._extract_name_prefixes_from_filenames()
         dataset = []
         size = 0
-        for filename in files_in_path:
+        for filename_index in tqdm(range(len(files_in_path))):
+            filename = files_in_path[filename_index]
             dataset.append(
                 (self._get_features(filename), self._get_adjacency_matrix(filename), self._get_labels(filename)))
             size += self._get_size(dataset[-1])
@@ -52,14 +53,14 @@ class FileSystemRepository(Repository):
             features = pickle.load(adjacency_matrix_file).float()
         return features
 
-    def _extract_name_prefixes_from_filenames(self):
-        return set([self._reconstruct_filename(file) for file in self._get_data_filenames()])
+    def _extract_name_prefixes_from_filenames(self) -> List[str]:
+        return list(set([self._reconstruct_filename(file) for file in self._get_data_filenames()]))
 
-    def _get_data_filenames(self):
+    def _get_data_filenames(self) -> List[str]:
         return sorted([file for file in os.listdir(self.data_directory) if file.endswith(".pickle")])
 
     @staticmethod
-    def _reconstruct_filename(file):
+    def _reconstruct_filename(file: str) -> str:
         return "_".join(file.split("_")[:-1]) + "_"
 
     @staticmethod

@@ -58,6 +58,7 @@ click
 torch=1.5.0
 numpy==1.17.4
 pandas=1.0.3
+tqdm
 ```
 
 Tests

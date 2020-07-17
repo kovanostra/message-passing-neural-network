@@ -11,3 +11,4 @@ dependencies:
   - pytorch=1.5.0
   - setuptools=46.0.0
   - click
+  - tqdm

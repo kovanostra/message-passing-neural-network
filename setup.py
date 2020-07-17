@@ -15,7 +15,8 @@ setup(
         'click',
         'numpy==1.17.4',
         'pandas==1.0.3',
-        'torch==1.5.0'
+        'torch==1.5.0',
+        'tqdm'
     ],
     entry_points={
         'console_scripts': [
