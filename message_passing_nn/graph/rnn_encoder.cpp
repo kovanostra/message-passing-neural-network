@@ -1,6 +1,7 @@
 #include <torch/extension.h>
 #include "../utils/messages.h"
 #include "../utils/derivatives.h"
+#include "../utils/array_operations.h"
 #include <iostream>
 
 std::vector<torch::Tensor> forward_cpp(
@@ -10,7 +11,7 @@ std::vector<torch::Tensor> forward_cpp(
     const int& fully_connected_layer_output_size,
     const int& batch_size,
     const torch::Tensor& node_features,
-    const torch::Tensor& adjacency_matrix,
+    const torch::Tensor& all_neighbors,
     const torch::Tensor& w_graph_node_features,
     const torch::Tensor& w_graph_neighbor_messages,
     const torch::Tensor& u_graph_node_features,
@@ -24,6 +25,7 @@ std::vector<torch::Tensor> forward_cpp(
     auto messages_previous_step = torch::zeros({batch_size, number_of_nodes, number_of_nodes, number_of_node_features});
     auto node_encoding_messages = torch::zeros({batch_size, number_of_nodes, number_of_node_features});
     auto encodings = torch::zeros({batch_size, number_of_nodes*number_of_node_features});
+    
       
     for (int batch = 0; batch<batch_size; batch++) {
       auto messages_vector = compose_messages(time_steps,
@@ -32,19 +34,19 @@ std::vector<torch::Tensor> forward_cpp(
                                         w_graph_node_features,
                                         w_graph_neighbor_messages,
                                         node_features[batch],
-                                        adjacency_matrix[batch],
+                                        all_neighbors[batch],
                                         messages[batch]);
-      messages[batch] = messages_vector[0];
-      messages_previous_step[batch] = messages_vector[1];
-      encodings[batch] = encode_messages(number_of_nodes,
+      messages[batch] += messages_vector[0];
+      messages_previous_step[batch] += messages_vector[1];
+      encodings[batch] += encode_messages(number_of_nodes,
                                         node_encoding_messages[batch],
                                         u_graph_node_features,
                                         u_graph_neighbor_messages,
                                         node_features[batch],
-                                        adjacency_matrix[batch],
-                                        torch::relu(messages[batch])).view({-1});
-      linear_outputs[batch] = torch::add(linear_bias, torch::matmul(linear_weight, encodings[batch]));
-      outputs[batch] = torch::sigmoid(linear_outputs[batch]);
+                                        all_neighbors[batch],
+                                        messages[batch]).view({-1});
+      linear_outputs[batch] += linear_bias.add_(torch::matmul(linear_weight, encodings[batch]));
+      outputs[batch] += linear_outputs[batch].sigmoid_();
     }
     return {outputs, linear_outputs, encodings, messages, messages_previous_step};
   }

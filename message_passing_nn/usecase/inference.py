@@ -35,9 +35,9 @@ class Inference(Usecase):
 
     def _prepare_dataset(self) -> Tuple[DataLoader, Tuple]:
         raw_dataset = self.repository.get_all_data()
-        equalized_dataset = self.data_preprocessor.equalize_dataset_dimensions(raw_dataset)
-        inference_dataset = self.data_preprocessor.get_dataloader(equalized_dataset)
-        data_dimensions = self.data_preprocessor.extract_data_dimensions(equalized_dataset)
+        dataset = self.data_preprocessor.find_all_node_neighbors(raw_dataset)
+        inference_dataset = self.data_preprocessor.get_dataloader(dataset)
+        data_dimensions = self.data_preprocessor.extract_data_dimensions(raw_dataset)
         return inference_dataset, data_dimensions
 
     @staticmethod

@@ -90,15 +90,13 @@ class GridSearch(Usecase):
 
     def _prepare_dataset(self, configuration_dictionary: Dict) -> Tuple[DataLoader, DataLoader, DataLoader, Tuple]:
         raw_dataset = self.repository.get_all_data()
-        equalized_dataset = self.data_preprocessor.equalize_dataset_dimensions(raw_dataset,
-                                                                               configuration_dictionary['maximum_number_of_nodes'],
-                                                                               configuration_dictionary['maximum_number_of_features'])
+        dataset = self.data_preprocessor.find_all_node_neighbors(raw_dataset)
         training_data, validation_data, test_data = self.data_preprocessor \
-            .train_validation_test_split(equalized_dataset,
+            .train_validation_test_split(dataset,
                                          configuration_dictionary['batch_size'],
                                          configuration_dictionary['validation_split'],
                                          configuration_dictionary['test_split'])
-        data_dimensions = self.data_preprocessor.extract_data_dimensions(equalized_dataset)
+        data_dimensions = self.data_preprocessor.extract_data_dimensions(dataset)
         return training_data, validation_data, test_data, data_dimensions
 
     def _get_all_grid_search_configurations(self) -> List[Tuple[Tuple]]:

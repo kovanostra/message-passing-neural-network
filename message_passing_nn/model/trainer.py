@@ -27,8 +27,8 @@ class Trainer:
     def instantiate_attributes(self,
                                data_dimensions: Tuple,
                                configuration_dictionary: Dict) -> None:
-        node_features_size, adjacency_matrix_size, labels_size = data_dimensions
-        number_of_nodes = adjacency_matrix_size[0]
+        node_features_size, labels_size = data_dimensions
+        number_of_nodes = node_features_size[0]
         number_of_node_features = node_features_size[1]
         fully_connected_layer_output_size = labels_size[0]
         self.model = ModelSelector.load_model(configuration_dictionary['model'])

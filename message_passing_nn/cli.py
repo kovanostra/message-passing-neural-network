@@ -25,8 +25,6 @@ def main(debug):
 @click.argument('loss_function', envvar='LOSS_FUNCTION', type=str)
 @click.argument('optimizer', envvar='OPTIMIZER', type=str)
 @click.argument('batch_size', envvar='BATCH_SIZE', type=str)
-@click.argument('maximum_number_of_features', envvar='MAXIMUM_NUMBER_OF_FEATURES', type=str)
-@click.argument('maximum_number_of_nodes', envvar='MAXIMUM_NUMBER_OF_NODES', type=str)
 @click.argument('validation_split', envvar='VALIDATION_SPLIT', type=str)
 @click.argument('test_split', envvar='TEST_SPLIT', type=str)
 @click.argument('time_steps', envvar='TIME_STEPS', type=str)
@@ -42,8 +40,6 @@ def start_training(dataset_name: str,
                    loss_function: str,
                    optimizer: str,
                    batch_size: str,
-                   maximum_number_of_features: str,
-                   maximum_number_of_nodes: str,
                    validation_split: str,
                    test_split: str,
                    time_steps: str,
@@ -60,8 +56,6 @@ def start_training(dataset_name: str,
                                             loss_function,
                                             optimizer,
                                             batch_size,
-                                            maximum_number_of_features,
-                                            maximum_number_of_nodes,
                                             validation_split,
                                             test_split,
                                             time_steps,

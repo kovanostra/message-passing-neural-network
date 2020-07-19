@@ -29,26 +29,6 @@ class TestGraphPreprocessor(TestCase):
         # Then
         self.assertEqual(train_validation_test_split_expected, train_validation_test_split)
 
-    def test_equalize_sizes(self):
-        # Given
-        node_features_1 = to.ones((2, 5))
-        node_features_2 = to.ones((3, 5))
-        adjacency_matrix_1 = to.ones(2, 2)
-        adjacency_matrix_2 = to.ones(3, 3)
-        labels_1 = to.ones(15)
-        labels_2 = to.ones(20)
-        raw_dataset = [(node_features_1, adjacency_matrix_1, labels_1),
-                       (node_features_2, adjacency_matrix_2, labels_2)]
-
-        # When
-        equalized_dataset = self.data_preprocessor.equalize_dataset_dimensions(raw_dataset, -1, -1)
-        node_features_1, adjacency_matrix_1, labels_1 = equalized_dataset[0]
-
-        # Then
-        self.assertEqual(node_features_1.size(), node_features_2.size())
-        self.assertEqual(adjacency_matrix_1.size(), adjacency_matrix_2.size())
-        self.assertEqual(labels_1.size(), labels_2.size())
-
     def test_extract_data_dimensions(self):
         # Given
         dataset_length = 1
@@ -56,7 +36,7 @@ class TestGraphPreprocessor(TestCase):
         adjacency_matrix = BASE_GRAPH
         labels = BASE_GRAPH.view(-1)
         raw_dataset = [(features, adjacency_matrix, labels) for i in range(dataset_length)]
-        data_dimensions_expected = (features.size(), adjacency_matrix.size(), labels.size())
+        data_dimensions_expected = (features.size(), labels.size())
 
         # When
         data_dimensions = self.data_preprocessor.extract_data_dimensions(raw_dataset)

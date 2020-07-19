@@ -50,14 +50,6 @@ OPTIMIZER='SGD'
 
 BATCH_SIZE='1'
 
-- If the number of features in your dataset is too large please change the following value (-1 will use all of them)
-
-MAXIMUM_NUMBER_OF_FEATURES='-1'
-
-- If the number of nodes in your dataset is too large please change the following value (-1 will use all of them)
-
-MAXIMUM_NUMBER_OF_NODES='-1'
-
 - The validation split can be controlled by:
 
 VALIDATION_SPLIT='0.2'

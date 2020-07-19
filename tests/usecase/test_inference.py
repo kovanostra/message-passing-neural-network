@@ -40,7 +40,8 @@ class TestInference(TestCase):
                               saver)
 
         adjacency_matrix_filenames, features_filenames, labels_filenames = self._save_test_data(adjacency_matrix,
-                                                                                                dataset_size, features,
+                                                                                                dataset_size,
+                                                                                                features,
                                                                                                 labels, repository)
 
         # When
