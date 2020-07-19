@@ -90,6 +90,7 @@ class GridSearch(Usecase):
 
     def _prepare_dataset(self, configuration_dictionary: Dict) -> Tuple[DataLoader, DataLoader, DataLoader, Tuple]:
         raw_dataset = self.repository.get_all_data()
+        self.get_logger().info("Calculating all neighbors for each node in the train/validation/test sets")
         dataset = self.data_preprocessor.find_all_node_neighbors(raw_dataset)
         training_data, validation_data, test_data = self.data_preprocessor \
             .train_validation_test_split(dataset,
