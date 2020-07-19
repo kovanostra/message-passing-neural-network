@@ -4,6 +4,7 @@ from typing import Tuple, List
 import torch as to
 from torch import nn
 from torch.utils.data import DataLoader
+from torch.utils.data.sampler import SubsetRandomSampler
 from tqdm import tqdm
 
 from message_passing_nn.data.graph_dataset import GraphDataset
@@ -16,20 +17,24 @@ class DataPreprocessor(Preprocessor):
         self.test_mode = False
 
     def train_validation_test_split(self,
-                                    dataset: List[Tuple[to.Tensor, to.Tensor, to.Tensor]],
+                                    dataset: GraphDataset,
                                     batch_size: int,
                                     validation_split: float = 0.2,
                                     test_split: float = 0.1) -> Tuple[DataLoader, DataLoader, DataLoader]:
         test_index, validation_index = self._get_validation_and_test_indexes(dataset,
                                                                              validation_split,
                                                                              test_split)
-        training_data = DataLoader(GraphDataset(dataset[:validation_index]), batch_size)
+        train_sampler = SubsetRandomSampler(list(range(validation_index)))
+        validation_sampler = SubsetRandomSampler(list(range(validation_index, test_index)))
+        test_sampler = SubsetRandomSampler(list(range(test_index, len(dataset.dataset))))
+
+        training_data = DataLoader(dataset, batch_size=batch_size, sampler=train_sampler)
         if validation_split:
-            validation_data = DataLoader(GraphDataset(dataset[validation_index:test_index]), batch_size)
+            validation_data = DataLoader(dataset, batch_size=batch_size, sampler=validation_sampler)
         else:
             validation_data = DataLoader(GraphDataset([]))
         if test_split:
-            test_data = DataLoader(GraphDataset(dataset[test_index:]), batch_size)
+            test_data = DataLoader(dataset, batch_size=batch_size, sampler=test_sampler)
         else:
             test_data = DataLoader(GraphDataset([]))
         self.get_logger().info("Train/validation/test split: " + "/".join([str(len(training_data)),
@@ -58,7 +63,7 @@ class DataPreprocessor(Preprocessor):
         return dataset_with_neighbors
 
     @staticmethod
-    def extract_data_dimensions(dataset: List[Tuple[to.Tensor, List[List[int]], to.Tensor]]) -> Tuple:
+    def extract_data_dimensions(dataset: List[Tuple[to.Tensor, to.Tensor, to.Tensor]]) -> Tuple:
         node_features_size = dataset[0][0].size()
         labels_size = dataset[0][2].size()
         return node_features_size, labels_size
@@ -85,7 +90,7 @@ class DataPreprocessor(Preprocessor):
         return flattened_tensor
 
     @staticmethod
-    def _get_validation_and_test_indexes(dataset: List[Tuple[to.Tensor, to.Tensor, to.Tensor]],
+    def _get_validation_and_test_indexes(dataset: GraphDataset,
                                          validation_split: float,
                                          test_split: float) -> Tuple[int, int]:
         validation_index = int((1 - validation_split - test_split) * len(dataset))

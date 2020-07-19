@@ -4,6 +4,7 @@ from typing import Dict, List, Tuple
 
 import itertools
 import numpy as np
+from message_passing_nn.data.graph_dataset import GraphDataset
 from torch.utils.data.dataloader import DataLoader
 
 from message_passing_nn.data.data_preprocessor import DataPreprocessor
@@ -89,9 +90,8 @@ class GridSearch(Usecase):
         return configuration_id, configuration_dictionary
 
     def _prepare_dataset(self, configuration_dictionary: Dict) -> Tuple[DataLoader, DataLoader, DataLoader, Tuple]:
-        raw_dataset = self.repository.get_all_data()
+        dataset = GraphDataset(self.repository.data_directory)
         self.get_logger().info("Calculating all neighbors for each node")
-        dataset = self.data_preprocessor.find_all_node_neighbors(raw_dataset)
         training_data, validation_data, test_data = self.data_preprocessor \
             .train_validation_test_split(dataset,
                                          configuration_dictionary['batch_size'],
