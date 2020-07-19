@@ -38,7 +38,7 @@ class Trainer:
                                 fully_connected_layer_input_size=number_of_nodes * number_of_node_features,
                                 fully_connected_layer_output_size=fully_connected_layer_output_size)
         self.get_logger().info('Loaded the ' + configuration_dictionary['model'] +
-                               ' model. Model size: ' + self.model.get_model_size() + ' MB')
+                               ' model. Model weights size: ' + self.model.get_model_size() + ' MB')
         self.model.to(self.device)
         self.loss_function = self._instantiate_the_loss_function(
             LossFunctionSelector.load_loss_function(configuration_dictionary['loss_function']))
@@ -60,9 +60,9 @@ class Trainer:
     def _do_train_batch(self, training_data: DataLoader) -> float:
         features, labels = training_data
         node_features, adjacency_matrix = features
-        node_features, adjacency_matrix, labels = node_features.to(self.device), \
-                                                  adjacency_matrix.to(self.device), \
-                                                  labels.to(self.device)
+        node_features, adjacency_matrix, labels = (node_features.to(self.device),
+                                                   adjacency_matrix.to(self.device),
+                                                   labels.to(self.device))
         current_batch_size = self._get_current_batch_size(labels)
         if self.normalize:
             node_features = self.preprocessor.normalize(node_features, self.device)
@@ -79,9 +79,9 @@ class Trainer:
             if len(evaluation_data):
                 for features_validation, labels_validation in evaluation_data:
                     node_features, adjacency_matrix = features_validation
-                    node_features, adjacency_matrix, labels_validation = node_features.to(self.device), \
-                                                                         adjacency_matrix.to(self.device), \
-                                                                         labels_validation.to(self.device)
+                    node_features, adjacency_matrix, labels_validation = (node_features.to(self.device),
+                                                                          adjacency_matrix.to(self.device),
+                                                                          labels_validation.to(self.device))
                     if self.normalize:
                         node_features = self.preprocessor.normalize(node_features, self.device)
                         labels_validation = self.preprocessor.normalize(labels_validation, self.device)
