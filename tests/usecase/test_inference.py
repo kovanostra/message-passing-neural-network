@@ -30,6 +30,7 @@ class TestInference(TestCase):
         repository = FileSystemRepository(tests_data_directory, dataset)
         repository.enable_test_mode()
         data_preprocessor = DataPreprocessor()
+        data_preprocessor.enable_test_mode()
         loader = Loader("RNN")
         inferencer = Inferencer(data_preprocessor, device)
         saver = Saver(tests_model_directory, tests_results_directory)

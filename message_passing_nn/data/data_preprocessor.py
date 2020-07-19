@@ -13,9 +13,10 @@ from message_passing_nn.data.preprocessor import Preprocessor
 class DataPreprocessor(Preprocessor):
     def __init__(self):
         super().__init__()
+        self.test_mode = False
 
     def train_validation_test_split(self,
-                                    dataset: List[Tuple[to.Tensor, List[List[int]], to.Tensor]],
+                                    dataset: List[Tuple[to.Tensor, to.Tensor, to.Tensor]],
                                     batch_size: int,
                                     validation_split: float = 0.2,
                                     test_split: float = 0.1) -> Tuple[DataLoader, DataLoader, DataLoader]:
@@ -38,14 +39,14 @@ class DataPreprocessor(Preprocessor):
         return training_data, validation_data, test_data
 
     @staticmethod
-    def get_dataloader(dataset: List[Tuple[to.Tensor, List[List[int]], to.Tensor]], batch_size: int = 1) -> DataLoader:
+    def get_dataloader(dataset: List[Tuple[to.Tensor, to.Tensor, to.Tensor]], batch_size: int = 1) -> DataLoader:
         return DataLoader(GraphDataset(dataset), batch_size)
 
-    @staticmethod
-    def find_all_node_neighbors(dataset: List[Tuple[to.Tensor, to.Tensor, to.Tensor]]) -> List[
+    def find_all_node_neighbors(self, dataset: List[Tuple[to.Tensor, to.Tensor, to.Tensor]]) -> List[
         Tuple[to.Tensor, to.Tensor, to.Tensor]]:
         dataset_with_neighbors = []
-        for index in tqdm(range(len(dataset))):
+        disable_progress_bar = self.test_mode
+        for index in tqdm(range(len(dataset)), disable=disable_progress_bar):
             features, adjacency_matrix, labels = dataset[index]
             number_of_nodes = features.shape[0]
             all_neighbors = to.zeros(number_of_nodes, number_of_nodes) - to.ones(number_of_nodes, number_of_nodes)
@@ -84,12 +85,15 @@ class DataPreprocessor(Preprocessor):
         return flattened_tensor
 
     @staticmethod
-    def _get_validation_and_test_indexes(dataset: List[Tuple[to.Tensor, List[List[int]], to.Tensor]],
+    def _get_validation_and_test_indexes(dataset: List[Tuple[to.Tensor, to.Tensor, to.Tensor]],
                                          validation_split: float,
                                          test_split: float) -> Tuple[int, int]:
         validation_index = int((1 - validation_split - test_split) * len(dataset))
         test_index = int((1 - test_split) * len(dataset))
         return test_index, validation_index
+
+    def enable_test_mode(self) -> None:
+        self.test_mode = True
 
     @staticmethod
     def get_logger() -> logging.Logger:

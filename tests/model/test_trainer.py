@@ -41,7 +41,10 @@ class TestModelTrainer(TestCase):
         data_dimensions = (BASE_GRAPH_NODE_FEATURES.size(), BASE_GRAPH.view(-1).size())
         self.model_trainer.instantiate_attributes(data_dimensions,
                                                   self.configuration_dictionary)
-        all_neighbors = [[1, 2], [0, 2], [0, 1, 3], [2]]
+        all_neighbors = to.tensor([[1, 2, -1, -1],
+                                   [0, 2, -1, -1],
+                                   [0, 1, 3, -1],
+                                   [2, -1, -1, -1]])
         dataset = [(BASE_GRAPH_NODE_FEATURES, all_neighbors, BASE_GRAPH.view(-1))]
         training_data, _, _ = DataPreprocessor().train_validation_test_split(dataset, 1, 0.0, 0.0)
 
@@ -56,7 +59,10 @@ class TestModelTrainer(TestCase):
         data_dimensions = (BASE_GRAPH_NODE_FEATURES.size(), BASE_GRAPH.view(-1).size())
         self.model_trainer.instantiate_attributes(data_dimensions,
                                                   self.configuration_dictionary)
-        all_neighbors = [[1, 2], [0, 2], [0, 1, 3], [2]]
+        all_neighbors = to.tensor([[1, 2, -1, -1],
+                                   [0, 2, -1, -1],
+                                   [0, 1, 3, -1],
+                                   [2, -1, -1, -1]])
         dataset = [(BASE_GRAPH_NODE_FEATURES, all_neighbors, BASE_GRAPH.view(-1))]
         training_data, _, _ = DataPreprocessor().train_validation_test_split(dataset, 1, 0.0, 0.0)
 

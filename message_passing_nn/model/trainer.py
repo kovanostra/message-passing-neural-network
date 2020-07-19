@@ -59,16 +59,16 @@ class Trainer:
 
     def _do_train_batch(self, training_data: DataLoader) -> float:
         features, labels = training_data
-        node_features, adjacency_matrix = features
-        node_features, adjacency_matrix, labels = (node_features.to(self.device),
-                                                   adjacency_matrix.to(self.device),
-                                                   labels.to(self.device))
+        node_features, all_neighbors = features
+        node_features, all_neighbors, labels = (node_features.to(self.device),
+                                                all_neighbors.to(self.device),
+                                                labels.to(self.device))
         current_batch_size = self._get_current_batch_size(labels)
         if self.normalize:
             node_features = self.preprocessor.normalize(node_features, self.device)
             labels = self.preprocessor.normalize(labels, self.device)
         self.optimizer.zero_grad()
-        outputs = self.model.forward(node_features, adjacency_matrix, batch_size=current_batch_size)
+        outputs = self.model.forward(node_features, all_neighbors, batch_size=current_batch_size)
         loss = self.loss_function(outputs, labels)
         self._do_backpropagate(loss)
         return loss.item()
@@ -78,15 +78,15 @@ class Trainer:
             evaluation_loss = []
             if len(evaluation_data):
                 for features_validation, labels_validation in evaluation_data:
-                    node_features, adjacency_matrix = features_validation
-                    node_features, adjacency_matrix, labels_validation = (node_features.to(self.device),
-                                                                          adjacency_matrix.to(self.device),
-                                                                          labels_validation.to(self.device))
+                    node_features, all_neighbors = features_validation
+                    node_features, all_neighbors, labels_validation = (node_features.to(self.device),
+                                                                       all_neighbors.to(self.device),
+                                                                       labels_validation.to(self.device))
                     if self.normalize:
                         node_features = self.preprocessor.normalize(node_features, self.device)
                         labels_validation = self.preprocessor.normalize(labels_validation, self.device)
                     current_batch_size = self._get_current_batch_size(labels_validation)
-                    outputs = self.model.forward(node_features, adjacency_matrix, current_batch_size)
+                    outputs = self.model.forward(node_features, all_neighbors, current_batch_size)
                     loss = self.loss_function(outputs, labels_validation)
                     evaluation_loss.append(float(loss))
                 evaluation_loss = np.average(evaluation_loss)
