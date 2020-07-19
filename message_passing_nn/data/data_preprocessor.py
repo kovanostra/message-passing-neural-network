@@ -4,6 +4,7 @@ from typing import Tuple, List
 import torch as to
 from torch import nn
 from torch.utils.data import DataLoader
+from tqdm import tqdm
 
 from message_passing_nn.data.graph_dataset import GraphDataset
 from message_passing_nn.data.preprocessor import Preprocessor
@@ -42,12 +43,16 @@ class DataPreprocessor(Preprocessor):
 
     @staticmethod
     def find_all_node_neighbors(dataset: List[Tuple[to.Tensor, to.Tensor, to.Tensor]]) -> List[
-        Tuple[to.Tensor, List[List[int]], to.Tensor]]:
+        Tuple[to.Tensor, to.Tensor, to.Tensor]]:
         dataset_with_neighbors = []
-        for element in dataset:
-            features, adjacency_matrix, labels = element
-            all_neighbors = [to.nonzero(adjacency_matrix[node_id], as_tuple=True)[0].tolist() for node_id in
-                             range(adjacency_matrix.shape[0])]
+        for index in tqdm(range(len(dataset))):
+            features, adjacency_matrix, labels = dataset[index]
+            number_of_nodes = features.shape[0]
+            all_neighbors = to.zeros(number_of_nodes, number_of_nodes) - to.ones(number_of_nodes, number_of_nodes)
+            all_neighbors_list = [to.nonzero(adjacency_matrix[node_id], as_tuple=True)[0].tolist() for node_id in
+                                  range(adjacency_matrix.shape[0])]
+            for node_id in range(number_of_nodes):
+                all_neighbors[node_id, :len(all_neighbors_list[node_id])] = to.tensor(all_neighbors_list[node_id])
             dataset_with_neighbors.append((features, all_neighbors, labels))
         return dataset_with_neighbors
 

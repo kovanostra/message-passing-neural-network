@@ -35,7 +35,7 @@ class Inference(Usecase):
 
     def _prepare_dataset(self) -> Tuple[DataLoader, Tuple]:
         raw_dataset = self.repository.get_all_data()
-        self.get_logger().info("Calculating all neighbors for each node in the train/validation/test sets")
+        self.get_logger().info("Calculating all neighbors for each node")
         dataset = self.data_preprocessor.find_all_node_neighbors(raw_dataset)
         inference_dataset = self.data_preprocessor.get_dataloader(dataset)
         data_dimensions = self.data_preprocessor.extract_data_dimensions(raw_dataset)
