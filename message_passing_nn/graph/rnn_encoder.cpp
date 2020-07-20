@@ -1,7 +1,6 @@
 #include <torch/extension.h>
 #include "../utils/messages.h"
 #include "../utils/derivatives.h"
-#include "../utils/array_operations.h"
 #include <iostream>
 
 std::vector<torch::Tensor> forward_cpp(

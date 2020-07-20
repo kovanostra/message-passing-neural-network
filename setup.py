@@ -27,8 +27,7 @@ setup(
         cpp_extension.CppExtension('rnn_encoder_cpp',
                                    sources=['message_passing_nn/graph/rnn_encoder.cpp',
                                             'message_passing_nn/utils/messages.cpp',
-                                            'message_passing_nn/utils/derivatives.cpp',
-                                            'message_passing_nn/utils/array_operations.cpp'])],
+                                            'message_passing_nn/utils/derivatives.cpp'])],
     cmdclass={'build_ext': cpp_extension.BuildExtension},
     classifiers=[
         'Development Status :: 5 - Production/Stable',

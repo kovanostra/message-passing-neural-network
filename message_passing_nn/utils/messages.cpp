@@ -1,20 +1,5 @@
 #include <torch/extension.h>
 #include "../utils/messages.h"
-#include "../utils/array_operations.h"
-
-torch::Tensor remove_element_from_tensor(const torch::Tensor& tensor,
-                                         int& element_index){
-    torch::Tensor new_tensor = torch::empty({tensor.sizes()[0] - 1});
-    if (element_index == 0){
-      new_tensor.copy_(tensor.index({torch::indexing::Slice(1, tensor.sizes()[0])}));
-    } else if (element_index == tensor.sizes()[0]) {
-      new_tensor.copy_(tensor.index({torch::indexing::Slice(0, tensor.sizes()[0] - 1)}));
-    } else {
-      new_tensor.copy_(torch::cat({tensor.index({torch::indexing::Slice(0, element_index)}), 
-                                   tensor.index({torch::indexing::Slice(element_index + 1, tensor.sizes()[0])})}));
-    } 
-  return new_tensor;
-}
 
 torch::Tensor compute_messages_from_neighbors(const torch::Tensor& all_neighbors_of_node,
                                               const int& node_id,
@@ -23,10 +8,9 @@ torch::Tensor compute_messages_from_neighbors(const torch::Tensor& all_neighbors
                                               const torch::Tensor& w_graph_neighbor_messages,
                                               const torch::Tensor& messages_previous_step){
   torch::Tensor messages_from_the_other_neighbors = torch::zeros_like({messages_previous_step[0][0]});
-  auto other_neighbors = remove_element_from_tensor(all_neighbors_of_node, end_node_index);
-  for (int neighbor_index = 0; neighbor_index<other_neighbors.sizes()[0]; neighbor_index++) {
-    auto neighbor = other_neighbors[neighbor_index].item<int64_t>();
-    if (neighbor >= 0) {
+  for (int neighbor_index = 0; neighbor_index<all_neighbors_of_node.sizes()[0]; neighbor_index++) {
+    auto neighbor = all_neighbors_of_node[neighbor_index].item<int64_t>();
+    if (neighbor >= 0 && neighbor_index!=end_node_index) {
       messages_from_the_other_neighbors += torch::matmul(w_graph_neighbor_messages, messages_previous_step[neighbor][node_id]);
     }
   }

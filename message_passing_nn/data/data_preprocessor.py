@@ -63,7 +63,7 @@ class DataPreprocessor(Preprocessor):
         return dataset_with_neighbors
 
     @staticmethod
-    def extract_data_dimensions(dataset: List[Tuple[to.Tensor, to.Tensor, to.Tensor]]) -> Tuple:
+    def extract_data_dimensions(dataset: GraphDataset) -> Tuple:
         node_features_size = dataset[0][0].size()
         labels_size = dataset[0][2].size()
         return node_features_size, labels_size
