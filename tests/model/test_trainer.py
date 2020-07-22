@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 import torch as to
-from message_passing_nn.data.graph_dataset import GraphDataset
+from message_passing_nn.infrastructure.graph_dataset import GraphDataset
 
 from message_passing_nn.data.data_preprocessor import DataPreprocessor
 from message_passing_nn.model.trainer import Trainer

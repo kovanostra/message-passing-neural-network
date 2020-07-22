@@ -4,26 +4,25 @@ from typing import Dict, List, Tuple
 
 import itertools
 import numpy as np
-from message_passing_nn.data.graph_dataset import GraphDataset
 from torch.utils.data.dataloader import DataLoader
 
 from message_passing_nn.data.data_preprocessor import DataPreprocessor
+from message_passing_nn.infrastructure.graph_dataset import GraphDataset
 from message_passing_nn.model.trainer import Trainer
-from message_passing_nn.repository.repository import Repository
 from message_passing_nn.usecase import Usecase
 from message_passing_nn.utils.saver import Saver
 
 
 class GridSearch(Usecase):
     def __init__(self,
-                 training_data_repository: Repository,
+                 data_path: str,
                  data_preprocessor: DataPreprocessor,
                  trainer: Trainer,
                  grid_search_dictionary: Dict,
                  saver: Saver,
                  cpu_multiprocessing: bool = False,
                  test_mode: bool = False) -> None:
-        self.repository = training_data_repository
+        self.data_path = data_path
         self.data_preprocessor = data_preprocessor
         self.trainer = trainer
         self.grid_search_dictionary = grid_search_dictionary
@@ -92,7 +91,7 @@ class GridSearch(Usecase):
         return configuration_id, configuration_dictionary
 
     def _prepare_dataset(self, configuration_dictionary: Dict) -> Tuple[DataLoader, DataLoader, DataLoader, Tuple]:
-        dataset = GraphDataset(self.repository.data_directory, test_mode=self.test_mode)
+        dataset = GraphDataset(self.data_path, test_mode=self.test_mode)
         dataset.enable_test_mode()
         self.get_logger().info("Calculating all neighbors for each node")
         training_data, validation_data, test_data = self.data_preprocessor \

@@ -7,7 +7,7 @@ from torch.utils.data import DataLoader
 from torch.utils.data.sampler import SubsetRandomSampler
 from tqdm import tqdm
 
-from message_passing_nn.data.graph_dataset import GraphDataset
+from message_passing_nn.infrastructure.graph_dataset import GraphDataset
 from message_passing_nn.data.preprocessor import Preprocessor
 
 

@@ -7,7 +7,7 @@ import torch as to
 
 from message_passing_nn.data.data_preprocessor import DataPreprocessor
 from message_passing_nn.model import Loader, Inferencer
-from message_passing_nn.repository.file_system_repository import FileSystemRepository
+from message_passing_nn.infrastructure.file_system_repository import FileSystemRepository
 from message_passing_nn.usecase import Inference
 from message_passing_nn.utils.saver import Saver
 
@@ -28,13 +28,13 @@ class TestInference(TestCase):
         tests_results_directory = 'tests/results_inference'
         device = "cpu"
         repository = FileSystemRepository(tests_data_directory, dataset)
-        repository.enable_test_mode()
+        data_path = tests_data_directory + dataset + "/"
         data_preprocessor = DataPreprocessor()
         data_preprocessor.enable_test_mode()
         loader = Loader("RNN")
         inferencer = Inferencer(data_preprocessor, device)
         saver = Saver(tests_model_directory, tests_results_directory)
-        inference = Inference(repository,
+        inference = Inference(data_path,
                               data_preprocessor,
                               loader,
                               inferencer,
@@ -44,7 +44,8 @@ class TestInference(TestCase):
         adjacency_matrix_filenames, features_filenames, labels_filenames = self._save_test_data(adjacency_matrix,
                                                                                                 dataset_size,
                                                                                                 features,
-                                                                                                labels, repository)
+                                                                                                labels,
+                                                                                                repository)
 
         # When
         inference.start()

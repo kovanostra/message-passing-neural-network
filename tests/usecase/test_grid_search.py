@@ -4,7 +4,7 @@ from unittest import TestCase
 
 from message_passing_nn.data.data_preprocessor import DataPreprocessor
 from message_passing_nn.model.trainer import Trainer
-from message_passing_nn.repository.file_system_repository import FileSystemRepository
+from message_passing_nn.infrastructure.file_system_repository import FileSystemRepository
 from message_passing_nn.usecase.grid_search import GridSearch
 from message_passing_nn.utils.saver import Saver
 from tests.fixtures.matrices_and_vectors import BASE_GRAPH, BASE_GRAPH_NODE_FEATURES
@@ -21,8 +21,8 @@ class TestTraining(TestCase):
         tests_results_directory = 'tests/grid_search_results'
         device = "cpu"
         cpu_multiprocessing = False
+        self.data_path = self.tests_data_directory + self.dataset + "/"
         self.repository = FileSystemRepository(self.tests_data_directory, self.dataset)
-        self.repository.enable_test_mode()
         self.data_preprocessor = DataPreprocessor()
         self.data_preprocessor.enable_test_mode()
         self.model_trainer = Trainer(self.data_preprocessor, device, cpu_multiprocessing)
@@ -42,7 +42,7 @@ class TestTraining(TestCase):
             "time_steps": [1],
             "validation_period": [5]
         }
-        grid_search = GridSearch(self.repository,
+        grid_search = GridSearch(self.data_path,
                                  self.data_preprocessor,
                                  self.model_trainer,
                                  grid_search_dictionary,
@@ -88,7 +88,7 @@ class TestTraining(TestCase):
             "time_steps": [1],
             "validation_period": [5]
         }
-        grid_search = GridSearch(self.repository,
+        grid_search = GridSearch(self.data_path,
                                  self.data_preprocessor,
                                  self.model_trainer,
                                  grid_search_dictionary,
@@ -124,7 +124,7 @@ class TestTraining(TestCase):
             "time_steps": [1],
             "validation_period": [5]
         }
-        grid_search = GridSearch(self.repository,
+        grid_search = GridSearch(self.data_path,
                                  self.data_preprocessor,
                                  self.model_trainer,
                                  grid_search_dictionary,
