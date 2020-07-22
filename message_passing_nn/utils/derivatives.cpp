@@ -1,13 +1,13 @@
 #include <torch/extension.h>
 #include "../utils/derivatives.h"
 
-torch::Tensor d_sigmoid(torch::Tensor z) {
-  auto s = torch::sigmoid(z);
+at::Tensor d_sigmoid(at::Tensor z) {
+  auto s = at::sigmoid(z);
   return (1 - s) * s;
 }
 
-torch::Tensor d_relu_2d(torch::Tensor z) {
-  auto output = torch::zeros_like(z);
+at::Tensor d_relu_2d(at::Tensor z) {
+  auto output = at::zeros_like(z);
   for (int i = 0; i<z.sizes()[0]; i++) {
     for (int j = 0; j<z.sizes()[1]; j++) {
       if (z[i][j].item<float>() > 0.0) {
@@ -18,8 +18,8 @@ torch::Tensor d_relu_2d(torch::Tensor z) {
   return output;
 }
 
-torch::Tensor d_relu_4d(torch::Tensor z) {
-  auto output = torch::zeros_like(z);
+at::Tensor d_relu_4d(at::Tensor z) {
+  auto output = at::zeros_like(z);
   for (int i = 0; i<z.sizes()[0]; i++) {
     for (int j = 0; j<z.sizes()[1]; j++) {
       for (int k = 0; j<z.sizes()[1]; j++) {
