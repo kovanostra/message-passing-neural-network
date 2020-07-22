@@ -59,12 +59,21 @@ class GraphDataset(Dataset):
         with open(self.data_directory + filename + 'adjacency-matrix.pickle', 'rb') as adjacency_matrix_file:
             adjacency_matrix = pickle.load(adjacency_matrix_file).float()
             number_of_nodes = adjacency_matrix.shape[0]
-            all_neighbors = to.zeros(number_of_nodes, number_of_nodes) - to.ones(number_of_nodes, number_of_nodes)
-            all_neighbors_list = [to.nonzero(adjacency_matrix[node_id], as_tuple=True)[0].tolist() for node_id in
-                                  range(adjacency_matrix.shape[0])]
+            all_neighbors_list = []
+            max_number_of_neighbors = -1
+            for node_id in range(adjacency_matrix.shape[0]):
+                neighbors = to.nonzero(adjacency_matrix[node_id], as_tuple=True)[0].tolist()
+                if len(neighbors) > max_number_of_neighbors:
+                    max_number_of_neighbors = len(neighbors)
+                all_neighbors_list.append(neighbors)
+            all_neighbors = self._get_minus_ones_tensor(number_of_nodes, max_number_of_neighbors)
             for node_id in range(number_of_nodes):
                 all_neighbors[node_id, :len(all_neighbors_list[node_id])] = to.tensor(all_neighbors_list[node_id])
         return all_neighbors
+
+    @staticmethod
+    def _get_minus_ones_tensor(number_of_nodes: int, max_number_of_neighbors: int) -> to.Tensor:
+        return to.zeros(number_of_nodes, max_number_of_neighbors) - to.ones(number_of_nodes, max_number_of_neighbors)
 
     @staticmethod
     def _get_size(data: Tuple[to.Tensor, to.Tensor, to.Tensor]) -> int:

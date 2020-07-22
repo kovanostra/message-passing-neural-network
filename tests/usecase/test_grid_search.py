@@ -32,7 +32,7 @@ class TestTraining(TestCase):
         # Given
         dataset_size = 6
         grid_search_dictionary = {
-            "model": ["GRU"],
+            "model": ["RNN"],
             "epochs": [10],
             "batch_size": [3],
             "validation_split": [0.2],
@@ -63,16 +63,6 @@ class TestTraining(TestCase):
 
         # Tear down
         self._remove_files(dataset_size, features_filenames, adjacency_matrix_filenames, labels_filenames)
-
-    def _save_test_data(self, dataset_size):
-        features_filenames = [str(i) + '_training_features' + '.pickle' for i in range(dataset_size)]
-        adjacency_matrix_filenames = [str(i) + '_training_adjacency-matrix' '.pickle' for i in range(dataset_size)]
-        labels_filenames = [str(i) + '_training_labels' '.pickle' for i in range(dataset_size)]
-        for i in range(dataset_size):
-            self.repository.save(features_filenames[i], self.features)
-            self.repository.save(adjacency_matrix_filenames[i], self.adjacency_matrix)
-            self.repository.save(labels_filenames[i], self.labels)
-        return adjacency_matrix_filenames, features_filenames, labels_filenames
 
     def test_start_for_multiple_batches_of_differing_size(self):
         # Given
@@ -114,7 +104,7 @@ class TestTraining(TestCase):
         # Given
         dataset_size = 6
         grid_search_dictionary = {
-            "model": ["RNN", "GRU"],
+            "model": ["RNN"],
             "epochs": [10, 15],
             "batch_size": [3, 4],
             "validation_split": [0.2],
@@ -145,6 +135,16 @@ class TestTraining(TestCase):
 
         # Tear down
         self._remove_files(dataset_size, features_filenames, adjacency_matrix_filenames, labels_filenames)
+
+    def _save_test_data(self, dataset_size):
+        features_filenames = [str(i) + '_training_features' + '.pickle' for i in range(dataset_size)]
+        adjacency_matrix_filenames = [str(i) + '_training_adjacency-matrix' '.pickle' for i in range(dataset_size)]
+        labels_filenames = [str(i) + '_training_labels' '.pickle' for i in range(dataset_size)]
+        for i in range(dataset_size):
+            self.repository.save(features_filenames[i], self.features)
+            self.repository.save(adjacency_matrix_filenames[i], self.adjacency_matrix)
+            self.repository.save(labels_filenames[i], self.labels)
+        return adjacency_matrix_filenames, features_filenames, labels_filenames
 
     def _remove_files(self,
                       dataset_size: int,

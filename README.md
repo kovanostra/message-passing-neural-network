@@ -18,7 +18,7 @@
 ### 1. Description
 
 This repository contains:
-1. A pytorch implementation of a message passing neural network with either RNN or GRU units (inspired from https://arxiv.org/abs/1812.01070). 
+1. A pytorch implementation of a message passing neural network with RNN units (inspired from https://arxiv.org/abs/1812.01070). 
 2. A wrapper around the model to perform a grid search, and save model checkpoints when the validation error is best for each configuration.
 
 ### 2. Build and use

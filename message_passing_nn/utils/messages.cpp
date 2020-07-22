@@ -78,7 +78,7 @@ at::Tensor encode_messages(
     const at::Tensor& messages) {
 
     for (int node_id = 0; node_id<number_of_nodes; node_id++) {
-      for (int end_node_index = 0; end_node_index<all_neighbors.sizes()[0]; end_node_index++){
+      for (int end_node_index = 0; end_node_index<all_neighbors.sizes()[1]; end_node_index++){
         auto end_node_id = all_neighbors[node_id][end_node_index].item<int64_t>();
         if (end_node_id >= 0) {
           node_encoding_messages[node_id] += at::matmul(u_graph_neighbor_messages, messages[end_node_id][node_id].relu_());

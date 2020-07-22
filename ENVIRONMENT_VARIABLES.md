@@ -68,6 +68,6 @@ VALIDATION_PERIOD='5'
 
 **USED FOR INFERENCE**
 
-- The model to load ('RNN' or 'GRU') is defined by :
+- The model to load (only 'RNN' support at this version') is defined by :
 
 MODEL='RNN'
