@@ -38,7 +38,8 @@ class TestInference(TestCase):
                               data_preprocessor,
                               loader,
                               inferencer,
-                              saver)
+                              saver,
+                              test_mode=True)
 
         adjacency_matrix_filenames, features_filenames, labels_filenames = self._save_test_data(adjacency_matrix,
                                                                                                 dataset_size,

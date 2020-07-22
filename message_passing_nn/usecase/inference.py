@@ -1,5 +1,6 @@
 import logging
 
+from message_passing_nn.data.graph_dataset import GraphDataset
 from torch.utils.data.dataloader import DataLoader
 from typing import Tuple
 
@@ -17,12 +18,14 @@ class Inference(Usecase):
                  data_preprocessor: DataPreprocessor,
                  loader: Loader,
                  inferencer: Inferencer,
-                 saver: Saver) -> None:
+                 saver: Saver,
+                 test_mode: bool = False) -> None:
         self.repository = training_data_repository
         self.data_preprocessor = data_preprocessor
         self.loader = loader
         self.inferencer = inferencer
         self.saver = saver
+        self.test_mode = test_mode
 
     def start(self) -> None:
         self.get_logger().info('Started Inference')
@@ -34,11 +37,9 @@ class Inference(Usecase):
         self.get_logger().info('Finished Inference')
 
     def _prepare_dataset(self) -> Tuple[DataLoader, Tuple]:
-        raw_dataset = self.repository.get_all_data()
-        self.get_logger().info("Calculating all neighbors for each node")
-        dataset = self.data_preprocessor.find_all_node_neighbors(raw_dataset)
+        dataset = GraphDataset(self.repository.data_directory, test_mode=self.test_mode)
         inference_dataset = self.data_preprocessor.get_dataloader(dataset)
-        data_dimensions = self.data_preprocessor.extract_data_dimensions(raw_dataset)
+        data_dimensions = self.data_preprocessor.extract_data_dimensions(dataset)
         return inference_dataset, data_dimensions
 
     @staticmethod

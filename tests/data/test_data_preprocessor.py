@@ -1,6 +1,7 @@
 from unittest import TestCase
 
 import torch as to
+from message_passing_nn.data.graph_dataset import GraphDataset
 
 from message_passing_nn.data.data_preprocessor import DataPreprocessor
 from tests.fixtures.matrices_and_vectors import BASE_GRAPH, BASE_GRAPH_NODE_FEATURES
@@ -14,13 +15,18 @@ class TestGraphPreprocessor(TestCase):
         # Given
         dataset_length = 10
         features = BASE_GRAPH_NODE_FEATURES
-        adjacency_matrix = BASE_GRAPH
+        all_neighbors = to.tensor([[1, 2, -1, -1],
+                                   [0, 2, -1, -1],
+                                   [0, 1, 3, -1],
+                                   [2, -1, -1, -1]])
         labels = BASE_GRAPH.view(-1)
-        raw_dataset = [(features, adjacency_matrix, labels) for i in range(dataset_length)]
+        dataset = GraphDataset("")
+        dataset.enable_test_mode()
+        dataset.dataset = [(features, all_neighbors, labels) for i in range(dataset_length)]
         train_validation_test_split_expected = [7, 2, 1]
 
         # When
-        train_validation_test_split = self.data_preprocessor.train_validation_test_split(raw_dataset,
+        train_validation_test_split = self.data_preprocessor.train_validation_test_split(dataset,
                                                                                          batch_size=1,
                                                                                          validation_split=0.2,
                                                                                          test_split=0.1)
@@ -33,13 +39,18 @@ class TestGraphPreprocessor(TestCase):
         # Given
         dataset_length = 1
         features = BASE_GRAPH_NODE_FEATURES
-        adjacency_matrix = BASE_GRAPH
+        all_neighbors = to.tensor([[1, 2, -1, -1],
+                                   [0, 2, -1, -1],
+                                   [0, 1, 3, -1],
+                                   [2, -1, -1, -1]])
         labels = BASE_GRAPH.view(-1)
-        raw_dataset = [(features, adjacency_matrix, labels) for i in range(dataset_length)]
+        dataset = GraphDataset("")
+        dataset.enable_test_mode()
+        dataset.dataset = [(features, all_neighbors, labels) for i in range(dataset_length)]
         data_dimensions_expected = (features.size(), labels.size())
 
         # When
-        data_dimensions = self.data_preprocessor.extract_data_dimensions(raw_dataset)
+        data_dimensions = self.data_preprocessor.extract_data_dimensions(dataset)
 
         # Then
         self.assertEqual(data_dimensions_expected, data_dimensions)

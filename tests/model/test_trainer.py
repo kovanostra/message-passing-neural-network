@@ -1,13 +1,14 @@
 from unittest import TestCase
 
 import torch as to
+from message_passing_nn.data.graph_dataset import GraphDataset
 
 from message_passing_nn.data.data_preprocessor import DataPreprocessor
 from message_passing_nn.model.trainer import Trainer
 from tests.fixtures.matrices_and_vectors import BASE_GRAPH, BASE_GRAPH_NODE_FEATURES
 
 
-class TestModelTrainer(TestCase):
+class TestTrainer(TestCase):
     def setUp(self) -> None:
         time_steps = 1
         loss_function = "MSE"
@@ -45,7 +46,9 @@ class TestModelTrainer(TestCase):
                                    [0, 2, -1, -1],
                                    [0, 1, 3, -1],
                                    [2, -1, -1, -1]])
-        dataset = [(BASE_GRAPH_NODE_FEATURES, all_neighbors, BASE_GRAPH.view(-1))]
+        dataset = GraphDataset("")
+        dataset.enable_test_mode()
+        dataset.dataset = [(BASE_GRAPH_NODE_FEATURES, all_neighbors, BASE_GRAPH.view(-1))]
         training_data, _, _ = DataPreprocessor().train_validation_test_split(dataset, 1, 0.0, 0.0)
 
         # When
@@ -63,7 +66,9 @@ class TestModelTrainer(TestCase):
                                    [0, 2, -1, -1],
                                    [0, 1, 3, -1],
                                    [2, -1, -1, -1]])
-        dataset = [(BASE_GRAPH_NODE_FEATURES, all_neighbors, BASE_GRAPH.view(-1))]
+        dataset = GraphDataset("")
+        dataset.enable_test_mode()
+        dataset.dataset = [(BASE_GRAPH_NODE_FEATURES, all_neighbors, BASE_GRAPH.view(-1))]
         training_data, _, _ = DataPreprocessor().train_validation_test_split(dataset, 1, 0.0, 0.0)
 
         # When

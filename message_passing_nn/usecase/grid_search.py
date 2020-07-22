@@ -21,13 +21,15 @@ class GridSearch(Usecase):
                  trainer: Trainer,
                  grid_search_dictionary: Dict,
                  saver: Saver,
-                 cpu_multiprocessing: bool = False) -> None:
+                 cpu_multiprocessing: bool = False,
+                 test_mode: bool = False) -> None:
         self.repository = training_data_repository
         self.data_preprocessor = data_preprocessor
         self.trainer = trainer
         self.grid_search_dictionary = grid_search_dictionary
         self.saver = saver
         self.cpu_multiprocessing = cpu_multiprocessing
+        self.test_mode = test_mode
 
     def start(self) -> Dict:
         all_grid_search_configurations = self._get_all_grid_search_configurations()
@@ -90,7 +92,8 @@ class GridSearch(Usecase):
         return configuration_id, configuration_dictionary
 
     def _prepare_dataset(self, configuration_dictionary: Dict) -> Tuple[DataLoader, DataLoader, DataLoader, Tuple]:
-        dataset = GraphDataset(self.repository.data_directory)
+        dataset = GraphDataset(self.repository.data_directory, test_mode=self.test_mode)
+        dataset.enable_test_mode()
         self.get_logger().info("Calculating all neighbors for each node")
         training_data, validation_data, test_data = self.data_preprocessor \
             .train_validation_test_split(dataset,

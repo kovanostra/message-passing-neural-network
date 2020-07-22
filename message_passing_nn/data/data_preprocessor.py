@@ -44,8 +44,8 @@ class DataPreprocessor(Preprocessor):
         return training_data, validation_data, test_data
 
     @staticmethod
-    def get_dataloader(dataset: List[Tuple[to.Tensor, to.Tensor, to.Tensor]], batch_size: int = 1) -> DataLoader:
-        return DataLoader(GraphDataset(dataset), batch_size)
+    def get_dataloader(dataset: GraphDataset, batch_size: int = 1) -> DataLoader:
+        return DataLoader(dataset, batch_size)
 
     def find_all_node_neighbors(self, dataset: List[Tuple[to.Tensor, to.Tensor, to.Tensor]]) -> List[
         Tuple[to.Tensor, to.Tensor, to.Tensor]]:

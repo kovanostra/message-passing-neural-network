@@ -46,7 +46,8 @@ class TestTraining(TestCase):
                                  self.data_preprocessor,
                                  self.model_trainer,
                                  grid_search_dictionary,
-                                 self.saver)
+                                 self.saver,
+                                 test_mode=True)
 
         adjacency_matrix_filenames, features_filenames, labels_filenames = self._save_test_data(dataset_size)
 
@@ -91,7 +92,8 @@ class TestTraining(TestCase):
                                  self.data_preprocessor,
                                  self.model_trainer,
                                  grid_search_dictionary,
-                                 self.saver)
+                                 self.saver,
+                                 test_mode=True)
 
         adjacency_matrix_filenames, features_filenames, labels_filenames = self._save_test_data(dataset_size)
 
@@ -126,7 +128,8 @@ class TestTraining(TestCase):
                                  self.data_preprocessor,
                                  self.model_trainer,
                                  grid_search_dictionary,
-                                 self.saver)
+                                 self.saver,
+                                 test_mode=True)
 
         adjacency_matrix_filenames, features_filenames, labels_filenames = self._save_test_data(dataset_size)
 

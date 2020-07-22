@@ -10,10 +10,11 @@ from tqdm import tqdm
 
 class GraphDataset(Dataset):
     def __init__(self,
-                 data_directory: str) -> None:
+                 data_directory: str,
+                 test_mode: bool = False) -> None:
         self.data_directory = data_directory
-        self.test_mode = False
-        self.dataset = self._load_data()
+        self.test_mode = test_mode
+        self.dataset = self._load_data() if self.data_directory else []
 
     def __len__(self) -> int:
         return len(self.dataset)

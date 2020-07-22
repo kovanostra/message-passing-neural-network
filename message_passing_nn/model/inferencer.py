@@ -16,14 +16,13 @@ class Inferencer:
     def do_inference(self, model: nn.Module, inference_data: DataLoader) -> List[Tuple[to.Tensor, to.Tensor]]:
         outputs_labels_pairs = []
         with to.no_grad():
-            for features, labels in inference_data:
-                node_features, adjacency_matrix = features
-                node_features, adjacency_matrix, labels = node_features.to(self.device), \
-                                                          adjacency_matrix.to(self.device), \
-                                                          labels.to(self.device)
+            for node_features, all_neighbors, labels in inference_data:
+                node_features, all_neighbors, labels = (node_features.to(self.device),
+                                                        all_neighbors.to(self.device),
+                                                        labels.to(self.device))
                 if self.normalize:
                     node_features = self.preprocessor.normalize(node_features, self.device)
                     labels = self.preprocessor.normalize(labels, self.device)
-                outputs = model.forward(node_features, adjacency_matrix, batch_size=1)
+                outputs = model.forward(node_features, all_neighbors, batch_size=1)
                 outputs_labels_pairs.append((outputs, labels))
         return outputs_labels_pairs
