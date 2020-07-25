@@ -35,17 +35,17 @@ std::vector<at::Tensor> forward_cpp(
                                         node_features[batch],
                                         all_neighbors[batch],
                                         messages[batch]);
-      messages[batch] += messages_vector[0];
-      messages_previous_step[batch] += messages_vector[1];
-      encodings[batch] += encode_messages(number_of_nodes,
+      messages[batch] = messages_vector[0];
+      messages_previous_step[batch] = messages_vector[1];
+      encodings[batch] = encode_messages(number_of_nodes,
                                         node_encoding_messages[batch],
                                         u_graph_node_features,
                                         u_graph_neighbor_messages,
                                         node_features[batch],
                                         all_neighbors[batch],
                                         messages[batch]).view({-1});
-      linear_outputs[batch] += linear_bias.add_(at::matmul(linear_weight, encodings[batch]));
-      outputs[batch] += linear_outputs[batch].sigmoid_();
+      linear_outputs[batch] = at::add(at::matmul(linear_weight, encodings[batch]), linear_bias);
+      outputs[batch] = at::sigmoid(linear_outputs[batch]);
     }
     return {outputs, linear_outputs, encodings, messages, messages_previous_step};
   }

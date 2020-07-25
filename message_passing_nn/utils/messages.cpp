@@ -33,7 +33,7 @@ at::Tensor get_messages_to_all_end_nodes(const int& node_id,
                                                                                  end_node_index,
                                                                                  w_graph_neighbor_messages,
                                                                                  messages_previous_step);
-        new_messages_of_node[end_node_id] = at::matmul(w_graph_node_features, features_of_specific_node).add_(messages_from_the_other_neighbors);
+        new_messages_of_node[end_node_id] = at::add(at::matmul(w_graph_node_features, features_of_specific_node), messages_from_the_other_neighbors);
       }
     }
   return new_messages_of_node;
@@ -81,9 +81,9 @@ at::Tensor encode_messages(
       for (int end_node_index = 0; end_node_index<all_neighbors.sizes()[1]; end_node_index++){
         auto end_node_id = all_neighbors[node_id][end_node_index].item<int64_t>();
         if (end_node_id >= 0) {
-          node_encoding_messages[node_id] += at::matmul(u_graph_neighbor_messages, messages[end_node_id][node_id].relu_());
+          node_encoding_messages[node_id] += at::matmul(u_graph_neighbor_messages, at::relu(messages[end_node_id][node_id]));
         }
       }
     }
-    return at::matmul(u_graph_node_features, node_features).add_(node_encoding_messages).relu_();
+    return at::relu(at::add(at::matmul(u_graph_node_features, node_features),node_encoding_messages));
   }
