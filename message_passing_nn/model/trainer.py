@@ -47,13 +47,8 @@ class Trainer:
             OptimizerSelector.load_optimizer(configuration_dictionary['optimizer']))
         self.get_logger().info('Optimizer: ' + configuration_dictionary['optimizer'])
 
-    def do_train(self, training_data: DataLoader, epoch: int, cpu_cores_to_use: int = 1) -> float:
-        training_loss = 0.0
-        if cpu_cores_to_use > 1 and self.device == 'cpu':
-            with get_context("spawn").Pool(cpu_cores_to_use) as pool:
-                training_loss += np.average(pool.map(self._do_train_batch, training_data))
-        else:
-            training_loss += np.average(list(map(self._do_train_batch, training_data)))
+    def do_train(self, training_data: DataLoader, epoch: int) -> float:
+        training_loss = np.average(list(map(self._do_train_batch, training_data)))
         self.get_logger().info('[Iteration %d] training loss: %.6f' % (epoch, training_loss))
         return training_loss
 

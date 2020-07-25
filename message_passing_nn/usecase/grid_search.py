@@ -20,19 +20,16 @@ class GridSearch(Usecase):
                  trainer: Trainer,
                  grid_search_dictionary: Dict,
                  saver: Saver,
-                 cpu_multiprocessing: bool = False,
                  test_mode: bool = False) -> None:
         self.data_path = data_path
         self.data_preprocessor = data_preprocessor
         self.trainer = trainer
         self.grid_search_dictionary = grid_search_dictionary
         self.saver = saver
-        self.cpu_multiprocessing = cpu_multiprocessing
         self.test_mode = test_mode
 
     def start(self) -> Dict:
         all_grid_search_configurations = self._get_all_grid_search_configurations()
-        self.get_logger().info('Started Training')
         losses = {'training_loss': {},
                   'validation_loss': {},
                   'test_loss': {}}
@@ -49,10 +46,9 @@ class GridSearch(Usecase):
         self.trainer.instantiate_attributes(data_dimensions, configuration_dictionary)
         losses = self._update_losses_with_configuration_id(configuration_dictionary, losses)
         validation_loss_max = np.inf
-        cpu_cores_to_use = self._get_number_of_cpu_cores_to_use(training_data)
-        self.get_logger().info('Starting training on ' + str(cpu_cores_to_use) + " CPU core(s)")
+        self.get_logger().info('Started Training')
         for epoch in range(1, configuration_dictionary['epochs'] + 1):
-            training_loss = self.trainer.do_train(training_data, epoch, cpu_cores_to_use)
+            training_loss = self.trainer.do_train(training_data, epoch)
             losses['training_loss'][configuration_dictionary["configuration_id"]].update({epoch: training_loss})
             if epoch % configuration_dictionary["validation_period"] == 0:
                 validation_loss = self.trainer.do_evaluate(validation_data, epoch)
@@ -63,16 +59,6 @@ class GridSearch(Usecase):
         test_loss = self.trainer.do_evaluate(test_data)
         losses['test_loss'][configuration_dictionary["configuration_id"]].update({"final_epoch": test_loss})
         return losses
-
-    def _get_number_of_cpu_cores_to_use(self, training_data: DataLoader) -> int:
-        if self.cpu_multiprocessing:
-            if len(training_data) < os.cpu_count():
-                cpu_cores_to_use = len(training_data)
-            else:
-                cpu_cores_to_use = os.cpu_count()
-        else:
-            cpu_cores_to_use = 1
-        return cpu_cores_to_use
 
     @staticmethod
     def _update_losses_with_configuration_id(configuration_dictionary: Dict, losses: Dict) -> Dict:

@@ -20,7 +20,6 @@ def main(debug):
 @click.argument('results_directory', envvar='RESULTS_DIRECTORY', type=str)
 @click.argument('model', envvar='MODEL', type=str)
 @click.argument('device', envvar='DEVICE', type=str)
-@click.argument('cpu_multiprocessing', envvar='CPU_MULTIPROCESSING', type=str)
 @click.argument('epochs', envvar='EPOCHS', type=str)
 @click.argument('loss_function', envvar='LOSS_FUNCTION', type=str)
 @click.argument('optimizer', envvar='OPTIMIZER', type=str)
@@ -34,7 +33,6 @@ def start_training(dataset_name: str,
                    model_directory: str,
                    results_directory: str,
                    model: str,
-                   cpu_multiprocessing: str,
                    device: str,
                    epochs: str,
                    loss_function: str,
@@ -51,7 +49,6 @@ def start_training(dataset_name: str,
                                             results_directory,
                                             model,
                                             device,
-                                            cpu_multiprocessing,
                                             epochs,
                                             loss_function,
                                             optimizer,

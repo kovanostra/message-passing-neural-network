@@ -28,7 +28,6 @@ def create_grid_search(dataset_name: str,
                        results_directory: str,
                        model: str,
                        device: str,
-                       cpu_multiprocessing: str,
                        epochs: str,
                        loss_function_selection: str,
                        optimizer_selection: str,
@@ -54,8 +53,7 @@ def create_grid_search(dataset_name: str,
                              data_preprocessor,
                              trainer,
                              grid_search_dictionary,
-                             saver,
-                             eval(cpu_multiprocessing.capitalize()))
+                             saver)
     return MessagePassingNN(grid_search)
 
 
