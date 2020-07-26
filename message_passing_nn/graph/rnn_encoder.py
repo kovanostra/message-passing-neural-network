@@ -100,7 +100,7 @@ class RNNEncoder(nn.Module):
         self.fully_connected_layer_output_size = fully_connected_layer_output_size
 
         self.w_graph_node_features = nn.Parameter(
-            to.empty([number_of_node_features, number_of_node_features]),
+            to.empty([number_of_nodes, number_of_nodes]),
             requires_grad=True)
         self.w_graph_neighbor_messages = nn.Parameter(
             to.empty([number_of_node_features, number_of_node_features]),

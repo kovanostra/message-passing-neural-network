@@ -24,7 +24,6 @@ std::vector<at::Tensor> forward_cpp(
     auto messages_previous_step = at::zeros({batch_size, number_of_nodes, number_of_nodes, number_of_node_features});
     auto node_encoding_messages = at::zeros({batch_size, number_of_nodes, number_of_node_features});
     auto encodings = at::zeros({batch_size, number_of_nodes*number_of_node_features});
-    
       
     for (int batch = 0; batch<batch_size; batch++) {
       auto messages_vector = compose_messages(time_steps,
@@ -75,7 +74,7 @@ std::vector<at::Tensor> backward_cpp(
   auto d_u_graph_neighbor_messages = at::matmul(delta_2.transpose(1, 2), messages_summed);
 
   auto delta_3 = at::matmul(delta_2.transpose(1, 2), at::matmul(u_graph_neighbor_messages_summed, d_relu_4d(messages).transpose(2, 3)));
-  auto d_w_graph_node_features = at::matmul(delta_3, node_features);
+  auto d_w_graph_node_features = at::matmul(delta_3.transpose(1, 2), node_features.transpose(1, 2));
   auto d_w_graph_neighbor_messages = at::matmul(delta_3, messages_previous_step_summed);
 
 

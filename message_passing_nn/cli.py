@@ -42,7 +42,6 @@ def start_training(dataset_name: str,
                    test_split: str,
                    time_steps: str,
                    validation_period: str) -> None:
-    get_logger().info("Starting training")
     message_passing_nn = create_grid_search(dataset_name,
                                             data_directory,
                                             model_directory,

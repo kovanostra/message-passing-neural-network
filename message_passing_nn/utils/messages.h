@@ -3,13 +3,6 @@
 
 #include <torch/extension.h>
 
-at::Tensor compute_messages_from_neighbors(const at::Tensor& all_neighbors,
-                                              const int& node_id,
-                                              const int& end_node_id,
-                                              const int& end_node_index,
-                                              const at::Tensor& w_graph_neighbor_messages,
-                                              const at::Tensor& messages_previous_step);
-
 at::Tensor get_messages_to_all_end_nodes(const int& node_id,
                                             const at::Tensor& w_graph_neighbor_messages,
                                             const at::Tensor& w_graph_node_features,
