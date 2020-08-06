@@ -23,7 +23,7 @@ This repository contains:
 
 ### 2. Build and use
 
-To use the current version (1.5.0) you need to first build the project. Please clone the repository and then run the build scripts depending on your OS.
+To use the current version (master or tag >= 1.5.0) you need to first build the project. Please clone the repository and then run the build scripts depending on your OS.
 
 Linux
 ```
@@ -46,7 +46,7 @@ pip install message-passing-nn
 
 ### 4. Examples
 
-The code can be used to either train a single configuration of the message passing neural network or to perform a grid search. For usage examples please look in the example_notebooks/ directory or on the [colab notebook](https://colab.research.google.com/drive/1jFJ7l7jIv22BhvvzlmXOWFtgBE15ea2X).
+The code can be used to either train a single configuration of the message passing neural network or to perform a grid search. For usage examples (v1.4.2) please look in the example_notebooks/ directory or on the [colab notebook](https://colab.research.google.com/drive/1jFJ7l7jIv22BhvvzlmXOWFtgBE15ea2X).
 
 ### 5. Requirements
 
