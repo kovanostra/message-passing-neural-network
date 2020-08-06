@@ -30,8 +30,11 @@ class GraphDataset(Dataset):
         disable_progress_bar = self.test_mode
         for filename_index in tqdm(range(len(files_in_path)), disable=disable_progress_bar):
             filename = files_in_path[filename_index]
-            dataset.append(
-                (self._get_features(filename), self._get_all_neighbors(filename), self._get_labels(filename)))
+            try:
+                dataset.append(
+                    (self._get_features(filename), self._get_all_neighbors(filename), self._get_labels(filename)))
+            except:
+                self.get_logger().info("Skipped " + filename)
             size += self._get_size(dataset[-1])
         self.get_logger().info(
             "Loaded " + str(len(dataset)) + " files. Size: " + str(int(size * 0.000001)) + " MB")

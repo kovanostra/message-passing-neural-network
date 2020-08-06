@@ -12,7 +12,7 @@ at::Tensor get_messages_to_all_end_nodes(const int& node_id,
 
 std::vector<at::Tensor> compose_messages(
     const int& time_steps,
-    const int& number_of_nodes,
+    const int& number_of_true_nodes,
     const int& number_of_node_features,
     const at::Tensor& w_graph_node_features,
     const at::Tensor& w_graph_neighbor_messages,
@@ -21,7 +21,7 @@ std::vector<at::Tensor> compose_messages(
     const at::Tensor& messages_init);
 
 at::Tensor encode_messages(
-    const int& number_of_nodes,
+    const int& number_of_true_nodes,
     const at::Tensor& node_encoding_messages,
     const at::Tensor& u_graph_node_features,
     const at::Tensor& u_graph_neighbor_messages,
