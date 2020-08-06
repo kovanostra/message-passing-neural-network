@@ -19,10 +19,10 @@ class GraphDataset(Dataset):
     def __len__(self) -> int:
         return len(self.dataset)
 
-    def __getitem__(self, index: int) -> Tuple[to.Tensor, to.Tensor, to.Tensor]:
-        return self.dataset[index][0], self.dataset[index][1], self.dataset[index][2]
+    def __getitem__(self, index: int) -> Tuple[to.Tensor, to.Tensor, to.Tensor, str]:
+        return self.dataset[index][0], self.dataset[index][1], self.dataset[index][2], self.dataset[index][3]
 
-    def _load_data(self) -> List[Tuple[to.Tensor, to.Tensor, to.Tensor]]:
+    def _load_data(self) -> List[Tuple[to.Tensor, to.Tensor, to.Tensor, str]]:
         self.get_logger().info("Loading dataset")
         files_in_path = self._extract_name_prefixes_from_filenames()
         dataset = []
@@ -32,7 +32,8 @@ class GraphDataset(Dataset):
             filename = files_in_path[filename_index]
             try:
                 dataset.append(
-                    (self._get_features(filename), self._get_all_neighbors(filename), self._get_labels(filename)))
+                    (self._get_features(filename), self._get_all_neighbors(filename), self._get_labels(filename),
+                     filename))
             except:
                 self.get_logger().info("Skipped " + filename)
             size += self._get_size(dataset[-1])
@@ -79,7 +80,7 @@ class GraphDataset(Dataset):
         return to.zeros(number_of_nodes, max_number_of_neighbors) - to.ones(number_of_nodes, max_number_of_neighbors)
 
     @staticmethod
-    def _get_size(data: Tuple[to.Tensor, to.Tensor, to.Tensor]) -> int:
+    def _get_size(data: Tuple[to.Tensor, to.Tensor, to.Tensor, str]) -> int:
         return int(data[0].element_size() * data[0].nelement() +
                    data[1].element_size() * data[1].nelement() +
                    data[2].element_size() * data[2].nelement())

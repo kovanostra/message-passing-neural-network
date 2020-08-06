@@ -53,7 +53,7 @@ class Trainer:
         return training_loss
 
     def _do_train_batch(self, training_data: DataLoader) -> float:
-        node_features, all_neighbors, labels = training_data
+        node_features, all_neighbors, labels, _ = training_data
         node_features, all_neighbors, labels = (node_features.to(self.device),
                                                 all_neighbors.to(self.device),
                                                 labels.to(self.device))
@@ -71,7 +71,7 @@ class Trainer:
         with to.no_grad():
             evaluation_loss = []
             if len(evaluation_data):
-                for node_features, all_neighbors, labels_validation in evaluation_data:
+                for node_features, all_neighbors, labels_validation, _ in evaluation_data:
                     node_features, all_neighbors, labels_validation = (node_features.to(self.device),
                                                                        all_neighbors.to(self.device),
                                                                        labels_validation.to(self.device))
