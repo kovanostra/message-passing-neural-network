@@ -30,7 +30,7 @@ setup(
                               'message_passing_nn/utils/derivatives.cpp']),
         CUDAExtension('rnn_encoder_cuda_cpp',
                       sources=['message_passing_nn/graph/rnn_encoder_cuda.cpp',
-                               'message_passing_nn/utils/rnn_encoder_cuda_kernel.cu',
+                               'message_passing_nn/graph/rnn_encoder_cuda_kernel.cu',
                                'message_passing_nn/utils/derivatives.cpp'])],
     cmdclass={'build_ext': BuildExtension},
     classifiers=[
