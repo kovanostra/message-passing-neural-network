@@ -9,12 +9,10 @@
 template <typename scalar_t>
 __global__ scalar_t compose_messages_kernel(
     const scalar_t* __restrict__ number_of_nodes,
-    const scalar_t* __restrict__ number_of_node_features,
     const scalar_t* __restrict__ previous_messages,
-    const scalar_t* __restrict__ w_graph_node_features,
     const scalar_t* __restrict__ w_graph_neighbor_messages,
-    const scalar_t* __restrict__ node_features,
-    const scalar_t* __restrict__ all_neighbors) {
+    const scalar_t* __restrict__ all_neighbors,
+    scalar_t* __restrict__ new_messages) {
 
     const int index = threadIdx.x;
     const int stride = blockDim.x;
@@ -24,19 +22,16 @@ __global__ scalar_t compose_messages_kernel(
         auto end_node_id = all_neighbors[node_id][end_node_index].item<int64_t>();
         if (end_node_id >= 0) {
           for (int neighbor_index = 0; neighbor_index<all_neighbors[node_id].sizes()[0]; neighbor_index++) {
-              auto neighbor = all_neighbors[node_id][neighbor_index].item<int64_t>();
-              if (neighbor >= 0 && neighbor_index!=end_node_index) {
-                new_messages_of_node[end_node_id] += at::matmul(w_graph_neighbor_messages, at::relu(previous_messages[neighbor][node_id]));
-              }
+            auto neighbor = all_neighbors[node_id][neighbor_index].item<int64_t>();
+            if (neighbor >= 0 && neighbor_index!=end_node_index) {
+              new_messages[node_id][end_node_id] += at::matmul(w_graph_neighbor_messages, at::relu(previous_messages[neighbor][node_id]));
             }
+          }
         }
       }
-      new_messages[node_id] = at::add(base_messages, new_messages_of_node);
-      new_messages_of_node.zero_();
     }
-  }
   return new_messages;
-}
+  }
 
 at::Tensor encode_messages(
     const int& number_of_nodes,
@@ -80,26 +75,24 @@ std::vector<at::Tensor> forward_cuda_cpp(
     auto node_encoding_messages = at::zeros({batch_size, number_of_nodes, number_of_node_features});
     auto encodings = at::zeros({batch_size, number_of_nodes*number_of_node_features});
     
-    const int threads = 32;
-    const dim3 blocks = std::floor(number_of_nodes/threads) + 1;
+    const int threads = 1024;
+    const int blocks = std::floor(number_of_nodes/threads) + 1;
       
     for (int batch = 0; batch<batch_size; batch++) {
       auto new_messages = at::zeros_like({messages[batch]});
       auto previous_messages = at::zeros_like({messages[batch]});
-      auto new_messages_of_node = at::zeros({messages[batch].sizes()[1], messages[batch].sizes()[2]});
       auto base_messages = at::matmul(w_graph_node_features, node_features);
       
       for (int time_step = 0; time_step<time_steps; time_step++) {
         std::swap(messages_previous_step, new_messages);
         AT_DISPATCH_FLOATING_TYPES(new_messages.type(), "forward_cpp_cuda", ([&] {
-          new_messages = compose_messages_kernel<scalar_t><<<blocks, threads>>>(number_of_nodes.data<scalar_t>(),
-                                          number_of_node_features.data<scalar_t>(),
+          compose_messages_kernel<scalar_t><<<blocks, threads>>>(number_of_nodes.data<scalar_t>(),
                                           previous_messages.data<scalar_t>(),
-                                          w_graph_node_features.data<scalar_t>(),
                                           w_graph_neighbor_messages.data<scalar_t>(),
-                                          node_features[batch].data<scalar_t>(),
-                                          all_neighbors[batch].data<scalar_t>());
+                                          all_neighbors[batch].data<scalar_t>(),
+                                          new_messages.data<scalar_t>(),);
                                       }));
+        new_messages += base_messages;
 
       messages[batch] = new_messages;
       messages_previous_step[batch] = previous_messages;
