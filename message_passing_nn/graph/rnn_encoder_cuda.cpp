@@ -2,8 +2,6 @@
 
 #include <vector>
 
-// CUDA forward declarations
-
 std::vector<torch::Tensor> forward_cuda_cpp(
     const int& time_steps,
     const int& number_of_nodes,
@@ -35,12 +33,6 @@ std::vector<torch::Tensor> backward_cuda_cpp(
     const at::Tensor& linear_weight,
     const at::Tensor& linear_bias);
 
-// C++ interface
-
-#define CHECK_CUDA(x) TORCH_CHECK(x.type().is_cuda(), #x " must be a CUDA tensor")
-#define CHECK_CONTIGUOUS(x) TORCH_CHECK(x.is_contiguous(), #x " must be contiguous")
-#define CHECK_INPUT(x) CHECK_CUDA(x); CHECK_CONTIGUOUS(x)
-
 std::vector<torch::Tensor> forward_cpp(
     const int& time_steps,
     const int& number_of_nodes,
@@ -55,14 +47,6 @@ std::vector<torch::Tensor> forward_cpp(
     const at::Tensor& u_graph_neighbor_messages,
     const at::Tensor& linear_weight,
     const at::Tensor& linear_bias) {
-    CHECK_INPUT(node_features);
-    CHECK_INPUT(all_neighbors);
-    CHECK_INPUT(w_graph_node_features);
-    CHECK_INPUT(w_graph_neighbor_messages);
-    CHECK_INPUT(u_graph_node_features);
-    CHECK_INPUT(u_graph_neighbor_messages);
-    CHECK_INPUT(linear_weight);
-    CHECK_INPUT(linear_bias);
 
   return forward_cuda_cpp(time_steps,
     number_of_nodes,
@@ -94,21 +78,6 @@ std::vector<torch::Tensor> backward_cpp(
     const at::Tensor& u_graph_neighbor_messages_summed,
     const at::Tensor& linear_weight,
     const at::Tensor& linear_bias) {
-    CHECK_INPUT(grad_output);
-    CHECK_INPUT(outputs);
-    CHECK_INPUT(linear_outputs);
-    CHECK_INPUT(encodings);
-    CHECK_INPUT(messages_summed);
-    CHECK_INPUT(messages_previous_step_summed);
-    CHECK_INPUT(messages);
-    CHECK_INPUT(node_features);
-    CHECK_INPUT(batch_size);
-    CHECK_INPUT(number_of_nodes);
-    CHECK_INPUT(number_of_node_features);
-    CHECK_INPUT(u_graph_neighbor_messages_summed);
-    CHECK_INPUT(linear_weight);
-    CHECK_INPUT(linear_bias);
-
 
   return backward_cuda_cpp(
       grad_output,
