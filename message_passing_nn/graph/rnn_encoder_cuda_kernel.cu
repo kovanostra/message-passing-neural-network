@@ -11,17 +11,17 @@ __global__ void compose_messages_kernel(
     int number_of_nodes,
     const scalar_t* __restrict__ previous_messages,
     const scalar_t* __restrict__ w_graph_neighbor_messages,
-    const scalar_t* __restrict__ all_neighbors,
+    const scalar_t __restrict__ all_neighbors,
     scalar_t* __restrict__ new_messages) {
 
     const int index = threadIdx.x;
     const int stride = blockDim.x;
 
     for (int node_id = index; node_id < number_of_nodes; node_id += stride) {
-      for (int end_node_index = 0; end_node_index<std::round(all_neighbors[node_id].sizes()[0]); end_node_index++){
+      for (int end_node_index = 0; end_node_index<all_neighbors[node_id].sizes()[0]; end_node_index++){
         auto end_node_id = std::round(all_neighbors[node_id][end_node_index]);
         if (end_node_id >= 0) {
-          for (int neighbor_index = 0; neighbor_index<std::round(all_neighbors[node_id].sizes()[0]); neighbor_index++) {
+          for (int neighbor_index = 0; neighbor_index<all_neighbors[node_id].sizes()[0]; neighbor_index++) {
             auto neighbor = std::round(all_neighbors[node_id][neighbor_index]);
             if (neighbor >= 0 && neighbor_index!=end_node_index) {
               new_messages[node_id][end_node_id] += at::matmul(w_graph_neighbor_messages, at::relu(previous_messages[neighbor][node_id]));
