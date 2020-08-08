@@ -8,7 +8,7 @@
 
 template <typename scalar_t>
 __global__ void compose_messages_kernel(
-    const scalar_t* __restrict__ number_of_nodes,
+    const int* __restrict__ number_of_nodes,
     const scalar_t* __restrict__ previous_messages,
     const scalar_t* __restrict__ w_graph_neighbor_messages,
     const scalar_t* __restrict__ all_neighbors,
@@ -85,7 +85,7 @@ std::vector<at::Tensor> forward_cuda_cpp(
       for (int time_step = 0; time_step<time_steps; time_step++) {
         std::swap(messages_previous_step, new_messages);
         AT_DISPATCH_FLOATING_TYPES(new_messages.type(), "forward_cpp_cuda", ([&] {
-          compose_messages_kernel<scalar_t><<<blocks, threads>>>(number_of_nodes.data<scalar_t>(),
+          compose_messages_kernel<scalar_t><<<blocks, threads>>>(number_of_nodes.data<int>(),
                                           previous_messages.data<scalar_t>(),
                                           w_graph_neighbor_messages.data<scalar_t>(),
                                           all_neighbors[batch].data<scalar_t>(),
