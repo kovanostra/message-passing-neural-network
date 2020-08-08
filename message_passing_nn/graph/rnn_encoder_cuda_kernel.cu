@@ -90,9 +90,10 @@ std::vector<at::Tensor> forward_cuda_cpp(
                                           previous_messages.data<scalar_t>(),
                                           w_graph_neighbor_messages.data<scalar_t>(),
                                           all_neighbors[batch].data<scalar_t>(),
-                                          new_messages.data<scalar_t>(),);
+                                          new_messages.data<scalar_t>());
                                       }));
         new_messages += base_messages;
+                                    }
 
       messages[batch] = new_messages;
       messages_previous_step[batch] = previous_messages;
