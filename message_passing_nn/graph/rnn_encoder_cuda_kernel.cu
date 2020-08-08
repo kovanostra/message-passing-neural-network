@@ -54,14 +54,14 @@ at::Tensor encode_messages(
 
 std::vector<at::Tensor> forward_cuda_cpp(
     const int& time_steps,
-    const int& number_of_nodes,
+    const int number_of_nodes,
     const int& number_of_node_features,
     const int& fully_connected_layer_output_size,
     const int& batch_size,
     const at::Tensor& node_features,
-    const at::Tensor& all_neighbors,
+    const at::Tensor all_neighbors,
     const at::Tensor& w_graph_node_features,
-    const at::Tensor& w_graph_neighbor_messages,
+    const at::Tensor w_graph_neighbor_messages,
     const at::Tensor& u_graph_node_features,
     const at::Tensor& u_graph_neighbor_messages,
     const at::Tensor& linear_weight,
