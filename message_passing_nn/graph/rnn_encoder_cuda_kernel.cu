@@ -8,7 +8,7 @@
 
 template <typename scalar_t>
 __global__ void compose_messages_kernel(
-    int __restrict__ number_of_nodes,
+    int number_of_nodes,
     const scalar_t* __restrict__ previous_messages,
     const scalar_t* __restrict__ w_graph_neighbor_messages,
     const scalar_t* __restrict__ all_neighbors,
