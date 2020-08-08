@@ -7,7 +7,7 @@
 #include <vector>
 
 template <typename scalar_t>
-__global__ scalar_t compose_messages_kernel(
+__global__ void compose_messages_kernel(
     const scalar_t* __restrict__ number_of_nodes,
     const scalar_t* __restrict__ previous_messages,
     const scalar_t* __restrict__ w_graph_neighbor_messages,
@@ -30,7 +30,6 @@ __global__ scalar_t compose_messages_kernel(
         }
       }
     }
-  return new_messages;
   }
 
 at::Tensor encode_messages(
