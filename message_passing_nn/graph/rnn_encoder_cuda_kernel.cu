@@ -8,7 +8,6 @@
 
 template <typename scalar_t>
 __global__ void compose_messages_kernel(
-    const int number_of_nodes,
     scalar_t* __restrict__ previous_messages,
     scalar_t* __restrict__ w_graph_neighbor_messages,
     scalar_t __restrict__ all_neighbors,
@@ -17,7 +16,7 @@ __global__ void compose_messages_kernel(
     const int index = threadIdx.x;
     const int stride = blockDim.x;
 
-    for (int node_id = index; node_id < number_of_nodes; node_id += stride) {
+    for (int node_id = index; node_id < all_neighbors[node_id].sizes()[0]; node_id += stride) {
       for (int end_node_index = 0; end_node_index<all_neighbors[node_id].sizes()[0]; end_node_index++){
         auto end_node_id = std::round(all_neighbors[node_id][end_node_index]);
         if (end_node_id >= 0) {
@@ -85,8 +84,7 @@ std::vector<at::Tensor> forward_cuda_cpp(
       for (int time_step = 0; time_step<time_steps; time_step++) {
         std::swap(messages_previous_step, new_messages);
         AT_DISPATCH_FLOATING_TYPES(new_messages.type(), "forward_cpp_cuda", ([&] {
-          compose_messages_kernel<scalar_t><<<blocks, threads>>>(number_of_nodes,
-                                                                 previous_messages.data<scalar_t>(),
+          compose_messages_kernel<scalar_t><<<blocks, threads>>>(previous_messages.data<scalar_t>(),
                                                                  w_graph_neighbor_messages.data<scalar_t>(),
                                                                  all_neighbors[batch].data<scalar_t>(),
                                                                  new_messages.data<scalar_t>());
