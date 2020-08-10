@@ -18,11 +18,11 @@ __global__ void compose_messages_kernel(
     const int index = threadIdx.x;
     const int stride = blockDim.x;
 
-    for (int node_id = index; node_id < number_of_nodes.item<int64_t>(); node_id += stride) {
-      for (int end_node_index = 0; end_node_index<max_neighbors.item<int64_t>(); end_node_index++){
+    for (int node_id = index; node_id < std::static_cast<int>(number_of_nodes); node_id += stride) {
+      for (int end_node_index = 0; end_node_index < std::static_cast<int>(max_neighbors); end_node_index++){
         auto end_node_id = std::round(all_neighbors[node_id][end_node_index]);
         if (end_node_id >= 0) {
-          for (int neighbor_index = 0; neighbor_index<max_neighbors.item<int64_t>(); neighbor_index++) {
+          for (int neighbor_index = 0; neighbor_index < std::static_cast<int>(max_neighbors); neighbor_index++) {
             auto neighbor = std::round(all_neighbors[node_id][neighbor_index]);
             if (neighbor >= 0 && neighbor_index!=end_node_index) {
               new_messages[node_id][end_node_id] += at::matmul(w_graph_neighbor_messages, at::relu(previous_messages[neighbor][node_id]));
