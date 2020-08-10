@@ -9,9 +9,9 @@
 template <typename scalar_t>
 __global__ void compose_messages_kernel(
     int number_of_nodes,
-    const scalar_t* __restrict__ previous_messages,
-    const scalar_t* __restrict__ w_graph_neighbor_messages,
-    const scalar_t __restrict__ all_neighbors,
+    scalar_t* __restrict__ previous_messages,
+    scalar_t* __restrict__ w_graph_neighbor_messages,
+    scalar_t __restrict__ all_neighbors,
     scalar_t* __restrict__ new_messages) {
 
     const int index = threadIdx.x;
@@ -88,7 +88,7 @@ std::vector<at::Tensor> forward_cuda_cpp(
           compose_messages_kernel<scalar_t><<<blocks, threads>>>(number_of_nodes,
                                                                  previous_messages.data<scalar_t>(),
                                                                  w_graph_neighbor_messages.data<scalar_t>(),
-                                                                 all_neighbors[batch],
+                                                                 all_neighbors[batch].data<scalar_t>(),
                                                                  new_messages.data<scalar_t>());
                                       }));
         new_messages += base_messages;
