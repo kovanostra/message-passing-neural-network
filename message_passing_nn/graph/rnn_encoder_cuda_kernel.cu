@@ -88,7 +88,7 @@ std::vector<at::Tensor> forward_cuda_cpp(
           compose_messages_kernel<scalar_t><<<blocks, threads>>>(number_of_nodes,
                                                                  previous_messages.data<scalar_t>(),
                                                                  w_graph_neighbor_messages.data<scalar_t>(),
-                                                                 all_neighbors[batch].data<scalar_t>(),
+                                                                 all_neighbors[batch],
                                                                  new_messages.data<scalar_t>());
                                       }));
         new_messages += base_messages;
