@@ -82,8 +82,8 @@ std::vector<at::Tensor> forward_cuda_cpp(
       auto new_messages = at::zeros_like({messages[batch]});
       auto previous_messages = at::zeros_like({messages[batch]});
       auto base_messages = at::matmul(w_graph_node_features, node_features);
-      const auto number_of_nodes = all_neighbors[batch].sizes()[0];
-      const auto max_neighbors = all_neighbors[batch].sizes()[1];
+      const auto number_of_nodes = all_neighbors[batch].size(0);
+      const auto max_neighbors = all_neighbors[batch].size(1);
       
       for (int time_step = 0; time_step<time_steps; time_step++) {
         std::swap(messages_previous_step, new_messages);
