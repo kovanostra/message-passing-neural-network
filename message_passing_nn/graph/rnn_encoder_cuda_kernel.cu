@@ -87,10 +87,11 @@ std::vector<at::Tensor> forward_cuda_cpp(
       
       for (int time_step = 0; time_step<time_steps; time_step++) {
         std::swap(messages_previous_step, new_messages);
+        auto neighbors_of_batch = all_neighbors[batch];
         AT_DISPATCH_FLOATING_TYPES(new_messages.type(), "forward_cpp_cuda", ([&] {
           compose_messages_kernel<scalar_t><<<blocks, threads>>>(previous_messages.packed_accessor32<scalar_t,2,torch::RestrictPtrTraits>(),
                                                                  w_graph_neighbor_messages.packed_accessor32<scalar_t,2,torch::RestrictPtrTraits>(),
-                                                                 all_neighbors[batch].packed_accessor32<scalar_t,2,torch::RestrictPtrTraits>(),
+                                                                 neighbors_of_batch.packed_accessor32<scalar_t,2,torch::RestrictPtrTraits>(),
                                                                  new_messages.packed_accessor32<scalar_t,2,torch::RestrictPtrTraits>());
                                       }));
         new_messages += base_messages;
