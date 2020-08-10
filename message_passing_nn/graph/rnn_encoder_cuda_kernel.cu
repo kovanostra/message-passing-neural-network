@@ -10,17 +10,19 @@ template <typename scalar_t>
 __global__ void compose_messages_kernel(
     scalar_t* __restrict__ previous_messages,
     scalar_t* __restrict__ w_graph_neighbor_messages,
-    scalar_t __restrict__ all_neighbors,
-    scalar_t* __restrict__ new_messages) {
+    scalar_t* __restrict__ all_neighbors,
+    scalar_t* __restrict__ new_messages,
+    size_t number_of_nodes,
+    size_t max_neighbors) {
 
     const int index = threadIdx.x;
     const int stride = blockDim.x;
 
-    for (int node_id = index; node_id < all_neighbors[node_id].sizes()[0]; node_id += stride) {
-      for (int end_node_index = 0; end_node_index<all_neighbors[node_id].sizes()[0]; end_node_index++){
+    for (int node_id = index; node_id < number_of_nodes; node_id += stride) {
+      for (int end_node_index = 0; end_node_index<max_neighbors; end_node_index++){
         auto end_node_id = std::round(all_neighbors[node_id][end_node_index]);
         if (end_node_id >= 0) {
-          for (int neighbor_index = 0; neighbor_index<all_neighbors[node_id].sizes()[0]; neighbor_index++) {
+          for (int neighbor_index = 0; neighbor_index<max_neighbors; neighbor_index++) {
             auto neighbor = std::round(all_neighbors[node_id][neighbor_index]);
             if (neighbor >= 0 && neighbor_index!=end_node_index) {
               new_messages[node_id][end_node_id] += at::matmul(w_graph_neighbor_messages, at::relu(previous_messages[neighbor][node_id]));
@@ -80,6 +82,8 @@ std::vector<at::Tensor> forward_cuda_cpp(
       auto new_messages = at::zeros_like({messages[batch]});
       auto previous_messages = at::zeros_like({messages[batch]});
       auto base_messages = at::matmul(w_graph_node_features, node_features);
+      const auto number_of_nodes = all_neighbors[batch].sizes()[0];
+      const auto max_neighbors = all_neighbors[batch].sizes()[1];
       
       for (int time_step = 0; time_step<time_steps; time_step++) {
         std::swap(messages_previous_step, new_messages);
@@ -87,7 +91,9 @@ std::vector<at::Tensor> forward_cuda_cpp(
           compose_messages_kernel<scalar_t><<<blocks, threads>>>(previous_messages.data<scalar_t>(),
                                                                  w_graph_neighbor_messages.data<scalar_t>(),
                                                                  all_neighbors[batch].data<scalar_t>(),
-                                                                 new_messages.data<scalar_t>());
+                                                                 new_messages.data<scalar_t>(),
+                                                                 number_of_nodes,
+                                                                 max_neighbors);
                                       }));
         new_messages += base_messages;
                                     }
