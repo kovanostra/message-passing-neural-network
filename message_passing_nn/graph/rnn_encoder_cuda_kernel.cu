@@ -24,7 +24,7 @@ __global__ void compose_messages_kernel(
           for (int neighbor_index = 0; neighbor_index < all_neighbors.size(1); neighbor_index++) {
             auto neighbor = std::round(all_neighbors[node_id][neighbor_index]);
             if (neighbor >= 0 && neighbor_index!=end_node_index) {
-              new_messages[node_id][end_node_id] = w_graph_neighbor_messages;
+              new_messages[node_id][end_node_id] = previous_messages[neighbor][node_id];
               // new_messages[node_id][end_node_id] += at::matmul(w_graph_neighbor_messages, previous_messages[neighbor][node_id]);
             }
           }
@@ -76,7 +76,7 @@ std::vector<at::Tensor> forward_cuda_cpp(
     auto encodings = at::zeros({batch_size, number_of_nodes*number_of_node_features});
     
     const int threads = 1024;
-    const int blocks = std::floor(number_of_nodes/threads) + 1;
+    const dim3 blocks(std::floor(number_of_nodes/threads) + 1);
       
     for (int batch = 0; batch<batch_size; batch++) {
       auto new_messages = at::zeros_like({messages[batch]});
