@@ -112,7 +112,7 @@ std::vector<at::Tensor> forward_cuda_cpp(
     return {outputs, linear_outputs, encodings, messages, messages_previous_step};
   }
 
-std::vector<at::Tensor> backward_cpp(
+std::vector<at::Tensor> backward_cuda_cpp(
   const at::Tensor& grad_output,
   const at::Tensor& outputs,
   const at::Tensor& linear_outputs,
