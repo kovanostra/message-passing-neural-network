@@ -6,6 +6,7 @@
 
 #include <vector>
 
+
 template <typename scalar_t>
 __global__ void compose_messages_kernel(
     scalar_t* __restrict__ previous_messages,
@@ -27,7 +28,7 @@ __global__ void compose_messages_kernel(
           for (int neighbor_index = 0; neighbor_index < max_neighbors_int; neighbor_index++) {
             auto neighbor = std::round(all_neighbors[node_id][neighbor_index]);
             if (neighbor >= 0 && neighbor_index!=end_node_index) {
-              new_messages[node_id][end_node_id] += at::matmul(w_graph_neighbor_messages, at::relu(previous_messages[neighbor][node_id]));
+              new_messages[node_id][end_node_id] += at::matmul(w_graph_neighbor_messages, previous_messages[neighbor][node_id]);
             }
           }
         }
