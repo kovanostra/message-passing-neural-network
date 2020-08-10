@@ -10,8 +10,8 @@
 template <typename scalar_t>
 __global__ void compose_messages_kernel(
     torch::PackedTensorAccessor32<scalar_t,2,torch::RestrictPtrTraits> previous_messages,
-    torch::PackedTensorAccessor32<scalar_t,2,torch::RestrictPtrTraits> w_graph_neighbor_messages,
-    torch::PackedTensorAccessor32<scalar_t,2,torch::RestrictPtrTraits> all_neighbors,
+    const torch::PackedTensorAccessor32<scalar_t,2,torch::RestrictPtrTraits> w_graph_neighbor_messages,
+    const torch::PackedTensorAccessor32<scalar_t,2,torch::RestrictPtrTraits> all_neighbors,
     torch::PackedTensorAccessor32<scalar_t,2,torch::RestrictPtrTraits> new_messages) {
 
     const int index = threadIdx.x;
