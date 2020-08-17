@@ -30,11 +30,11 @@ class RNNEncoderFunction(to.autograd.Function):
         else:
             cpp_extension = rnn_encoder_cpp
         outputs, linear_outputs, encodings, messages, messages_previous_step = cpp_extension.forward(
-            time_steps,
-            number_of_nodes,
-            number_of_node_features,
-            fully_connected_layer_output_size,
-            batch_size,
+            to.tensor(time_steps, device=device),
+            to.tensor(number_of_nodes, device=device),
+            to.tensor(number_of_node_features, device=device),
+            to.tensor(fully_connected_layer_output_size, device=device),
+            to.tensor(batch_size, device=device),
             node_features,
             all_neighbors,
             w_graph_node_features,
