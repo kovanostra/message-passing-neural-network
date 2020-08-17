@@ -9,7 +9,7 @@
 
 template <typename scalar_t>
 __global__ void compose_messages_kernel(
-    torch::PackedTensorAccessor32<scalar_t,2,torch::RestrictPtrTraits> previous_messages,
+    torch::PackedTensorAccessor32<scalar_t,2,torch::RestrictPtrTraits> base_neighbor_messages,
     torch::PackedTensorAccessor32<scalar_t,2,torch::RestrictPtrTraits> w_graph_neighbor_messages,
     torch::PackedTensorAccessor32<scalar_t,2,torch::RestrictPtrTraits> all_neighbors,
     torch::PackedTensorAccessor32<scalar_t,2,torch::RestrictPtrTraits> new_messages) {
@@ -24,8 +24,7 @@ __global__ void compose_messages_kernel(
           for (int neighbor_index = 0; neighbor_index < all_neighbors.size(1); neighbor_index++) {
             auto neighbor = std::round(all_neighbors[node_id][neighbor_index]);
             if (neighbor >= 0 && neighbor_index!=end_node_index) {
-              new_messages[node_id][end_node_id] = previous_messages[neighbor][node_id];
-              // new_messages[node_id][end_node_id] += at::matmul(w_graph_neighbor_messages, previous_messages[neighbor][node_id]);
+              new_messages[node_id][end_node_id] = base_neighbor_messages[neighbor][node_id];
             }
           }
         }
@@ -86,10 +85,11 @@ std::vector<at::Tensor> forward_cuda_cpp(
       const auto max_neighbors = all_neighbors[batch].size(1);
       
       for (int time_step = 0; time_step<time_steps; time_step++) {
+        auto base_neighbor_messages = at::matmul(w_graph_neighbor_features, previous_messages);
         std::swap(messages_previous_step, new_messages);
         auto neighbors_of_batch = all_neighbors[batch];
         AT_DISPATCH_FLOATING_TYPES(new_messages.type(), "forward_cpp_cuda", ([&] {
-          compose_messages_kernel<scalar_t><<<blocks, threads>>>(previous_messages.packed_accessor32<scalar_t,2,torch::RestrictPtrTraits>(),
+          compose_messages_kernel<scalar_t><<<blocks, threads>>>(base_neighbor_messages.packed_accessor32<scalar_t,2,torch::RestrictPtrTraits>(),
                                                                  w_graph_neighbor_messages.packed_accessor32<scalar_t,2,torch::RestrictPtrTraits>(),
                                                                  neighbors_of_batch.packed_accessor32<scalar_t,2,torch::RestrictPtrTraits>(),
                                                                  new_messages.packed_accessor32<scalar_t,2,torch::RestrictPtrTraits>());
