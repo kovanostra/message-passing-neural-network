@@ -1,9 +1,7 @@
 import logging
-from multiprocessing import get_context
 from typing import Dict, Any, Tuple
 
 import numpy as np
-
 import torch as to
 from torch.nn.modules.module import Module
 from torch.optim.optimizer import Optimizer
@@ -36,7 +34,8 @@ class Trainer:
                                 number_of_nodes=number_of_nodes,
                                 number_of_node_features=number_of_node_features,
                                 fully_connected_layer_input_size=number_of_nodes * number_of_node_features,
-                                fully_connected_layer_output_size=fully_connected_layer_output_size)
+                                fully_connected_layer_output_size=fully_connected_layer_output_size,
+                                device=self.device)
         self.get_logger().info('Loaded the ' + configuration_dictionary['model'] +
                                ' model. Model weights size: ' + self.model.get_model_size() + ' MB')
         self.model.to(self.device)

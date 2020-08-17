@@ -1,6 +1,7 @@
 from typing import Tuple
 
 import rnn_encoder_cpp as rnn_encoder_cpp
+import rnn_encoder_cuda_cpp as rnn_encoder_cuda_cpp
 import math
 import torch as to
 import torch.nn as nn
@@ -22,8 +23,13 @@ class RNNEncoderFunction(to.autograd.Function):
                 u_graph_node_features: to.Tensor,
                 u_graph_neighbor_messages: to.Tensor,
                 linear_weight: to.Tensor,
-                linear_bias: to.Tensor) -> to.Tensor:
-        outputs, linear_outputs, encodings, messages, messages_previous_step = rnn_encoder_cpp.forward(
+                linear_bias: to.Tensor,
+                device: str) -> to.Tensor:
+        if device == "cuda":
+            cpp_extension = rnn_encoder_cuda_cpp
+        else:
+            cpp_extension = rnn_encoder_cpp
+        outputs, linear_outputs, encodings, messages, messages_previous_step = cpp_extension.forward(
             time_steps,
             number_of_nodes,
             number_of_node_features,
@@ -67,7 +73,11 @@ class RNNEncoderFunction(to.autograd.Function):
                                                         to.Tensor,
                                                         to.Tensor,
                                                         to.Tensor]:
-        backward_outputs = rnn_encoder_cpp.backward(grad_outputs.contiguous(), *ctx.saved_tensors)
+        if grad_outputs.device == "cuda":
+            cpp_extension = rnn_encoder_cuda_cpp
+        else:
+            cpp_extension = rnn_encoder_cpp
+        backward_outputs = cpp_extension.backward(grad_outputs.contiguous(), *ctx.saved_tensors)
         d_w_graph_node_features, d_w_graph_neighbor_messages, d_u_graph_neighbor_messages, d_u_graph_node_features, d_linear_weight, d_linear_bias = backward_outputs
         return None, \
                None, \
@@ -90,7 +100,8 @@ class RNNEncoder(nn.Module):
                  number_of_nodes: int,
                  number_of_node_features: int,
                  fully_connected_layer_input_size: int,
-                 fully_connected_layer_output_size: int) -> None:
+                 fully_connected_layer_output_size: int,
+                 device: str = "cpu") -> None:
         super(RNNEncoder, self).__init__()
 
         self.time_steps = time_steps
@@ -98,24 +109,31 @@ class RNNEncoder(nn.Module):
         self.number_of_node_features = number_of_node_features
         self.fully_connected_layer_input_size = fully_connected_layer_input_size
         self.fully_connected_layer_output_size = fully_connected_layer_output_size
+        self.device = device
 
         self.w_graph_node_features = nn.Parameter(
-            to.empty([number_of_nodes, number_of_nodes]),
+            to.empty([number_of_nodes, number_of_nodes],
+                     device=self.device),
             requires_grad=True)
         self.w_graph_neighbor_messages = nn.Parameter(
-            to.empty([number_of_nodes, number_of_nodes]),
+            to.empty([number_of_nodes, number_of_nodes],
+                     device=self.device),
             requires_grad=True)
         self.u_graph_node_features = nn.Parameter(
-            to.empty([number_of_nodes, number_of_nodes]),
+            to.empty([number_of_nodes, number_of_nodes],
+                     device=self.device),
             requires_grad=True)
         self.u_graph_neighbor_messages = nn.Parameter(
-            to.empty([number_of_node_features, number_of_node_features]),
+            to.empty([number_of_node_features, number_of_node_features],
+                     device=self.device),
             requires_grad=True)
         self.linear_weight = nn.Parameter(
-            to.empty([self.fully_connected_layer_output_size, self.fully_connected_layer_input_size]),
+            to.empty([self.fully_connected_layer_output_size, self.fully_connected_layer_input_size],
+                     device=self.device),
             requires_grad=True)
         self.linear_bias = nn.Parameter(
-            to.empty(self.fully_connected_layer_output_size),
+            to.empty(self.fully_connected_layer_output_size,
+                     device=self.device),
             requires_grad=True)
         self.reset_parameters()
 
@@ -144,7 +162,8 @@ class RNNEncoder(nn.Module):
                                         self.u_graph_node_features,
                                         self.u_graph_neighbor_messages,
                                         self.linear_weight,
-                                        self.linear_bias)
+                                        self.linear_bias,
+                                        self.device)
 
     def get_model_size(self) -> str:
         return str(int((self.w_graph_node_features.element_size() * self.w_graph_node_features.nelement() +
