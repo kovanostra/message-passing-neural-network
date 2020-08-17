@@ -85,7 +85,7 @@ std::vector<at::Tensor> forward_cuda_cpp(
       const auto max_neighbors = all_neighbors[batch].size(1);
       
       for (int time_step = 0; time_step<time_steps; time_step++) {
-        auto base_neighbor_messages = at::matmul(w_graph_neighbor_features, previous_messages);
+        auto base_neighbor_messages = at::matmul(w_graph_neighbor_messages, previous_messages);
         std::swap(messages_previous_step, new_messages);
         auto neighbors_of_batch = all_neighbors[batch];
         AT_DISPATCH_FLOATING_TYPES(new_messages.type(), "forward_cpp_cuda", ([&] {
