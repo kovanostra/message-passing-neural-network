@@ -18,11 +18,11 @@ std::vector<at::Tensor> forward_cpp(
     const at::Tensor& linear_weight,
     const at::Tensor& linear_bias) {
       
-    auto time_steps = time_steps.item<int64_t>();
-    auto number_of_nodes = number_of_nodes.item<int64_t>();
-    auto number_of_node_features = number_of_node_features.item<int64_t>();
-    auto fully_connected_layer_output_size = fully_connected_layer_output_size.item<int64_t>();
-    auto batch_size = batch_size.item<int64_t>();
+    const int time_steps = time_steps.item<int>();
+    const int number_of_nodes = number_of_nodes.item<int>();
+    const int number_of_node_features = number_of_node_features.item<int>();
+    const int fully_connected_layer_output_size = fully_connected_layer_output_size.item<int>();
+    const int batch_size = batch_size.item<int>();
     auto outputs = at::zeros({batch_size, fully_connected_layer_output_size});
     auto linear_outputs = at::zeros({batch_size, fully_connected_layer_output_size});
     auto messages = at::zeros({batch_size, number_of_nodes, number_of_nodes, number_of_node_features});

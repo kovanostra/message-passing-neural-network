@@ -67,24 +67,24 @@ std::vector<at::Tensor> forward_cuda_cpp(
     const at::Tensor& linear_weight,
     const at::Tensor& linear_bias) {
       
-    auto outputs = at::zeros({batch_size.item<int64_t>(), fully_connected_layer_output_size.item<int64_t>()});
-    auto linear_outputs = at::zeros({batch_size.item<int64_t>(), fully_connected_layer_output_size.item<int64_t>()});
-    auto messages = at::zeros({batch_size.item<int64_t>(), number_of_nodes.item<int64_t>(), number_of_nodes.item<int64_t>(), number_of_node_features.item<int64_t>()});
-    auto messages_previous_step = at::zeros({batch_size.item<int64_t>(), number_of_nodes.item<int64_t>(), number_of_nodes.item<int64_t>(), number_of_node_features.item<int64_t>()});
-    auto node_encoding_messages = at::zeros({batch_size.item<int64_t>(), number_of_nodes.item<int64_t>(), number_of_node_features.item<int64_t>()});
-    auto encodings = at::zeros({batch_size.item<int64_t>(), number_of_nodes*number_of_node_features.item<int64_t>()});
+    auto outputs = at::zeros({batch_size.item<int>(), fully_connected_layer_output_size.item<int>()});
+    auto linear_outputs = at::zeros({batch_size.item<int>(), fully_connected_layer_output_size.item<int>()});
+    auto messages = at::zeros({batch_size.item<int>(), number_of_nodes.item<int>(), number_of_nodes.item<int>(), number_of_node_features.item<int>()});
+    auto messages_previous_step = at::zeros({batch_size.item<int>(), number_of_nodes.item<int>(), number_of_nodes.item<int>(), number_of_node_features.item<int>()});
+    auto node_encoding_messages = at::zeros({batch_size.item<int>(), number_of_nodes.item<int>(), number_of_node_features.item<int>()});
+    auto encodings = at::zeros({batch_size.item<int>(), number_of_nodes*number_of_node_features.item<int>()});
     
     const int threads = 1024;
-    const dim3 blocks(std::floor(number_of_nodes.item<int64_t>()/threads) + 1);
+    const dim3 blocks(std::floor(number_of_nodes.item<int>()/threads) + 1);
       
-    for (int batch = 0; batch<batch_size.item<int64_t>(); batch++) {
+    for (int batch = 0; batch<batch_size.item<int>(); batch++) {
       auto new_messages = at::zeros_like({messages[batch]});
       auto previous_messages = at::zeros_like({messages[batch]});
       auto base_messages = at::matmul(w_graph_node_features, node_features);
       const auto number_of_nodes = all_neighbors[batch].size(0);
       const auto max_neighbors = all_neighbors[batch].size(1);
       
-      for (int time_step = 0; time_step<time_steps.item<int64_t>(); time_step++) {
+      for (int time_step = 0; time_step<time_steps.item<int>(); time_step++) {
         auto base_neighbor_messages = at::matmul(w_graph_neighbor_messages, previous_messages);
         std::swap(messages_previous_step, new_messages);
         auto neighbors_of_batch = all_neighbors[batch];
