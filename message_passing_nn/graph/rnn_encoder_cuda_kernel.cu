@@ -72,7 +72,7 @@ std::vector<at::Tensor> forward_cuda_cpp(
     auto messages = at::zeros({batch_size.item<int>(), number_of_nodes.item<int>(), number_of_nodes.item<int>(), number_of_node_features.item<int>()});
     auto messages_previous_step = at::zeros({batch_size.item<int>(), number_of_nodes.item<int>(), number_of_nodes.item<int>(), number_of_node_features.item<int>()});
     auto node_encoding_messages = at::zeros({batch_size.item<int>(), number_of_nodes.item<int>(), number_of_node_features.item<int>()});
-    auto encodings = at::zeros({batch_size.item<int>(), number_of_nodes*number_of_node_features.item<int>()});
+    auto encodings = at::zeros({batch_size.item<int>(), number_of_nodes.item<int>()*number_of_node_features.item<int>()});
     
     const int threads = 1024;
     const dim3 blocks(std::floor(number_of_nodes.item<int>()/threads) + 1);

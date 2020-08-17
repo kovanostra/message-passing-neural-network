@@ -18,22 +18,22 @@ std::vector<at::Tensor> forward_cpp(
     const at::Tensor& linear_weight,
     const at::Tensor& linear_bias) {
       
-    const int time_steps = time_steps.item<int>();
-    const int number_of_nodes = number_of_nodes.item<int>();
-    const int number_of_node_features = number_of_node_features.item<int>();
-    const int fully_connected_layer_output_size = fully_connected_layer_output_size.item<int>();
-    const int batch_size = batch_size.item<int>();
-    auto outputs = at::zeros({batch_size, fully_connected_layer_output_size});
-    auto linear_outputs = at::zeros({batch_size, fully_connected_layer_output_size});
-    auto messages = at::zeros({batch_size, number_of_nodes, number_of_nodes, number_of_node_features});
-    auto messages_previous_step = at::zeros({batch_size, number_of_nodes, number_of_nodes, number_of_node_features});
-    auto node_encoding_messages = at::zeros({batch_size, number_of_nodes, number_of_node_features});
-    auto encodings = at::zeros({batch_size, number_of_nodes*number_of_node_features});
+    auto time_steps_int = time_steps.item<int>();
+    auto number_of_nodes_int = number_of_nodes.item<int>();
+    auto number_of_node_features_int = number_of_node_features.item<int>();
+    auto fully_connected_layer_output_size_int = fully_connected_layer_output_size.item<int>();
+    auto batch_size_int = batch_size.item<int>();
+    auto outputs = at::zeros({batch_size_int, fully_connected_layer_output_size_int});
+    auto linear_outputs = at::zeros({batch_size_int, fully_connected_layer_output_size_int});
+    auto messages = at::zeros({batch_size_int, number_of_nodes_int, number_of_nodes_int, number_of_node_features_int});
+    auto messages_previous_step = at::zeros({batch_size_int, number_of_nodes_int, number_of_nodes_int, number_of_node_features_int});
+    auto node_encoding_messages = at::zeros({batch_size_int, number_of_nodes_int, number_of_node_features_int});
+    auto encodings = at::zeros({batch_size_int, number_of_nodes_int*number_of_node_features_int});
       
-    for (int batch = 0; batch<batch_size; batch++) {
-      auto messages_vector = compose_messages(time_steps,
-                                        number_of_nodes,
-                                        number_of_node_features,
+    for (int batch = 0; batch<batch_size_int; batch++) {
+      auto messages_vector = compose_messages(time_steps_int,
+                                        number_of_nodes_int,
+                                        number_of_node_features_int,
                                         w_graph_node_features,
                                         w_graph_neighbor_messages,
                                         node_features[batch],
@@ -41,7 +41,7 @@ std::vector<at::Tensor> forward_cpp(
                                         messages[batch]);
       messages[batch] = messages_vector[0];
       messages_previous_step[batch] = messages_vector[1];
-      encodings[batch] = encode_messages(number_of_nodes,
+      encodings[batch] = encode_messages(number_of_nodes_int,
                                         node_encoding_messages[batch],
                                         u_graph_node_features,
                                         u_graph_neighbor_messages,
