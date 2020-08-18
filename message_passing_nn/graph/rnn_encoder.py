@@ -156,6 +156,7 @@ class RNNEncoder(nn.Module):
                                         self.number_of_node_features,
                                         self.fully_connected_layer_output_size,
                                         batch_size,
+                                        self.device,
                                         node_features,
                                         all_neighbors,
                                         self.w_graph_node_features,
@@ -163,8 +164,7 @@ class RNNEncoder(nn.Module):
                                         self.u_graph_node_features,
                                         self.u_graph_neighbor_messages,
                                         self.linear_weight,
-                                        self.linear_bias,
-                                        self.device)
+                                        self.linear_bias)
 
     def get_model_size(self) -> str:
         return str(int((self.w_graph_node_features.element_size() * self.w_graph_node_features.nelement() +
