@@ -18,7 +18,7 @@ std::vector<at::Tensor> compose_messages(
   for (int time_step = 0; time_step<time_steps; time_step++) {
     auto base_neighbor_messages = at::matmul(w_graph_neighbor_messages, at::relu(messages_previous_step));
     std::swap(messages_previous_step, new_messages);
-    for (int node_id; node_id < all_neighbors.size(0); node_id++) {
+    for (int node_id = 0; node_id < all_neighbors.size(0); node_id++) {
       for (int end_node_index = 0; end_node_index < all_neighbors.size(1); end_node_index++){
         auto end_node_id = all_neighbors[node_id][end_node_index].item<int>();
         if (end_node_id >= 0) {
