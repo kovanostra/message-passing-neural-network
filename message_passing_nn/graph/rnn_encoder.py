@@ -87,6 +87,7 @@ class RNNEncoderFunction(to.autograd.Function):
                None, \
                None, \
                None, \
+               None, \
                d_w_graph_node_features, \
                d_w_graph_neighbor_messages, \
                d_u_graph_neighbor_messages, \
