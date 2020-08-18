@@ -16,6 +16,7 @@ class RNNEncoderFunction(to.autograd.Function):
                 number_of_node_features: int,
                 fully_connected_layer_output_size: int,
                 batch_size: int,
+                device: str,
                 node_features: to.Tensor,
                 all_neighbors: to.Tensor,
                 w_graph_node_features: to.Tensor,
@@ -23,8 +24,7 @@ class RNNEncoderFunction(to.autograd.Function):
                 u_graph_node_features: to.Tensor,
                 u_graph_neighbor_messages: to.Tensor,
                 linear_weight: to.Tensor,
-                linear_bias: to.Tensor,
-                device: str) -> to.Tensor:
+                linear_bias: to.Tensor) -> to.Tensor:
         if device == "cuda":
             cpp_extension = rnn_encoder_cuda_cpp
         else:
@@ -61,6 +61,7 @@ class RNNEncoderFunction(to.autograd.Function):
 
     @staticmethod
     def backward(ctx, grad_outputs: to.Tensor) -> Tuple[None,
+                                                        None,
                                                         None,
                                                         None,
                                                         None,
