@@ -138,7 +138,7 @@ std::vector<at::Tensor> backward_cuda_cpp(
 
   auto delta_3 = at::matmul(delta_2.transpose(1, 2), at::matmul(u_graph_neighbor_messages_summed, d_relu_4d(messages).transpose(2, 3)));
   auto d_w_graph_node_features = at::matmul(delta_3.transpose(1, 2), node_features.transpose(1, 2));
-  auto d_w_graph_neighbor_messages = at::matmul(delta_3, messages_previous_step_summed);
+  auto d_w_graph_neighbor_messages = at::matmul(delta_3.transpose(1, 2), messages_previous_step_summed.transpose(1, 2));
 
 
   return {d_w_graph_node_features, 
