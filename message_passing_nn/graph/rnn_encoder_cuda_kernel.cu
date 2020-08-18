@@ -45,11 +45,11 @@ at::Tensor encode_messages(
       for (int end_node_index = 0; end_node_index<all_neighbors.sizes()[1]; end_node_index++){
         auto end_node_id = all_neighbors[node_id][end_node_index].item<int64_t>();
         if (end_node_id >= 0) {
-          node_encoding_messages[node_id] += at::matmul(u_graph_neighbor_messages, at::relu(messages[end_node_id][node_id], at::kCUDA), at::kCUDA);
+          node_encoding_messages[node_id] += at::matmul(u_graph_neighbor_messages, at::relu(messages[end_node_id][node_id]));
         }
       }
     }
-    return at::relu(at::add(at::matmul(u_graph_node_features, node_features, at::kCUDA), node_encoding_messages, at::kCUDA), at::kCUDA);
+    return at::relu(at::add(at::matmul(u_graph_node_features, node_features), node_encoding_messages));
   }
 
 std::vector<at::Tensor> forward_cuda_cpp(
@@ -67,25 +67,25 @@ std::vector<at::Tensor> forward_cuda_cpp(
     const at::Tensor& linear_weight,
     const at::Tensor& linear_bias) {
       
-    auto outputs = at::zeros({batch_size.item<int>(), fully_connected_layer_output_size.item<int>()}), at::kCUDA);
-    auto linear_outputs = at::zeros({batch_size.item<int>(), fully_connected_layer_output_size.item<int>()}, at::kCUDA);
-    auto messages = at::zeros({batch_size.item<int>(), number_of_nodes.item<int>(), number_of_nodes.item<int>(), number_of_node_features.item<int>()}, at::kCUDA);
-    auto messages_previous_step = at::zeros({batch_size.item<int>(), number_of_nodes.item<int>(), number_of_nodes.item<int>(), number_of_node_features.item<int>()}, at::kCUDA);
-    auto node_encoding_messages = at::zeros({batch_size.item<int>(), number_of_nodes.item<int>(), number_of_node_features.item<int>()}, at::kCUDA);
-    auto encodings = at::zeros({batch_size.item<int>(), number_of_nodes.item<int>()*number_of_node_features.item<int>()}, at::kCUDA);
+    auto outputs = at::zeros({batch_size.item<int>(), fully_connected_layer_output_size.item<int>()});
+    auto linear_outputs = at::zeros({batch_size.item<int>(), fully_connected_layer_output_size.item<int>()});
+    auto messages = at::zeros({batch_size.item<int>(), number_of_nodes.item<int>(), number_of_nodes.item<int>(), number_of_node_features.item<int>()});
+    auto messages_previous_step = at::zeros({batch_size.item<int>(), number_of_nodes.item<int>(), number_of_nodes.item<int>(), number_of_node_features.item<int>()});
+    auto node_encoding_messages = at::zeros({batch_size.item<int>(), number_of_nodes.item<int>(), number_of_node_features.item<int>()});
+    auto encodings = at::zeros({batch_size.item<int>(), number_of_nodes.item<int>()*number_of_node_features.item<int>()});
     
     const int threads = 1024;
     const dim3 blocks(std::floor(number_of_nodes.item<int>()/threads) + 1);
       
     for (int batch = 0; batch<batch_size.item<int>(); batch++) {
-      auto new_messages = at::zeros_like({messages[batch]}, at::kCUDA);
-      auto previous_messages = at::zeros_like({messages[batch]}, at::kCUDA);
-      auto base_messages = at::matmul(w_graph_node_features, node_features, at::kCUDA);
+      auto new_messages = at::zeros_like({messages[batch]});
+      auto previous_messages = at::zeros_like({messages[batch]});
+      auto base_messages = at::matmul(w_graph_node_features, node_features);
       const auto number_of_nodes = all_neighbors[batch].size(0);
       const auto max_neighbors = all_neighbors[batch].size(1);
       
       for (int time_step = 0; time_step<time_steps.item<int>(); time_step++) {
-        auto base_neighbor_messages = at::matmul(w_graph_neighbor_messages, at::relu(previous_messages, at::kCUDA), at::kCUDA);
+        auto base_neighbor_messages = at::matmul(w_graph_neighbor_messages, at::relu(previous_messages));
         std::swap(messages_previous_step, new_messages);
         auto neighbors_of_batch = all_neighbors[batch];
         AT_DISPATCH_FLOATING_TYPES(new_messages.type(), "forward_cpp_cuda", ([&] {
@@ -106,8 +106,8 @@ std::vector<at::Tensor> forward_cuda_cpp(
                                         node_features[batch],
                                         all_neighbors[batch],
                                         messages[batch]).view({-1});
-      linear_outputs[batch] = at::add(at::matmul(linear_weight, encodings[batch], at::kCUDA), linear_bias, at::kCUDA);
-      outputs[batch] = at::sigmoid(linear_outputs[batch], at::kCUDA);
+      linear_outputs[batch] = at::add(at::matmul(linear_weight, encodings[batch]), linear_bias);
+      outputs[batch] = at::sigmoid(linear_outputs[batch]);
     }
     return {outputs, linear_outputs, encodings, messages, messages_previous_step};
   }
@@ -130,15 +130,15 @@ std::vector<at::Tensor> backward_cuda_cpp(
   
   auto delta_1 = grad_output*d_sigmoid(linear_outputs);
   auto d_linear_bias = delta_1;
-  auto d_linear_weight = at::matmul(delta_1.transpose(0, 1), encodings, at::kCUDA);
+  auto d_linear_weight = at::matmul(delta_1.transpose(0, 1), encodings);
   
-  auto delta_2 = at::matmul(delta_1, linear_weight, at::kCUDA).reshape({batch_size.item<int>(), number_of_nodes.item<int>(), number_of_node_features.item<int>()})*(d_relu_2d(encodings).reshape({batch_size.item<int>(), number_of_nodes.item<int>(), number_of_node_features.item<int>()}));
-  auto d_u_graph_node_features = at::matmul(delta_2, node_features.transpose(1, 2), at::kCUDA);
-  auto d_u_graph_neighbor_messages = at::matmul(delta_2.transpose(1, 2), messages_summed, at::kCUDA);
+  auto delta_2 = at::matmul(delta_1, linear_weight).reshape({batch_size.item<int>(), number_of_nodes.item<int>(), number_of_node_features.item<int>()})*(d_relu_2d(encodings).reshape({batch_size.item<int>(), number_of_nodes.item<int>(), number_of_node_features.item<int>()}));
+  auto d_u_graph_node_features = at::matmul(delta_2, node_features.transpose(1, 2));
+  auto d_u_graph_neighbor_messages = at::matmul(delta_2.transpose(1, 2), messages_summed);
 
-  auto delta_3 = at::matmul(delta_2.transpose(1, 2), at::matmul(u_graph_neighbor_messages_summed, d_relu_4d(messages).transpose(2, 3), at::kCUDA), at::kCUDA);
-  auto d_w_graph_node_features = at::matmul(delta_3.transpose(1, 2), node_features.transpose(1, 2), at::kCUDA);
-  auto d_w_graph_neighbor_messages = at::matmul(delta_3.transpose(1, 2), messages_previous_step_summed.transpose(1, 2), at::kCUDA);
+  auto delta_3 = at::matmul(delta_2.transpose(1, 2), at::matmul(u_graph_neighbor_messages_summed, d_relu_4d(messages).transpose(2, 3)));
+  auto d_w_graph_node_features = at::matmul(delta_3.transpose(1, 2), node_features.transpose(1, 2));
+  auto d_w_graph_neighbor_messages = at::matmul(delta_3.transpose(1, 2), messages_previous_step_summed.transpose(1, 2));
 
 
   return {d_w_graph_node_features, 
