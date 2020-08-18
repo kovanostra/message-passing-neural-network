@@ -9,10 +9,10 @@
 
 template <typename scalar_t>
 __global__ void compose_messages_kernel(
-    torch::PackedTensorAccessor32<scalar_t,2,torch::RestrictPtrTraits> base_neighbor_messages,
+    torch::PackedTensorAccessor32<scalar_t,3,torch::RestrictPtrTraits> base_neighbor_messages,
     torch::PackedTensorAccessor32<scalar_t,2,torch::RestrictPtrTraits> w_graph_neighbor_messages,
     torch::PackedTensorAccessor32<scalar_t,2,torch::RestrictPtrTraits> all_neighbors,
-    torch::PackedTensorAccessor32<scalar_t,2,torch::RestrictPtrTraits> new_messages) {
+    torch::PackedTensorAccessor32<scalar_t,4,torch::RestrictPtrTraits> new_messages) {
 
     const int index = threadIdx.x;
     const int stride = blockDim.x;
@@ -86,13 +86,13 @@ std::vector<at::Tensor> forward_cuda_cpp(
       
       for (int time_step = 0; time_step<time_steps.item<int>(); time_step++) {
         auto base_neighbor_messages = at::matmul(w_graph_neighbor_messages, at::relu(previous_messages));
-        std::swap(messages_previous_step, new_messages);
+        std::swap(previous_messages, new_messages);
         auto neighbors_of_batch = all_neighbors[batch];
         AT_DISPATCH_FLOATING_TYPES(new_messages.type(), "forward_cpp_cuda", ([&] {
-          compose_messages_kernel<scalar_t><<<blocks, threads>>>(base_neighbor_messages.packed_accessor32<scalar_t,2,torch::RestrictPtrTraits>(),
+          compose_messages_kernel<scalar_t><<<blocks, threads>>>(base_neighbor_messages.packed_accessor32<scalar_t,3,torch::RestrictPtrTraits>(),
                                                                  w_graph_neighbor_messages.packed_accessor32<scalar_t,2,torch::RestrictPtrTraits>(),
                                                                  neighbors_of_batch.packed_accessor32<scalar_t,2,torch::RestrictPtrTraits>(),
-                                                                 new_messages.packed_accessor32<scalar_t,2,torch::RestrictPtrTraits>());
+                                                                 new_messages.packed_accessor32<scalar_t,4,torch::RestrictPtrTraits>());
                                       }));
         new_messages += base_messages;
                                     }

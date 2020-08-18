@@ -12,12 +12,12 @@ std::vector<at::Tensor> compose_messages(
     const at::Tensor& messages_init) {
 
   auto new_messages = at::zeros_like({messages_init});
-  auto messages_previous_step = at::zeros_like({messages_init});
-  auto new_messages_of_node = at::zeros({messages_previous_step.sizes()[1], messages_previous_step.sizes()[2]});
+  auto previous_messages = at::zeros_like({messages_init});
+  auto new_messages_of_node = at::zeros({previous_messages.sizes()[1], previous_messages.sizes()[2]});
   auto base_messages = at::matmul(w_graph_node_features, node_features);
   for (int time_step = 0; time_step<time_steps; time_step++) {
-    auto base_neighbor_messages = at::matmul(w_graph_neighbor_messages, at::relu(messages_previous_step));
-    std::swap(messages_previous_step, new_messages);
+    auto base_neighbor_messages = at::matmul(w_graph_neighbor_messages, at::relu(previous_messages));
+    std::swap(previous_messages, new_messages);
     for (int node_id = 0; node_id < all_neighbors.size(0); node_id++) {
       for (int end_node_index = 0; end_node_index < all_neighbors.size(1); end_node_index++){
         auto end_node_id = all_neighbors[node_id][end_node_index].item<int>();
@@ -33,7 +33,7 @@ std::vector<at::Tensor> compose_messages(
     }
     new_messages += base_messages;
   }
-  return {new_messages, messages_previous_step};
+  return {new_messages, previous_messages};
 }
 
 at::Tensor encode_messages(
