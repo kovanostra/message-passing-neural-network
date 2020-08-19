@@ -16,7 +16,7 @@ std::vector<at::Tensor> compose_messages(
     const int& number_of_node_features,
     const at::Tensor& w_graph_node_features,
     const at::Tensor& w_graph_neighbor_messages,
-    const at::Tensor& node_features,
+    const at::Tensor& base_messages,
     const at::Tensor& all_neighbors,
     const at::Tensor& messages_init);
 

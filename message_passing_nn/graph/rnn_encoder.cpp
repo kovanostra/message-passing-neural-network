@@ -29,14 +29,16 @@ std::vector<at::Tensor> forward_cpp(
     auto messages_previous_step = at::zeros({batch_size_int, number_of_nodes_int, number_of_nodes_int, number_of_node_features_int});
     auto node_encoding_messages = at::zeros({batch_size_int, number_of_nodes_int, number_of_node_features_int});
     auto encodings = at::zeros({batch_size_int, number_of_nodes_int*number_of_node_features_int});
+    auto base_messages = at::matmul(w_graph_node_features, node_features);
       
     for (int batch = 0; batch<batch_size_int; batch++) {
+      
       auto messages_vector = compose_messages(time_steps_int,
                                         number_of_nodes_int,
                                         number_of_node_features_int,
                                         w_graph_node_features,
                                         w_graph_neighbor_messages,
-                                        node_features[batch],
+                                        base_messages[batch],
                                         all_neighbors[batch],
                                         messages[batch]);
       messages[batch] = messages_vector[0];
