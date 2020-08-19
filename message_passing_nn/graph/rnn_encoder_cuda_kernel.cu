@@ -24,7 +24,9 @@ __global__ void compose_messages_kernel(
           for (int neighbor_index = 0; neighbor_index < all_neighbors.size(1); neighbor_index++) {
             auto neighbor = std::round(all_neighbors[node_id][neighbor_index]);
             if (neighbor >= 0 && neighbor_index!=end_node_index) {
-              new_messages[node_id][end_node_id] = new_messages[node_id][end_node_id] + base_neighbor_messages[neighbor][node_id];
+              for (int index_feature = 0; index_feature < new_messages.size(2); index_feature++) {
+                new_messages[node_id][end_node_id][index_feature] += base_neighbor_messages[neighbor][node_id][index_feature];
+              }
             }
           }
         }
