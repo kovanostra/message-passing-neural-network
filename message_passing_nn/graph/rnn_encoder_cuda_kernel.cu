@@ -11,7 +11,7 @@ template <typename scalar_t>
 __global__ void compose_messages_kernel(
     torch::PackedTensorAccessor32<scalar_t,3,torch::RestrictPtrTraits> base_neighbor_messages,
     torch::PackedTensorAccessor32<scalar_t,2,torch::RestrictPtrTraits> w_graph_neighbor_messages,
-    torch::PackedTensorAccessor32<scalar_t,3,torch::RestrictPtrTraits> base_messages,
+    torch::PackedTensorAccessor32<scalar_t,2,torch::RestrictPtrTraits> base_messages,
     torch::PackedTensorAccessor32<scalar_t,2,torch::RestrictPtrTraits> all_neighbors,
     torch::PackedTensorAccessor32<scalar_t,3,torch::RestrictPtrTraits> new_messages) {
 
@@ -99,7 +99,7 @@ std::vector<at::Tensor> forward_cuda_cpp(
         AT_DISPATCH_FLOATING_TYPES(new_messages.type(), "forward_cpp_cuda", ([&] {
           compose_messages_kernel<scalar_t><<<blocks, threads>>>(base_neighbor_messages.packed_accessor32<scalar_t,3,torch::RestrictPtrTraits>(),
                                                                  w_graph_neighbor_messages.packed_accessor32<scalar_t,2,torch::RestrictPtrTraits>(),
-                                                                 base_messages_of_batch.packed_accessor32<scalar_t,3,torch::RestrictPtrTraits>(),
+                                                                 base_messages_of_batch.packed_accessor32<scalar_t,2,torch::RestrictPtrTraits>(),
                                                                  neighbors_of_batch.packed_accessor32<scalar_t,2,torch::RestrictPtrTraits>(),
                                                                  new_messages.packed_accessor32<scalar_t,3,torch::RestrictPtrTraits>());
         }));
