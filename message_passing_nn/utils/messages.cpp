@@ -21,6 +21,7 @@ std::vector<at::Tensor> compose_messages(
       for (int end_node_index = 0; end_node_index < all_neighbors.size(1); end_node_index++){
         auto end_node_id = all_neighbors[node_id][end_node_index].item<int>();
         if (end_node_id >= 0) {
+          new_messages[node_id][end_node_id] += base_messages[node_id];
           for (int neighbor_index = 0; neighbor_index < all_neighbors.size(1); neighbor_index++) {
             auto neighbor = all_neighbors[node_id][neighbor_index].item<int>();
             if (neighbor >= 0 && neighbor_index!=end_node_index) {
@@ -30,7 +31,6 @@ std::vector<at::Tensor> compose_messages(
         }
       }
     }
-    new_messages += base_messages;
   }
   return {new_messages, previous_messages};
 }

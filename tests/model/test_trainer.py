@@ -48,7 +48,8 @@ class TestTrainer(TestCase):
                                    [2, -1, -1, -1]])
         dataset = GraphDataset("")
         dataset.enable_test_mode()
-        dataset.dataset = [(BASE_GRAPH_NODE_FEATURES, all_neighbors, BASE_GRAPH.view(-1))]
+        tag = 'tag'
+        dataset.dataset = [(BASE_GRAPH_NODE_FEATURES, all_neighbors, BASE_GRAPH.view(-1), tag)]
         training_data, _, _ = DataPreprocessor().train_validation_test_split(dataset, 1, 0.0, 0.0)
 
         # When
@@ -68,7 +69,8 @@ class TestTrainer(TestCase):
                                    [2, -1, -1, -1]])
         dataset = GraphDataset("")
         dataset.enable_test_mode()
-        dataset.dataset = [(BASE_GRAPH_NODE_FEATURES, all_neighbors, BASE_GRAPH.view(-1))]
+        tag = 'tag'
+        dataset.dataset = [(BASE_GRAPH_NODE_FEATURES, all_neighbors, BASE_GRAPH.view(-1), tag)]
         training_data, _, _ = DataPreprocessor().train_validation_test_split(dataset, 1, 0.0, 0.0)
 
         # When

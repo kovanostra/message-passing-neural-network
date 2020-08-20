@@ -20,12 +20,11 @@ class TestTraining(TestCase):
         tests_model_directory = 'tests/model_checkpoints'
         tests_results_directory = 'tests/grid_search_results'
         device = "cpu"
-        cpu_multiprocessing = False
         self.data_path = self.tests_data_directory + self.dataset + "/"
         self.repository = FileSystemRepository(self.tests_data_directory, self.dataset)
         self.data_preprocessor = DataPreprocessor()
         self.data_preprocessor.enable_test_mode()
-        self.model_trainer = Trainer(self.data_preprocessor, device, cpu_multiprocessing)
+        self.model_trainer = Trainer(self.data_preprocessor, device)
         self.saver = Saver(tests_model_directory, tests_results_directory)
 
     def test_start_for_multiple_batches_of_the_same_size(self):

@@ -24,10 +24,10 @@ class TestRNNEncoder(TestCase):
                                         fully_connected_layer_input_size=self.fully_connected_layer_input_size,
                                         fully_connected_layer_output_size=self.fully_connected_layer_output_size)
         self.graph_encoder.w_graph_node_features = nn.Parameter(
-            MULTIPLICATION_FACTOR * (to.ones((self.number_of_node_features, self.number_of_node_features))),
+            MULTIPLICATION_FACTOR * (to.ones((self.number_of_nodes, self.number_of_nodes))),
             requires_grad=False)
         self.graph_encoder.w_graph_neighbor_messages = nn.Parameter(
-            MULTIPLICATION_FACTOR * to.ones((self.number_of_node_features, self.number_of_node_features)),
+            MULTIPLICATION_FACTOR * to.ones((self.number_of_nodes, self.number_of_nodes)),
             requires_grad=False)
         self.graph_encoder.u_graph_node_features = nn.Parameter(
             MULTIPLICATION_FACTOR * to.ones((self.number_of_nodes, self.number_of_nodes)),
@@ -52,14 +52,14 @@ class TestRNNEncoder(TestCase):
                                     [0, 2, -1, -1],
                                     [0, 1, 3, -1],
                                     [2, -1, -1, -1]]])
-        node_encoding_expected = to.tensor([0.5400, 0.4900])
+        node_encoding_expected = to.tensor([0.6200, 0.5700])
 
         # When
-        _, _, encodings, _, _ = rnn_cpp.forward(time_steps,
-                                                self.number_of_nodes,
-                                                self.number_of_node_features,
-                                                self.fully_connected_layer_output_size,
-                                                batch_size,
+        _, _, encodings, _, _ = rnn_cpp.forward(to.tensor(time_steps),
+                                                to.tensor(self.number_of_nodes),
+                                                to.tensor(self.number_of_node_features),
+                                                to.tensor(self.fully_connected_layer_output_size),
+                                                to.tensor(batch_size),
                                                 BASE_GRAPH_NODE_FEATURES.unsqueeze(0),
                                                 all_neighbors,
                                                 self.graph_encoder.w_graph_node_features,
@@ -84,11 +84,11 @@ class TestRNNEncoder(TestCase):
         encoded_graph_shape_expected = list(BASE_GRAPH_NODE_FEATURES.view(1, -1).shape)
 
         # When
-        _, _, encodings, _, _ = rnn_cpp.forward(time_steps,
-                                                self.number_of_nodes,
-                                                self.number_of_node_features,
-                                                self.fully_connected_layer_output_size,
-                                                batch_size,
+        _, _, encodings, _, _ = rnn_cpp.forward(to.tensor(time_steps),
+                                                to.tensor(self.number_of_nodes),
+                                                to.tensor(self.number_of_node_features),
+                                                to.tensor(self.fully_connected_layer_output_size),
+                                                to.tensor(batch_size),
                                                 BASE_GRAPH_NODE_FEATURES.unsqueeze(0),
                                                 all_neighbors,
                                                 self.graph_encoder.w_graph_node_features,
@@ -112,17 +112,18 @@ class TestRNNEncoder(TestCase):
                                    [0, 2, -1, -1],
                                    [0, 1, 3, -1],
                                    [2, -1, -1, -1]])
-        messages_from_node_expected = to.tensor([[0.0, 0.0],
-                                                 [0.3, 0.3],
-                                                 [0.3, 0.3],
-                                                 [0.0, 0.0]])
+        messages_from_node_expected = to.tensor([[0.00, 0.00],
+                                                 [0.45, 0.40],
+                                                 [0.45, 0.40],
+                                                 [0.00, 0.00]])
+        base_messages = to.matmul(self.graph_encoder.w_graph_node_features, BASE_GRAPH_NODE_FEATURES)
         # When
         messages_from_node, _ = rnn_cpp.compose_messages(time_steps,
                                                          self.graph_encoder.number_of_nodes,
                                                          self.graph_encoder.number_of_node_features,
                                                          self.graph_encoder.w_graph_node_features,
                                                          self.graph_encoder.w_graph_neighbor_messages,
-                                                         BASE_GRAPH_NODE_FEATURES,
+                                                         base_messages,
                                                          all_neighbors,
                                                          messages_initial)
 
@@ -161,7 +162,8 @@ class TestRNNEncoder(TestCase):
         # -> Step 0
         # Calculations
         index_pairs_expected = [[0, 2], [0, 1], [1, 2], [1, 0], [2, 1], [2, 3], [2, 0], [2, 3], [2, 0], [2, 1]]
-        index_pairs, messages_step_0_part_1, messages_step_0_part_2 = self._message_calculations(all_neighbors, batch,
+        index_pairs, messages_step_0_part_1, messages_step_0_part_2 = self._message_calculations(all_neighbors,
+                                                                                                 batch,
                                                                                                  messages_init,
                                                                                                  messages_step_0_part_1,
                                                                                                  messages_step_0_part_2,
@@ -285,10 +287,10 @@ class TestRNNEncoder(TestCase):
 
     def _assert_step_0_parameters_are_correct(self, index_pairs, index_pairs_expected, messages_step_0_part_1,
                                               messages_step_0_part_2):
-        self.assertTrue(to.allclose(messages_step_0_part_1[0, 1], to.tensor([0.30, 0.30])))
-        self.assertTrue(to.allclose(messages_step_0_part_1[1, 2], to.tensor([0.20, 0.20])))
-        self.assertTrue(to.allclose(messages_step_0_part_1[2, 3], to.tensor([0.25, 0.25])))
-        self.assertTrue(to.allclose(messages_step_0_part_1[3, 2], to.tensor([0.10, 0.10])))
+        self.assertTrue(to.allclose(messages_step_0_part_1[0, 1], to.tensor([0.45, 0.40])))
+        self.assertTrue(to.allclose(messages_step_0_part_1[1, 2], to.tensor([0.45, 0.40])))
+        self.assertTrue(to.allclose(messages_step_0_part_1[2, 3], to.tensor([0.45, 0.40])))
+        self.assertTrue(to.allclose(messages_step_0_part_1[3, 2], to.tensor([0.45, 0.40])))
         self.assertTrue(np.array_equal(index_pairs_expected, np.array(index_pairs)))
         self.assertTrue(to.allclose(messages_step_0_part_2, to.zeros(
             (self.number_of_nodes, self.number_of_nodes, self.number_of_node_features))))
@@ -297,16 +299,17 @@ class TestRNNEncoder(TestCase):
                               neighbors_slice, node_features, number_of_node_features, number_of_nodes):
         index_pairs = []
         for node_id in range(number_of_nodes):
+            base_messages = self.graph_encoder.w_graph_node_features.matmul(node_features)
+            base_neighbor_messages = self.graph_encoder.w_graph_neighbor_messages.matmul(messages_init)
+            for index in range(len(all_neighbors[batch + node_id])):
+                end_node_id = all_neighbors[batch + node_id][index].item()
+                messages_from_neighbors_step_0 = to.zeros(number_of_node_features, device=self.device)
+                messages_step_0_part_1[node_id][end_node_id] += base_messages[batch][node_id]
+                if batch + node_id < len(neighbors_slice):
+                    for node_to_sum in neighbors_slice[batch + node_id][index]:
+                        index_pairs.append([node_id, node_to_sum])
+                        messages_from_neighbors_step_0 += base_neighbor_messages[node_to_sum, node_id]
+                    messages_step_0_part_2[node_id, end_node_id] = messages_from_neighbors_step_0
             if batch + node_id < len(all_neighbors):
-                for index in range(len(all_neighbors[batch + node_id])):
-                    end_node_id = all_neighbors[batch + node_id][index].item()
-                    messages_from_neighbors_step_0 = to.zeros(number_of_node_features, device=self.device)
-                    messages_step_0_part_1[node_id, end_node_id] = self.graph_encoder.w_graph_node_features.matmul(
-                        node_features[batch][node_id])
-                    if batch + node_id < len(neighbors_slice):
-                        for node_to_sum in neighbors_slice[batch + node_id][index]:
-                            index_pairs.append([node_id, node_to_sum])
-                            messages_from_neighbors_step_0 += self.graph_encoder.w_graph_neighbor_messages.matmul(
-                                messages_init[node_to_sum, node_id])
-                        messages_step_0_part_2[node_id, end_node_id] = messages_from_neighbors_step_0
+                pass
         return index_pairs, messages_step_0_part_1, messages_step_0_part_2
