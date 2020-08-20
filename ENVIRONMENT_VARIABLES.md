@@ -26,7 +26,7 @@ To define a range for the grid search please pass the values in the following fo
 1. For numeric ranges: ENVVAR='min_value&max_value&number_of_values' (e.g. '10&15&2')
 2. For string ranges: ENVVAR='selection_1&selection_2' (e.g. 'SGD&Adam')
 
-- The model to use ('RNN' or 'GRU') is defined by :
+- The model to use (only 'RNN' available at this version') is defined by :
 
 MODEL='RNN'
 
@@ -64,6 +64,6 @@ VALIDATION_PERIOD='5'
 
 **USED FOR INFERENCE**
 
-- The model to load (only 'RNN' support at this version') is defined by :
+- The model to load (only 'RNN' available at this version') is defined by :
 
 MODEL='RNN'

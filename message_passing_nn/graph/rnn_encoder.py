@@ -1,7 +1,10 @@
 from typing import Tuple
 
 import rnn_encoder_cpp as rnn_encoder_cpp
-import rnn_encoder_cuda_cpp as rnn_encoder_cuda_cpp
+try:
+    import rnn_encoder_cuda_cpp as rnn_encoder_cuda_cpp
+except:
+    pass
 import math
 import torch as to
 import torch.nn as nn

@@ -1,4 +1,3 @@
-[![Build Status](https://dev.azure.com/kovamos/message-passing-nn/_apis/build/status/kovanostra.message-passing-nn?branchName=master)](https://dev.azure.com/kovamos/message-passing-nn/_build/latest?definitionId=2&branchName=master)
 ### Table of contents
 - [1. Description](#1-description)
 - [2. Build and use](#2-build-and-use)
@@ -9,33 +8,42 @@
 - [7. Dataset](#7-dataset)
 - [8. Environment variables](#8-environment-variables)
 - [9. Execute a grid search](#9-execute-a-grid-search)
-- [10. Tox build](#10-tox-build)
-- [11. Run the code using docker](#11-run-the-code-using-docker)
-- [12. Azure pipelines](#12-azure-pipelines)
-- [13. Upcoming](#13-upcoming)
+- [10. Execute an inference](#10-execute-an-inference)
 
 
 ### 1. Description
 
 This repository contains:
-1. A pytorch implementation of a message passing neural network with RNN units (inspired from https://arxiv.org/abs/1812.01070). 
-2. A wrapper around the model to perform a grid search, and save model checkpoints when the validation error is best for each configuration.
+1. A pytorch C++ implementation of a message passing neural network with RNN units (inspired from https://arxiv.org/abs/1812.01070). 
+2. A python wrapper around the model to perform a grid search, and save model checkpoints for each validation step.
+3. A script to perform an inference on a dataset based on a specific model checkpoint.
+4. A custom CUDA kernel.
 
 ### 2. Build and use
 
-To use the current version (master or tag >= 1.5.0) you need to first build the project. Please clone the repository and then run the build scripts depending on your OS.
+To use the current version (master or tag >= 1.5.0) you need to first build the project. Please clone the repository and then run the build scripts depending on your OS and whether you have a CUDA enabled GPU available. To build for GPU you first need to set the CUDA_HOME variable in the respective .sh file (here it defaults to usr/local/cuda).
 
-Linux
+Linux (CPU & GPU)
 ```
 . linux_build.sh
 ```
 
-macOS
+Linux (CPU only)
+```
+. linux_build_cpu.sh
+```
+
+macOS (CPU & GPU)
 ```
 . macos_build.sh
 ```
 
-Then you can use the code as in the [examples](#4-examples) or perform a [grid search](#9-execute-a-grid-search). The GRU model can be used without building as it is only python code.
+macOS (CPU only)
+```
+. macos_build_cpu.sh
+```
+
+Then you can use the code as in the [examples](#4-examples) or perform a [grid search](#9-execute-a-grid-search). 
 
 ### 3. Import as package
 If you can't build the project you can install the pure python version of the project (version 1.4.2) using pip please run:
@@ -69,7 +77,7 @@ pandas=1.0.3
 ```
 
 ### 6. Environment
-To create the "message-passing-nn" conda environment please run:
+To create the "message-passing-neural-network" conda environment please run:
 
 ```
 conda env create -f environment.yml
@@ -114,57 +122,26 @@ This script will:
 
 1. Create the conda environment from the environment.yml (if not created already)
 2. Activate it
-3. It exports the PYTHONPATH=path/to/message-passing-nn/ (line needs to be uncommented first)
+3. Export the PYTHONPATH=path/to/message-passing-nn/ (line needs to be uncommented first)
 4. Export the environment variables to be used for the Grid Search
 5. Run the grid search
+6. Save model checkpoints for each validation and a csv file containing all calculated losses
 
-### 10. Tox build
+### 10. Execute an inference
 
-Tox is a tool which downloads the code dependencies, runs all the tests and, if the tests pass, it builds an artifact in the .tox/dist/ directory. The artifact is name tagged by the version of your code which can be specified in the setup.py.
+Before executing an inference please go to the inference.sh to add your PYTHONPATH=path/to/message-passing-nn/. Please also make sure that the dataset used for inference is of same dimensions (M, N, L) as the one used to train the model.
 
-Requirements
-
+The grid search can be executed by executing a shell script:
 ```
-click
-tox==3.14.3
-pytorch=1.4.0
-numpy==1.17.4
-pandas=1.03
+. grid-search.sh
 ```
 
-From the parent directory run (with sudo if necessary):
-```
-tox
-```
+This script will:
 
-### 11. Run the code using docker
-The model can be run from inside a docker container (currently cpu only). To do so please execute the following shell script:
-```
-. docker-grid-search.sh
-```
+1. Create the conda environment from the environment.yml (if not created already)
+2. Activate it
+3. Export the PYTHONPATH=path/to/message-passing-nn/ (line needs to be uncommented first)
+4. Export the environment variables to be used for the Inference
+5. Run the inference
+6. Save results as a list of (output, label, tag) for each input
 
-The grid-search-docker.sh will:
-
-    1. Remove any previous message-passing-nn containers and images
-    2. Build the project
-    3. Create a docker image
-    4. Create a docker container
-    5. Start the container
-    6. Print the containner's logs with the --follow option activated
-
-By default the dockerfile uses the sample-dataset. To change that please modify the grid-search-parameters.sh.
-
-You can clear the docker container and images created by running:
-```
-. remove-containers-and-images.sh
-```
-This, by default will remove only tagged images created by the grid-search-docker.sh. However, you can uncomment the following lines if you want to remove all stopped containers and untagged images too:
-```
-docker container rm $(docker container ls -aq)
-docker rmi $(docker images | grep "^<none>" | awk "{print $3}")
-```
-Please note that this will delete also untagged images created by other projects, so use with caution.
-
-### 12. Azure pipelines
-
-https://dev.azure.com/kovamos/message-passing-nn
