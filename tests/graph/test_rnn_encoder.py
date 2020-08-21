@@ -177,12 +177,13 @@ class TestRNNEncoder(TestCase):
         # -> Step 1
         # Messages
         messages_step_0 = to.relu(to.add(messages_step_0_part_1, messages_step_0_part_2))
+        base_messages = self.graph_encoder.w_graph_node_features.matmul(node_features[0])
         messages_from_model_step_0, _ = rnn_cpp.compose_messages(1,
                                                                  self.graph_encoder.number_of_nodes,
                                                                  self.graph_encoder.number_of_node_features,
                                                                  self.graph_encoder.w_graph_node_features,
                                                                  self.graph_encoder.w_graph_neighbor_messages,
-                                                                 node_features[0],
+                                                                 base_messages,
                                                                  all_neighbors_input[0],
                                                                  messages_init)
         self.assertTrue(messages_step_0.size() == messages_init.size())
@@ -213,12 +214,13 @@ class TestRNNEncoder(TestCase):
         # -> Step 2
         # Messages
         messages_step_1 = to.relu(to.add(messages_step_1_part_1, messages_step_1_part_2))
+        base_messages = self.graph_encoder.w_graph_node_features.matmul(node_features[0])
         messages_from_model_step_1, a = rnn_cpp.compose_messages(2,
                                                                  self.graph_encoder.number_of_nodes,
                                                                  self.graph_encoder.number_of_node_features,
                                                                  self.graph_encoder.w_graph_node_features,
                                                                  self.graph_encoder.w_graph_neighbor_messages,
-                                                                 node_features[0],
+                                                                 base_messages,
                                                                  all_neighbors_input[0],
                                                                  messages_init)
         self.assertTrue(messages_step_1.size() == messages_init.size())
@@ -272,10 +274,10 @@ class TestRNNEncoder(TestCase):
 
     def _assert_step_1_parameters_are_correct(self, index_pairs, index_pairs_expected, messages_step_1_part_1,
                                               messages_step_1_part_2, number_of_nodes):
-        self.assertTrue(to.allclose(messages_step_1_part_1[0, 1], to.tensor([0.30, 0.30])))
-        self.assertTrue(to.allclose(messages_step_1_part_1[1, 2], to.tensor([0.20, 0.20])))
-        self.assertTrue(to.allclose(messages_step_1_part_1[2, 3], to.tensor([0.25, 0.25])))
-        self.assertTrue(to.allclose(messages_step_1_part_1[3, 2], to.tensor([0.10, 0.10])))
+        self.assertTrue(to.allclose(messages_step_1_part_1[0, 1], to.tensor([0.45, 0.40])))
+        self.assertTrue(to.allclose(messages_step_1_part_1[1, 2], to.tensor([0.45, 0.40])))
+        self.assertTrue(to.allclose(messages_step_1_part_1[2, 3], to.tensor([0.45, 0.40])))
+        self.assertTrue(to.allclose(messages_step_1_part_1[3, 2], to.tensor([0.45, 0.40])))
         for node_id in range(number_of_nodes):
             for end_node_id in range(number_of_nodes):
                 if [node_id, end_node_id] in index_pairs_expected:
@@ -298,9 +300,9 @@ class TestRNNEncoder(TestCase):
     def _message_calculations(self, all_neighbors, batch, messages_init, messages_step_0_part_1, messages_step_0_part_2,
                               neighbors_slice, node_features, number_of_node_features, number_of_nodes):
         index_pairs = []
+        base_messages = self.graph_encoder.w_graph_node_features.matmul(node_features)
+        base_neighbor_messages = self.graph_encoder.w_graph_neighbor_messages.matmul(messages_init)
         for node_id in range(number_of_nodes):
-            base_messages = self.graph_encoder.w_graph_node_features.matmul(node_features)
-            base_neighbor_messages = self.graph_encoder.w_graph_neighbor_messages.matmul(messages_init)
             for index in range(len(all_neighbors[batch + node_id])):
                 end_node_id = all_neighbors[batch + node_id][index].item()
                 messages_from_neighbors_step_0 = to.zeros(number_of_node_features, device=self.device)

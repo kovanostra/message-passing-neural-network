@@ -16,7 +16,7 @@ MODEL_DIRECTORY='model_checkpoints'
 
 RESULTS_DIRECTORY='grid_search_results'
 
-- The option to run the model on 'cpu' or 'cuda' can be controlled by (*cuda recommended only for the 'RNN' model*): 
+- The option to run the model on 'cpu' or 'cuda' can be controlled by: 
 
 DEVICE='cpu'
 
