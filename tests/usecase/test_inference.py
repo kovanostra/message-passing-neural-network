@@ -21,10 +21,10 @@ class TestInference(TestCase):
         labels = to.ones(16)
         dataset = 'training-test-data'
         tests_data_directory = 'tests/test_data/'
-        tests_model_directory = "tests/test_data/model-checkpoints-test/configuration&id__model&RNN__epochs&10__" \
-                                "batch_size&3__maximum_number_of_nodes&-1__maximum_number_of_features&-1__" \
-                                "validation_split&0.2__test_split&0.1__loss_function&MSE__optimizer&SGD__" \
-                                "time_steps&1__validation_period&5/Epoch_5_model_state_dictionary.pth"
+        tests_model_directory = "tests/test_data/model-checkpoints-test/configuration&id__model&" + \
+                                "RNN__epochs&10__loss_function&MSE__optimizer&Adagrad__batch_size&" + \
+                                "100__validation_split&0.2__test_split&0.1__time_steps&1__validation_period&" + \
+                                "5/Epoch_5_model_state_dictionary.pth"
         tests_results_directory = 'tests/results_inference'
         device = "cpu"
         repository = FileSystemRepository(tests_data_directory, dataset)

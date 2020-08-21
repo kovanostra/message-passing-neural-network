@@ -9,10 +9,10 @@ class TestLoader(TestCase):
         # Given
         loader = Loader("RNN")
         data_dimensions = ([4, 2], [16])
-        path_to_model = "tests/test_data/model-checkpoints-test/configuration&id__model&RNN__epochs&10__" \
-                        "batch_size&3__maximum_number_of_nodes&-1__maximum_number_of_features&-1__" \
-                        "validation_split&0.2__test_split&0.1__loss_function&MSE__optimizer&SGD__" \
-                        "time_steps&1__validation_period&5/Epoch_5_model_state_dictionary.pth"
+        path_to_model = "tests/test_data/model-checkpoints-test/configuration&id__model&" + \
+                        "RNN__epochs&10__loss_function&MSE__optimizer&Adagrad__batch_size&" + \
+                        "100__validation_split&0.2__test_split&0.1__time_steps&1__validation_period&" + \
+                        "5/Epoch_5_model_state_dictionary.pth"
 
         # When
         model = loader.load_model(data_dimensions, path_to_model)
