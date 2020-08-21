@@ -4,7 +4,7 @@ from unittest import TestCase
 
 from message_passing_nn.data.data_preprocessor import DataPreprocessor
 from message_passing_nn.model.trainer import Trainer
-from message_passing_nn.repository.file_system_repository import FileSystemRepository
+from message_passing_nn.infrastructure.file_system_repository import FileSystemRepository
 from message_passing_nn.usecase.grid_search import GridSearch
 from message_passing_nn.utils.saver import Saver
 from tests.fixtures.matrices_and_vectors import BASE_GRAPH, BASE_GRAPH_NODE_FEATURES
@@ -20,21 +20,20 @@ class TestTraining(TestCase):
         tests_model_directory = 'tests/model_checkpoints'
         tests_results_directory = 'tests/grid_search_results'
         device = "cpu"
-        cpu_multiprocessing = False
+        self.data_path = self.tests_data_directory + self.dataset + "/"
         self.repository = FileSystemRepository(self.tests_data_directory, self.dataset)
         self.data_preprocessor = DataPreprocessor()
-        self.model_trainer = Trainer(self.data_preprocessor, device, cpu_multiprocessing)
+        self.data_preprocessor.enable_test_mode()
+        self.model_trainer = Trainer(self.data_preprocessor, device)
         self.saver = Saver(tests_model_directory, tests_results_directory)
 
     def test_start_for_multiple_batches_of_the_same_size(self):
         # Given
         dataset_size = 6
         grid_search_dictionary = {
-            "model": ["GRU"],
+            "model": ["RNN"],
             "epochs": [10],
             "batch_size": [3],
-            "maximum_number_of_nodes": [-1],
-            "maximum_number_of_features": [-1],
             "validation_split": [0.2],
             "test_split": [0.1],
             "loss_function": ["MSE"],
@@ -42,11 +41,84 @@ class TestTraining(TestCase):
             "time_steps": [1],
             "validation_period": [5]
         }
-        grid_search = GridSearch(self.repository,
+        grid_search = GridSearch(self.data_path,
                                  self.data_preprocessor,
                                  self.model_trainer,
                                  grid_search_dictionary,
-                                 self.saver)
+                                 self.saver,
+                                 test_mode=True)
+
+        adjacency_matrix_filenames, features_filenames, labels_filenames = self._save_test_data(dataset_size)
+
+        # When
+        losses = grid_search.start()
+        configuration_id = list(losses["training_loss"].keys())[0]
+
+        # Then
+        self.assertTrue(losses["training_loss"][configuration_id][grid_search_dictionary["epochs"][0]] > 0.0)
+        self.assertTrue(
+            losses["validation_loss"][configuration_id][grid_search_dictionary["validation_period"][0]] > 0.0)
+        self.assertTrue(losses["test_loss"][configuration_id]["final_epoch"] > 0.0)
+
+        # Tear down
+        self._remove_files(dataset_size, features_filenames, adjacency_matrix_filenames, labels_filenames)
+
+    def test_start_for_multiple_batches_of_differing_size(self):
+        # Given
+        dataset_size = 5
+        grid_search_dictionary = {
+            "model": ["RNN"],
+            "epochs": [10],
+            "batch_size": [3],
+            "validation_split": [0.2],
+            "test_split": [0.1],
+            "loss_function": ["MSE"],
+            "optimizer": ["SGD"],
+            "time_steps": [1],
+            "validation_period": [5]
+        }
+        grid_search = GridSearch(self.data_path,
+                                 self.data_preprocessor,
+                                 self.model_trainer,
+                                 grid_search_dictionary,
+                                 self.saver,
+                                 test_mode=True)
+
+        adjacency_matrix_filenames, features_filenames, labels_filenames = self._save_test_data(dataset_size)
+
+        # When
+        losses = grid_search.start()
+        configuration_id = list(losses["training_loss"].keys())[0]
+
+        # Then
+        self.assertTrue(losses["training_loss"][configuration_id][grid_search_dictionary["epochs"][0]] > 0.0)
+        self.assertTrue(
+            losses["validation_loss"][configuration_id][grid_search_dictionary["validation_period"][0]] > 0.0)
+        self.assertTrue(losses["test_loss"][configuration_id]["final_epoch"] > 0.0)
+
+        # Tear down
+        self._remove_files(dataset_size, features_filenames, adjacency_matrix_filenames, labels_filenames)
+
+    def test_start_a_grid_search(self):
+        # Given
+        dataset_size = 6
+        grid_search_dictionary = {
+            "model": ["RNN"],
+            "epochs": [10, 15],
+            "batch_size": [3, 4],
+            "validation_split": [0.2],
+            "test_split": [0.1],
+            "loss_function": ["MSE"],
+            "optimizer": ["SGD"],
+            "time_steps": [1],
+            "validation_period": [5]
+        }
+        grid_search = GridSearch(self.data_path,
+                                 self.data_preprocessor,
+                                 self.model_trainer,
+                                 grid_search_dictionary,
+                                 self.saver,
+                                 test_mode=True)
 
         adjacency_matrix_filenames, features_filenames, labels_filenames = self._save_test_data(dataset_size)
 
@@ -72,80 +144,6 @@ class TestTraining(TestCase):
             self.repository.save(adjacency_matrix_filenames[i], self.adjacency_matrix)
             self.repository.save(labels_filenames[i], self.labels)
         return adjacency_matrix_filenames, features_filenames, labels_filenames
-
-    def test_start_for_multiple_batches_of_differing_size(self):
-        # Given
-        dataset_size = 5
-        grid_search_dictionary = {
-            "model": ["RNN"],
-            "epochs": [10],
-            "batch_size": [3],
-            "maximum_number_of_nodes": [-1],
-            "maximum_number_of_features": [-1],
-            "validation_split": [0.2],
-            "test_split": [0.1],
-            "loss_function": ["MSE"],
-            "optimizer": ["SGD"],
-            "time_steps": [1],
-            "validation_period": [5]
-        }
-        grid_search = GridSearch(self.repository,
-                                 self.data_preprocessor,
-                                 self.model_trainer,
-                                 grid_search_dictionary,
-                                 self.saver)
-
-        adjacency_matrix_filenames, features_filenames, labels_filenames = self._save_test_data(dataset_size)
-
-        # When
-        losses = grid_search.start()
-        configuration_id = list(losses["training_loss"].keys())[0]
-
-        # Then
-        self.assertTrue(losses["training_loss"][configuration_id][grid_search_dictionary["epochs"][0]] > 0.0)
-        self.assertTrue(
-            losses["validation_loss"][configuration_id][grid_search_dictionary["validation_period"][0]] > 0.0)
-        self.assertTrue(losses["test_loss"][configuration_id]["final_epoch"] > 0.0)
-
-        # Tear down
-        self._remove_files(dataset_size, features_filenames, adjacency_matrix_filenames, labels_filenames)
-
-    def test_start_a_grid_search(self):
-        # Given
-        dataset_size = 6
-        grid_search_dictionary = {
-            "model": ["RNN", "GRU"],
-            "epochs": [10, 15],
-            "batch_size": [3, 4],
-            "maximum_number_of_nodes": [-1],
-            "maximum_number_of_features": [-1],
-            "validation_split": [0.2],
-            "test_split": [0.1],
-            "loss_function": ["MSE"],
-            "optimizer": ["SGD"],
-            "time_steps": [1],
-            "validation_period": [5]
-        }
-        grid_search = GridSearch(self.repository,
-                                 self.data_preprocessor,
-                                 self.model_trainer,
-                                 grid_search_dictionary,
-                                 self.saver)
-
-        adjacency_matrix_filenames, features_filenames, labels_filenames = self._save_test_data(dataset_size)
-
-        # When
-        losses = grid_search.start()
-        configuration_id = list(losses["training_loss"].keys())[0]
-
-        # Then
-        self.assertTrue(losses["training_loss"][configuration_id][grid_search_dictionary["epochs"][0]] > 0.0)
-        self.assertTrue(
-            losses["validation_loss"][configuration_id][grid_search_dictionary["validation_period"][0]] > 0.0)
-        self.assertTrue(losses["test_loss"][configuration_id]["final_epoch"] > 0.0)
-
-        # Tear down
-        self._remove_files(dataset_size, features_filenames, adjacency_matrix_filenames, labels_filenames)
 
     def _remove_files(self,
                       dataset_size: int,

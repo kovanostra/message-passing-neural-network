@@ -16,13 +16,9 @@ MODEL_DIRECTORY='model_checkpoints'
 
 RESULTS_DIRECTORY='grid_search_results'
 
-- The option to run the model on 'cpu' or 'cuda' can be controlled by (*cuda recommended only for the 'RNN' model*): 
+- The option to run the model on 'cpu' or 'cuda' can be controlled by: 
 
 DEVICE='cpu'
-
-- If the model runs on 'cpu', then the option to use multiprocessing (will use ALL available cores) or not comes from:
-
-CPU_MULTIPROCESSING='True' or 'False'
 
 **USED FOR GRID SEARCH**
 
@@ -30,7 +26,7 @@ To define a range for the grid search please pass the values in the following fo
 1. For numeric ranges: ENVVAR='min_value&max_value&number_of_values' (e.g. '10&15&2')
 2. For string ranges: ENVVAR='selection_1&selection_2' (e.g. 'SGD&Adam')
 
-- The model to use ('RNN' or 'GRU') is defined by :
+- The model to use (only 'RNN' available at this version') is defined by :
 
 MODEL='RNN'
 
@@ -50,14 +46,6 @@ OPTIMIZER='SGD'
 
 BATCH_SIZE='1'
 
-- If the number of features in your dataset is too large please change the following value (-1 will use all of them)
-
-MAXIMUM_NUMBER_OF_FEATURES='-1'
-
-- If the number of nodes in your dataset is too large please change the following value (-1 will use all of them)
-
-MAXIMUM_NUMBER_OF_NODES='-1'
-
 - The validation split can be controlled by:
 
 VALIDATION_SPLIT='0.2'
@@ -76,6 +64,6 @@ VALIDATION_PERIOD='5'
 
 **USED FOR INFERENCE**
 
-- The model to load ('RNN' or 'GRU') is defined by :
+- The model to load (only 'RNN' available at this version') is defined by :
 
 MODEL='RNN'

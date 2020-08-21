@@ -12,8 +12,8 @@ class Loader:
 
     def load_model(self, data_dimensions: Tuple, path_to_model: str) -> nn.Module:
         model_parameters = self._get_model_parameters_from_path(path_to_model)
-        node_features_size, adjacency_matrix_size, labels_size = data_dimensions
-        number_of_nodes = adjacency_matrix_size[0]
+        node_features_size, labels_size = data_dimensions
+        number_of_nodes = node_features_size[0]
         number_of_node_features = node_features_size[1]
         fully_connected_layer_output_size = labels_size[0]
         self.model = self.model(time_steps=int(model_parameters['time_steps']),

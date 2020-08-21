@@ -11,8 +11,6 @@ class TestGridSearchParametersParser(TestCase):
         loss_function_selection = "MSE&CrossEntropy"
         optimizer_selection = "SGD&Adam"
         batch_size = "5"
-        maximum_number_of_nodes = "-1"
-        maximum_number_of_features = "-1"
         validation_split = "0.2"
         test_split = "0.1&0.2&2"
         time_steps = "10"
@@ -23,8 +21,6 @@ class TestGridSearchParametersParser(TestCase):
             "loss_function": ["MSE", "CrossEntropy"],
             "optimizer": ["SGD", "Adam"],
             "batch_size": [5],
-            "maximum_number_of_nodes": [-1],
-            "maximum_number_of_features": [-1],
             "validation_split": [0.2],
             "test_split": [0.1, 0.2],
             "time_steps": [10],
@@ -38,8 +34,6 @@ class TestGridSearchParametersParser(TestCase):
             loss_function_selection,
             optimizer_selection,
             batch_size,
-            maximum_number_of_nodes,
-            maximum_number_of_features,
             validation_split,
             test_split,
             time_steps,

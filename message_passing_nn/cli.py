@@ -20,13 +20,10 @@ def main(debug):
 @click.argument('results_directory', envvar='RESULTS_DIRECTORY', type=str)
 @click.argument('model', envvar='MODEL', type=str)
 @click.argument('device', envvar='DEVICE', type=str)
-@click.argument('cpu_multiprocessing', envvar='CPU_MULTIPROCESSING', type=str)
 @click.argument('epochs', envvar='EPOCHS', type=str)
 @click.argument('loss_function', envvar='LOSS_FUNCTION', type=str)
 @click.argument('optimizer', envvar='OPTIMIZER', type=str)
 @click.argument('batch_size', envvar='BATCH_SIZE', type=str)
-@click.argument('maximum_number_of_features', envvar='MAXIMUM_NUMBER_OF_FEATURES', type=str)
-@click.argument('maximum_number_of_nodes', envvar='MAXIMUM_NUMBER_OF_NODES', type=str)
 @click.argument('validation_split', envvar='VALIDATION_SPLIT', type=str)
 @click.argument('test_split', envvar='TEST_SPLIT', type=str)
 @click.argument('time_steps', envvar='TIME_STEPS', type=str)
@@ -36,32 +33,25 @@ def start_training(dataset_name: str,
                    model_directory: str,
                    results_directory: str,
                    model: str,
-                   cpu_multiprocessing: str,
                    device: str,
                    epochs: str,
                    loss_function: str,
                    optimizer: str,
                    batch_size: str,
-                   maximum_number_of_features: str,
-                   maximum_number_of_nodes: str,
                    validation_split: str,
                    test_split: str,
                    time_steps: str,
                    validation_period: str) -> None:
-    get_logger().info("Starting training")
     message_passing_nn = create_grid_search(dataset_name,
                                             data_directory,
                                             model_directory,
                                             results_directory,
                                             model,
                                             device,
-                                            cpu_multiprocessing,
                                             epochs,
                                             loss_function,
                                             optimizer,
                                             batch_size,
-                                            maximum_number_of_features,
-                                            maximum_number_of_nodes,
                                             validation_split,
                                             test_split,
                                             time_steps,
