@@ -72,10 +72,11 @@ std::vector<at::Tensor> backward_cpp(
   const at::Tensor& linear_weight,
   const at::Tensor& linear_bias) {
   
+
   auto delta_1 = grad_output*d_sigmoid(linear_outputs);
   auto d_linear_bias = delta_1;
   auto d_linear_weight = at::matmul(delta_1.transpose(0, 1), encodings);
-  
+
   auto delta_2 = at::matmul(delta_1, linear_weight).reshape({batch_size.item<int>(), number_of_nodes.item<int>(), number_of_node_features.item<int>()})*(d_relu_2d(encodings).reshape({batch_size.item<int>(), number_of_nodes.item<int>(), number_of_node_features.item<int>()}));
   auto d_u_graph_node_features = at::matmul(delta_2, node_features.transpose(1, 2));
   auto d_u_graph_neighbor_messages = at::matmul(delta_2.transpose(1, 2), messages_summed);
@@ -83,7 +84,6 @@ std::vector<at::Tensor> backward_cpp(
   auto delta_3 = at::matmul(delta_2.transpose(1, 2), at::matmul(u_graph_neighbor_messages_summed, d_relu_4d(messages).transpose(2, 3)));
   auto d_w_graph_node_features = at::matmul(delta_3.transpose(1, 2), node_features.transpose(1, 2));
   auto d_w_graph_neighbor_messages = at::matmul(delta_3.transpose(1, 2), messages_previous_step_summed.transpose(1, 2));
-
 
   return {d_w_graph_node_features, 
           d_w_graph_neighbor_messages, 

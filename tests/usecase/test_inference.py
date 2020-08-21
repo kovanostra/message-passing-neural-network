@@ -19,7 +19,7 @@ class TestInference(TestCase):
         features = to.ones(4, 2)
         adjacency_matrix = to.ones(4, 4)
         labels = to.ones(16)
-        dataset = 'training-test-data'
+        dataset = 'inference-test-data'
         tests_data_directory = 'tests/test_data/'
         tests_model_directory = "tests/test_data/model-checkpoints-test/configuration&id__model&" + \
                                 "RNN__epochs&10__loss_function&MSE__optimizer&Adagrad__batch_size&" + \
