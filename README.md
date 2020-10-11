@@ -138,7 +138,7 @@ Before executing an inference please go to the inference.sh to add your PYTHONPA
 
 The grid search can be executed by executing a shell script:
 ```
-. grid-search.sh
+. inference.sh
 ```
 
 This script will:
