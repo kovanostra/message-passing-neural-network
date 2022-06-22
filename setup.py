@@ -13,7 +13,7 @@ setup(
     description='A message passing neural network with RNN or GRU units',
     install_requires=[
         'click',
-        'numpy==1.17.4',
+        'numpy==1.22.0',
         'pandas==1.0.3',
         'torch==1.5.0',
         'tqdm'
