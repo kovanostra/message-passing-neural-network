@@ -15,7 +15,7 @@ setup(
         'click',
         'numpy==1.22.0',
         'pandas==1.0.3',
-        'torch==1.5.0',
+        'torch==1.13.1',
         'tqdm'
     ],
     entry_points={
